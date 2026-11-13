@@ -3,7 +3,7 @@ WORKDIR /app
 ARG API_INTERNAL_URL=http://localhost:8000
 ENV API_INTERNAL_URL=$API_INTERNAL_URL
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npm run build
 

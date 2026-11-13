@@ -8,24 +8,13 @@ from dotenv import load_dotenv
 from opensearchpy._async.client import AsyncOpenSearch
 from opensearchpy.exceptions import NotFoundError
 
-from app.connections import PROJECT_ROOT, kafka_client_options
+from app.connections import PROJECT_ROOT, create_opensearch_client, kafka_client_options
 
 load_dotenv(PROJECT_ROOT / ".env")
 
 PG_DSN = os.getenv("PG_DSN")
-OPENSEARCH_URL = os.getenv("OPENSEARCH_URL")
 CONSUMER_NAME = "search-sync"
 INDEX_NAME = "products"
-
-
-def create_client() -> AsyncOpenSearch:
-    if not OPENSEARCH_URL:
-        raise RuntimeError("OPENSEARCH_URL is not configured")
-    return AsyncOpenSearch(
-        OPENSEARCH_URL,
-        use_ssl=OPENSEARCH_URL.startswith("https://"),
-        verify_certs=True,
-    )
 
 
 async def ensure_index(client: AsyncOpenSearch) -> None:
@@ -157,7 +146,7 @@ async def main() -> None:
     if not PG_DSN:
         raise RuntimeError("PG_DSN is not configured")
     pool = await asyncpg.create_pool(PG_DSN, min_size=1, max_size=4)
-    client = create_client()
+    client = create_opensearch_client()
     consumer = AIOKafkaConsumer(
         "inventory.changed",
         "order.placed",

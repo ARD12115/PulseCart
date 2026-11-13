@@ -1,8 +1,11 @@
+
 # PulseCart
 
 PulseCart is an online store demo built around PostgreSQL, Kafka, and OpenSearch. PostgreSQL owns inventory and orders; a transactional outbox publishes changes to Kafka; idempotent workers sync search and log order confirmations.
 
 > **Pitch:** Stock is decided in Postgres, and Kafka spreads the news.
+
+The storefront uses Next.js 16 and React 19.
 
 ## What it demonstrates
 
@@ -34,7 +37,7 @@ To stop the services, press `Ctrl+C`, then run `docker compose down`. Add `-v` o
 ## Run against Aiven
 
 1. Create PostgreSQL, Kafka, and OpenSearch services in the same Aiven project/region.
-2. Copy `.env.example` to `.env`; set the PostgreSQL DSN, Kafka bootstrap host, OpenSearch URL, and CORS origin.
+2. Copy `.env.example` to `.env`; set the PostgreSQL DSN (with `?sslmode=require`), Kafka bootstrap host, OpenSearch HTTPS URL and service username/password, and CORS origin.
 3. Configure Kafka with `KAFKA_SECURITY_PROTOCOL=SSL`; download `ca.pem`, `service.cert`, and `service.key` into the ignored `certs/` folder. Never commit secrets.
 4. Create Kafka topics `order.placed` and `inventory.changed`.
 5. Apply `db/schema.sql` to the Aiven PostgreSQL database.
@@ -80,7 +83,10 @@ backend/app/       FastAPI API, checkout, seed, relay, and workers
 db/schema.sql      PostgreSQL schema
 frontend/app/      Next.js storefront, cart, admin, and demo
 docker-compose.yml Local PostgreSQL, Kafka, and OpenSearch stack
+scripts/           Pitch deck generator
 ```
+
+The editable pitch deck is `PulseCart - Aiven Hackathon Build the Online Store.pptx`. Regenerate it with `python -m pip install -r requirements-presentation.txt` and `python scripts/create_pitch_deck.py`.
 
 ## Operational notes
 

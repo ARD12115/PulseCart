@@ -10,12 +10,12 @@ from opensearchpy._async.client import AsyncOpenSearch
 from pydantic import BaseModel, EmailStr, Field
 
 from app.checkout import OutOfStock, UnknownProduct, place_order
+from app.connections import create_opensearch_client
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
 PG_DSN = os.getenv("PG_DSN")
-OPENSEARCH_URL = os.getenv("OPENSEARCH_URL")
 INDEX_NAME = "products"
 
 pool: asyncpg.Pool | None = None
@@ -25,18 +25,16 @@ search_client: AsyncOpenSearch | None = None
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     global pool, search_client
-    if not PG_DSN or not OPENSEARCH_URL:
-        raise RuntimeError("PG_DSN and OPENSEARCH_URL must be configured")
+    if not PG_DSN:
+        raise RuntimeError("PG_DSN must be configured")
     pool = await asyncpg.create_pool(PG_DSN, min_size=2, max_size=10)
-    search_client = AsyncOpenSearch(
-        OPENSEARCH_URL,
-        use_ssl=OPENSEARCH_URL.startswith("https://"),
-        verify_certs=True,
-    )
     try:
-        yield
+        search_client = create_opensearch_client()
+        try:
+            yield
+        finally:
+            await search_client.close()
     finally:
-        await search_client.close()
         await pool.close()
 
 

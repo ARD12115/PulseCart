@@ -1,0 +1,226 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1740" height="1400" viewBox="0 0 1740 1400">
+  <defs>
+    <style>
+      .ink { fill: #17211c; }
+      .moss { fill: #28634b; }
+      .lime { fill: #d6f36a; }
+      .paper { fill: #f5f6ef; }
+      .muted { fill: #66736b; }
+      .line { stroke: #e4e8df; }
+      .label { font: 700 12px Arial, Helvetica, sans-serif; letter-spacing: 1.8px; }
+      .small { font: 13px Arial, Helvetica, sans-serif; }
+      .body { font: 15px Arial, Helvetica, sans-serif; }
+      .medium { font: 700 16px Arial, Helvetica, sans-serif; }
+      .heading { font: 700 24px Arial, Helvetica, sans-serif; }
+      .hero { font: 700 34px Arial, Helvetica, sans-serif; }
+      .price { font: 700 20px Arial, Helvetica, sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1740" height="1400" fill="#f3f5ed"/>
+  <text x="54" y="62" class="label moss">PULSECART / STORE EXPERIENCE</text>
+  <text x="54" y="110" class="ink" style="font:700 40px Arial,Helvetica,sans-serif">Local finds. Real-time stock.</text>
+  <text x="55" y="142" class="body muted">A four-screen walkthrough: discover nearby products, check city stock, place an order, follow the event trail.</text>
+  <rect x="1390" y="72" width="296" height="38" rx="19" fill="#e5eddb"/>
+  <text x="1538" y="96" text-anchor="middle" class="label moss">FIGMA-READY SVG · 4 SCREENS</text>
+
+  <!-- Screen 1: storefront -->
+  <text x="54" y="184" class="label moss">01 / DISCOVER</text>
+  <rect x="40" y="200" width="800" height="540" rx="18" fill="#ffffff" stroke="#dfe4da"/>
+  <rect x="40" y="200" width="800" height="38" rx="18" fill="#f8f9f5"/>
+  <path d="M40 220v18h800v-18" fill="#f8f9f5"/>
+  <circle cx="64" cy="219" r="5" fill="#d9a69a"/>
+  <circle cx="82" cy="219" r="5" fill="#e7c56e"/>
+  <circle cx="100" cy="219" r="5" fill="#97b999"/>
+  <rect x="300" y="208" width="240" height="22" rx="11" fill="#edf0e9"/>
+  <text x="420" y="223" text-anchor="middle" class="small muted">pulsecart.store</text>
+  <text x="72" y="273" class="moss" style="font:700 21px Arial,Helvetica,sans-serif">PulseCart<tspan class="ink">.</tspan></text>
+  <text x="552" y="272" class="small ink">Shop</text>
+  <text x="610" y="272" class="small ink">Cart</text>
+  <text x="665" y="272" class="small ink">Race demo</text>
+  <text x="756" y="272" class="small ink">Ops</text>
+  <rect x="72" y="293" width="736" height="112" rx="16" fill="#28634b"/>
+  <text x="96" y="323" class="label lime">THE NEIGHBORHOOD STORE, REIMAGINED</text>
+  <text x="96" y="363" fill="#ffffff" style="font:700 32px Arial,Helvetica,sans-serif">Good things, close to home.</text>
+  <text x="96" y="388" fill="#e1eadf" class="small">Search the live catalog and find what's actually in stock near you.</text>
+  <circle cx="754" cy="351" r="28" fill="#d6f36a"/>
+  <path d="M754 328v46M731 351h46M738 335l32 32M770 335l-32 32" stroke="#28634b" stroke-width="3" stroke-linecap="round"/>
+  <rect x="72" y="422" width="278" height="38" rx="10" fill="#ffffff" stroke="#dfe4da"/>
+  <text x="88" y="446" class="small muted">Search products (try "bluetoth")</text>
+  <rect x="361" y="422" width="128" height="38" rx="10" fill="#ffffff" stroke="#dfe4da"/>
+  <text x="377" y="446" class="small ink">All categories</text>
+  <rect x="500" y="422" width="128" height="38" rx="10" fill="#ffffff" stroke="#dfe4da"/>
+  <text x="516" y="446" class="small ink">All cities</text>
+  <rect x="639" y="422" width="80" height="38" rx="10" fill="#ffffff" stroke="#dfe4da"/>
+  <text x="655" y="446" class="small muted">Min ₹</text>
+  <rect x="730" y="422" width="78" height="38" rx="10" fill="#ffffff" stroke="#dfe4da"/>
+  <text x="746" y="446" class="small muted">Max ₹</text>
+  <text x="72" y="494" class="heading ink">Shop the edit</text>
+  <text x="808" y="493" text-anchor="end" class="small muted">50 items</text>
+  <g>
+    <rect x="72" y="510" width="172" height="198" rx="13" fill="#ffffff" stroke="#e4e8df"/>
+    <rect x="84" y="522" width="148" height="88" rx="9" fill="#edf2dd"/>
+    <path d="M136 571a22 22 0 0 1 44 0M130 571a28 28 0 0 0 56 0" fill="none" stroke="#28634b" stroke-width="7" stroke-linecap="round"/>
+    <text x="88" y="632" class="label moss">ELECTRONICS</text>
+    <text x="88" y="654" class="medium ink">Bluetooth Headphones</text>
+    <text x="88" y="680" class="medium ink">₹27.32</text>
+    <text x="88" y="698" class="small muted">Available in Bengaluru</text>
+
+    <rect x="256" y="510" width="172" height="198" rx="13" fill="#ffffff" stroke="#e4e8df"/>
+    <rect x="268" y="522" width="148" height="88" rx="9" fill="#e5edf0"/>
+    <rect x="319" y="541" width="47" height="50" rx="6" fill="#28634b"/>
+    <rect x="326" y="548" width="33" height="36" rx="3" fill="#d6f36a"/>
+    <text x="272" y="632" class="label moss">ELECTRONICS</text>
+    <text x="272" y="654" class="medium ink">USB-C Hub</text>
+    <text x="272" y="680" class="medium ink">₹18.72</text>
+    <text x="272" y="698" class="small muted">Available in Mysuru</text>
+
+    <rect x="440" y="510" width="172" height="198" rx="13" fill="#ffffff" stroke="#e4e8df"/>
+    <rect x="452" y="522" width="148" height="88" rx="9" fill="#f3e8d9"/>
+    <rect x="497" y="543" width="57" height="44" rx="7" fill="#c98747"/>
+    <path d="M503 543v-8h45v8M507 554h36" fill="none" stroke="#fff4e5" stroke-width="3"/>
+    <text x="456" y="632" class="label moss">HOME</text>
+    <text x="456" y="654" class="medium ink">Coffee Scale</text>
+    <text x="456" y="680" class="medium ink">₹21.01</text>
+    <text x="456" y="698" class="small muted">Available in Mangaluru</text>
+
+    <rect x="624" y="510" width="172" height="198" rx="13" fill="#ffffff" stroke="#e4e8df"/>
+    <rect x="636" y="522" width="148" height="88" rx="9" fill="#efe9f2"/>
+    <path d="M685 549h49l-6 34h-37zM681 546h57M690 539h38" fill="none" stroke="#705a84" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="640" y="632" class="label moss">FITNESS</text>
+    <text x="640" y="654" class="medium ink">Water Bottle</text>
+    <text x="640" y="680" class="medium ink">₹21.61</text>
+    <text x="640" y="698" class="small muted">Available in Hubballi</text>
+  </g>
+
+  <!-- Screen 2: product detail -->
+  <text x="914" y="184" class="label moss">02 / CHECK AVAILABILITY</text>
+  <rect x="900" y="200" width="800" height="540" rx="18" fill="#ffffff" stroke="#dfe4da"/>
+  <rect x="900" y="200" width="800" height="38" rx="18" fill="#f8f9f5"/>
+  <path d="M900 220v18h800v-18" fill="#f8f9f5"/>
+  <circle cx="924" cy="219" r="5" fill="#d9a69a"/>
+  <circle cx="942" cy="219" r="5" fill="#e7c56e"/>
+  <circle cx="960" cy="219" r="5" fill="#97b999"/>
+  <rect x="1160" y="208" width="240" height="22" rx="11" fill="#edf0e9"/>
+  <text x="1280" y="223" text-anchor="middle" class="small muted">pulsecart.store/product/1</text>
+  <text x="932" y="273" class="moss" style="font:700 21px Arial,Helvetica,sans-serif">PulseCart<tspan class="ink">.</tspan></text>
+  <text x="1412" y="272" class="small ink">Shop</text>
+  <text x="1470" y="272" class="small ink">Cart</text>
+  <text x="1526" y="272" class="small ink">Race demo</text>
+  <text x="1616" y="272" class="small ink">Ops</text>
+  <text x="932" y="312" class="small moss">← Back to shop</text>
+  <rect x="932" y="330" width="350" height="350" rx="16" fill="#edf2dd"/>
+  <circle cx="1107" cy="505" r="90" fill="#d6f36a"/>
+  <path d="M1065 505a42 42 0 0 1 84 0M1050 505a57 57 0 0 0 114 0" fill="none" stroke="#28634b" stroke-width="13" stroke-linecap="round"/>
+  <path d="M1064 512v35M1150 512v35" stroke="#28634b" stroke-width="13" stroke-linecap="round"/>
+  <text x="1320" y="357" class="label moss">ELECTRONICS</text>
+  <text x="1320" y="397" class="ink" style="font:700 30px Arial,Helvetica,sans-serif">Bluetooth</text>
+  <text x="1320" y="432" class="ink" style="font:700 30px Arial,Helvetica,sans-serif">Headphones</text>
+  <text x="1320" y="470" class="body muted">Wireless over-ear headphones</text>
+  <text x="1320" y="494" class="body muted">with active noise cancellation.</text>
+  <text x="1320" y="538" class="price ink">₹27.32</text>
+  <text x="1320" y="578" class="medium ink">Availability by city</text>
+  <rect x="1320" y="592" width="344" height="34" rx="8" fill="#f5f6ef"/>
+  <text x="1332" y="614" class="small ink">Bengaluru</text>
+  <text x="1652" y="614" text-anchor="end" class="small moss">1 in stock</text>
+  <rect x="1320" y="634" width="344" height="34" rx="8" fill="#f5f6ef"/>
+  <text x="1332" y="656" class="small ink">Mysuru</text>
+  <text x="1652" y="656" text-anchor="end" class="small moss">10 in stock</text>
+  <rect x="1320" y="682" width="344" height="42" rx="10" fill="#28634b"/>
+  <text x="1492" y="709" text-anchor="middle" fill="#ffffff" class="medium">Add to cart</text>
+
+  <!-- Screen 3: cart and checkout -->
+  <text x="54" y="784" class="label moss">03 / PLACE ORDER</text>
+  <rect x="40" y="800" width="800" height="540" rx="18" fill="#ffffff" stroke="#dfe4da"/>
+  <rect x="40" y="800" width="800" height="38" rx="18" fill="#f8f9f5"/>
+  <path d="M40 820v18h800v-18" fill="#f8f9f5"/>
+  <circle cx="64" cy="819" r="5" fill="#d9a69a"/>
+  <circle cx="82" cy="819" r="5" fill="#e7c56e"/>
+  <circle cx="100" cy="819" r="5" fill="#97b999"/>
+  <rect x="300" y="808" width="240" height="22" rx="11" fill="#edf0e9"/>
+  <text x="420" y="823" text-anchor="middle" class="small muted">pulsecart.store/cart</text>
+  <text x="72" y="877" class="ink" style="font:700 30px Arial,Helvetica,sans-serif">Your cart</text>
+  <rect x="72" y="900" width="414" height="92" rx="13" fill="#ffffff" stroke="#e4e8df"/>
+  <rect x="88" y="916" width="60" height="60" rx="9" fill="#edf2dd"/>
+  <path d="M103 947a15 15 0 0 1 30 0M100 947a18 18 0 0 0 36 0" fill="none" stroke="#28634b" stroke-width="5"/>
+  <text x="164" y="931" class="medium ink">Bluetooth Headphones</text>
+  <text x="164" y="954" class="small muted">ELC-BLUETOOTH-HEADPHONES</text>
+  <text x="164" y="978" class="small ink">Qty 1</text>
+  <text x="462" y="951" text-anchor="end" class="medium ink">₹27.32</text>
+  <rect x="72" y="1006" width="414" height="92" rx="13" fill="#ffffff" stroke="#e4e8df"/>
+  <rect x="88" y="1022" width="60" height="60" rx="9" fill="#e5edf0"/>
+  <rect x="108" y="1034" width="22" height="36" rx="4" fill="#28634b"/>
+  <text x="164" y="1037" class="medium ink">USB-C Hub</text>
+  <text x="164" y="1060" class="small muted">ELC-USB-C-HUB</text>
+  <text x="164" y="1084" class="small ink">Qty 1</text>
+  <text x="462" y="1057" text-anchor="end" class="medium ink">₹18.72</text>
+  <rect x="72" y="1112" width="414" height="52" rx="12" fill="#eaf0e4"/>
+  <text x="90" y="1143" class="small moss">Inventory is reserved atomically during checkout.</text>
+  <rect x="510" y="900" width="298" height="374" rx="15" fill="#ffffff" stroke="#e4e8df"/>
+  <text x="534" y="935" class="heading ink">Checkout</text>
+  <text x="534" y="974" class="body ink">Order total</text>
+  <text x="782" y="974" text-anchor="end" class="price ink">₹46.04</text>
+  <path d="M534 990h250" class="line" stroke-width="1"/>
+  <text x="534" y="1021" class="small muted">EMAIL</text>
+  <rect x="534" y="1030" width="250" height="36" rx="8" fill="#ffffff" stroke="#dfe4da"/>
+  <text x="547" y="1053" class="small muted">you@example.com</text>
+  <text x="534" y="1092" class="small muted">NAME</text>
+  <rect x="534" y="1101" width="250" height="36" rx="8" fill="#ffffff" stroke="#dfe4da"/>
+  <text x="547" y="1124" class="small muted">Your name</text>
+  <text x="534" y="1164" class="small muted">DELIVERY CITY</text>
+  <rect x="534" y="1173" width="250" height="36" rx="8" fill="#ffffff" stroke="#dfe4da"/>
+  <text x="547" y="1196" class="small ink">Bengaluru</text>
+  <rect x="534" y="1220" width="250" height="40" rx="10" fill="#28634b"/>
+  <text x="659" y="1246" text-anchor="middle" fill="#ffffff" class="medium">Place order</text>
+  <text x="659" y="1294" text-anchor="middle" class="small moss">Success → order saved + event queued</text>
+
+  <!-- Screen 4: operations -->
+  <text x="914" y="784" class="label moss">04 / FOLLOW THE EVENT</text>
+  <rect x="900" y="800" width="800" height="540" rx="18" fill="#ffffff" stroke="#dfe4da"/>
+  <rect x="900" y="800" width="800" height="38" rx="18" fill="#f8f9f5"/>
+  <path d="M900 820v18h800v-18" fill="#f8f9f5"/>
+  <circle cx="924" cy="819" r="5" fill="#d9a69a"/>
+  <circle cx="942" cy="819" r="5" fill="#e7c56e"/>
+  <circle cx="960" cy="819" r="5" fill="#97b999"/>
+  <rect x="1160" y="808" width="240" height="22" rx="11" fill="#edf0e9"/>
+  <text x="1280" y="823" text-anchor="middle" class="small muted">pulsecart.store/admin</text>
+  <text x="932" y="877" class="label moss">SYSTEM PULSE</text>
+  <text x="932" y="914" class="ink" style="font:700 30px Arial,Helvetica,sans-serif">Order &amp; event room</text>
+  <text x="1664" y="911" text-anchor="end" class="small muted">Auto-refreshes every 5 seconds</text>
+  <rect x="932" y="940" width="344" height="350" rx="14" fill="#ffffff" stroke="#e4e8df"/>
+  <text x="954" y="975" class="heading ink">Recent orders</text>
+  <rect x="952" y="995" width="304" height="1" fill="#e4e8df"/>
+  <text x="954" y="1024" class="medium ink">Order #1042 · Bengaluru</text>
+  <text x="954" y="1047" class="small muted">Just now · 2 items</text>
+  <text x="1254" y="1024" text-anchor="end" class="medium ink">₹46.04</text>
+  <rect x="952" y="1064" width="304" height="1" fill="#e4e8df"/>
+  <text x="954" y="1094" class="medium ink">Order #1041 · Mysuru</text>
+  <text x="954" y="1117" class="small muted">A few minutes ago · 1 item</text>
+  <text x="1254" y="1094" text-anchor="end" class="medium ink">₹21.01</text>
+  <rect x="952" y="1134" width="304" height="1" fill="#e4e8df"/>
+  <text x="954" y="1164" class="medium ink">Order #1040 · Hubballi</text>
+  <text x="954" y="1187" class="small muted">Today · 3 items</text>
+  <text x="1254" y="1164" text-anchor="end" class="medium ink">₹84.50</text>
+  <rect x="1296" y="940" width="368" height="350" rx="14" fill="#ffffff" stroke="#e4e8df"/>
+  <text x="1318" y="975" class="heading ink">Outbox events</text>
+  <rect x="1316" y="995" width="328" height="1" fill="#e4e8df"/>
+  <text x="1318" y="1024" class="medium ink">order.placed</text>
+  <text x="1318" y="1047" class="small muted">#812 · order 1042</text>
+  <rect x="1535" y="1007" width="92" height="26" rx="13" fill="#e5f3e5"/>
+  <text x="1581" y="1025" text-anchor="middle" class="label moss" style="letter-spacing:.5px">PUBLISHED</text>
+  <rect x="1316" y="1064" width="328" height="1" fill="#e4e8df"/>
+  <text x="1318" y="1094" class="medium ink">inventory.changed</text>
+  <text x="1318" y="1117" class="small muted">#813 · product 1 / Bengaluru</text>
+  <rect x="1535" y="1077" width="92" height="26" rx="13" fill="#e5f3e5"/>
+  <text x="1581" y="1095" text-anchor="middle" class="label moss" style="letter-spacing:.5px">PUBLISHED</text>
+  <rect x="1316" y="1134" width="328" height="1" fill="#e4e8df"/>
+  <text x="1318" y="1164" class="medium ink">inventory.changed</text>
+  <text x="1318" y="1187" class="small muted">#814 · product 12 / Bengaluru</text>
+  <rect x="1535" y="1147" width="92" height="26" rx="13" fill="#fff1d2"/>
+  <text x="1581" y="1165" text-anchor="middle" fill="#805800" class="label" style="letter-spacing:.5px">PENDING</text>
+  <rect x="1318" y="1220" width="324" height="48" rx="10" fill="#17211c"/>
+  <circle cx="1340" cy="1244" r="6" fill="#d6f36a"/>
+  <text x="1356" y="1249" fill="#ffffff" class="small">Postgres → outbox → Kafka → workers</text>
+
+  <text x="54" y="1374" class="small muted">Concept board based on the current PulseCart flows. All graphics and labels are editable after importing this SVG into Figma.</text>
+</svg>

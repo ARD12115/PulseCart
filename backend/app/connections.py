@@ -2,12 +2,35 @@ import os
 import ssl
 from pathlib import Path
 
+from opensearchpy._async.client import AsyncOpenSearch
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def project_path(value: str) -> Path:
     path = Path(value)
     return path if path.is_absolute() else PROJECT_ROOT / path
+
+
+def create_opensearch_client() -> AsyncOpenSearch:
+    url = os.getenv("OPENSEARCH_URL")
+    if not url:
+        raise RuntimeError("OPENSEARCH_URL is not configured")
+
+    username = os.getenv("OPENSEARCH_USERNAME")
+    password = os.getenv("OPENSEARCH_PASSWORD")
+    if bool(username) != bool(password):
+        raise RuntimeError(
+            "OPENSEARCH_USERNAME and OPENSEARCH_PASSWORD must be configured together"
+        )
+
+    options = {
+        "use_ssl": url.startswith("https://"),
+        "verify_certs": True,
+    }
+    if username and password:
+        return AsyncOpenSearch(url, **options, http_auth=(username, password))
+    return AsyncOpenSearch(url, **options)
 
 
 def kafka_client_options() -> dict:
