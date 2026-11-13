@@ -1,0 +1,8 @@
+.env
+*.pem
+*.key
+*.cert
+certs/
+__pycache__/
+node_modules/
+.venv/
