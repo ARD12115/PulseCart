@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 
-type Product = { id: number; sku: string; name: string; description: string; category: string; price_paise: number };
+type Product = { id: number; sku: string; name: string; description: string; category: string; price_paise: number; image_url: string | null };
 type CartItem = Product & { qty: number };
 type Inventory = { product_id: number; city: string; stock: number }[];
 
@@ -40,16 +40,26 @@ export default function ProductPage() {
     setMessage('Added to your cart.');
   }
 
-  if (error) return <div role="alert" className="rounded-xl bg-danger-soft p-5 text-danger">{error}</div>;
-  if (!product) return <p>Loading product…</p>;
+  if (error) return <div role="alert" className="rounded-lg bg-danger-soft p-5 text-danger">{error}</div>;
+  if (!product) return <p className="text-center text-ink/60 py-12">Loading product...</p>;
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href="/" className="text-sm font-semibold text-moss hover:underline">← Back to shop</Link>
-      <div className="mt-5 grid gap-8 rounded-3xl border border-ink/10 bg-surface p-6 sm:grid-cols-2 sm:p-9">
-        <div className="flex min-h-72 items-center justify-center rounded-2xl bg-lime/35 text-8xl" aria-hidden="true">✳</div>
+      <Link href="/" className="inline-block mb-5 text-sm font-semibold text-moss hover:underline">← Back to shop</Link>
+      <div className="mt-5 grid gap-8 rounded-xl border border-ink/10 bg-surface p-6 sm:grid-cols-2 sm:p-9">
+        <div className="relative min-h-[288px] rounded-lg bg-lime/35">
+          {product.image_url ? (
+            <img src={product.image_url} alt={product.name} className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <svg className="absolute inset-0 w-full h-full text-lime/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 17" />
+            </svg>
+          )}
+        </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-moss">{product.category}</p>
+          <p className="text-xs font-medium text-moss">{product.category}</p>
           <h1 className="mt-3 text-3xl font-black">{product.name}</h1>
           <p className="mt-3 text-ink/65">{product.description}</p>
           <p className="mt-6 text-2xl font-bold">₹{(product.price_paise / 100).toFixed(2)}</p>
@@ -64,7 +74,7 @@ export default function ProductPage() {
               </li>
             ))}
           </ul>
-          <button onClick={addToCart} className="mt-6 w-full rounded-xl bg-moss-solid px-5 py-3 font-bold text-white hover:brightness-90">Add to cart</button>
+          <button onClick={addToCart} className="mt-6 w-full rounded-lg bg-moss-solid px-5 py-3 font-bold text-white hover:brightness-90">Add to cart</button>
           {message && <p role="status" className="mt-3 text-sm text-moss">{message} <Link href="/cart" className="underline">View cart</Link></p>}
         </div>
       </div>

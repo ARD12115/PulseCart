@@ -327,7 +327,9 @@ def require_admin_key(x_admin_key: Annotated[str | None, Header()] = None) -> No
         if environment == "development":
             return
         raise HTTPException(503, "Admin access is not configured")
-    if x_admin_key is None or not hmac.compare_digest(x_admin_key, expected):
+    if x_admin_key is None or not hmac.compare_digest(
+        x_admin_key.encode("utf-8"), expected.encode("utf-8")
+    ):
         raise HTTPException(401, "Invalid admin key")
 
 

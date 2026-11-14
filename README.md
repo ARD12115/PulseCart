@@ -31,7 +31,7 @@ Open:
 - OpenSearch: http://localhost:9200
 
 The local Compose stack includes PostgreSQL, Kafka, and OpenSearch. It does not need Aiven credentials or certificates. The backend seeds 50 products on startup.
-Compose defaults to a production-safe admin policy: admin endpoints require `ADMIN_KEY`. For a local-only, unauthenticated admin demo, explicitly set `APP_ENV=development` in the shell before starting Compose. Never use development mode on a public deployment.
+Compose defaults to a production-safe admin policy: admin endpoints require `ADMIN_KEY`. For a local-only, unauthenticated admin demo, explicitly set `APP_ENV=development` in the shell before starting Compose (PowerShell: `$env:APP_ENV='development'`). Never use development mode on a public deployment.
 
 To stop the services, press `Ctrl+C`, then run `docker compose down`. Add `-v` only if you intentionally want to delete the local database and search data.
 
@@ -42,7 +42,8 @@ To stop the services, press `Ctrl+C`, then run `docker compose down`. Add `-v` o
 3. Configure Kafka with `KAFKA_SECURITY_PROTOCOL=SSL`; download `ca.pem`, `service.cert`, and `service.key` into the ignored `certs/` folder. Never commit secrets.
 4. Create Kafka topics `order.placed` and `inventory.changed`.
 5. Apply `db/schema.sql` to a new Aiven PostgreSQL database. For an existing database, apply each migration in `db/migrations/` first. For example, from PowerShell with Compose Postgres: `Get-Content db/migrations/001_order_access_token.sql | docker compose exec -T postgres psql -U postgres -d pulsecart`.
-6. Install backend requirements, seed once, then start the API and workers in separate terminals:
+6. Set `APP_ENV=production` and a long random `ADMIN_KEY` in the deployment environment before exposing the API.
+7. Install backend requirements, seed once, then start the API and workers in separate terminals:
 
 ```powershell
 cd backend
