@@ -13,6 +13,7 @@ export default function CartPage() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [notice, setNotice] = useState('');
+  const [orderAccessToken, setOrderAccessToken] = useState('');
   const [busy, setBusy] = useState(false);
   const total = useMemo(() => cart.reduce((sum, item) => sum + item.price_paise * item.qty, 0), [cart]);
 
@@ -49,10 +50,11 @@ export default function CartPage() {
           items: cart.map((item) => ({ product_id: item.id, qty: item.qty })),
         }),
       });
-      const result = await response.json() as { order_id?: number; detail?: string };
+      const result = await response.json() as { order_id?: number; order_access_token?: string; detail?: string };
       if (!response.ok) throw new Error(result.detail || 'Checkout failed');
       updateCart([]);
-      setNotice(`Order #${result.order_id} placed. The event is queued for Kafka.`);
+      setOrderAccessToken(result.order_access_token || '');
+      setNotice(`Order #${result.order_id} placed. Save the private access code below to view its details later.`);
     } catch (cause) {
       setNotice(cause instanceof Error ? cause.message : 'Checkout failed. Please retry.');
     } finally {
@@ -98,6 +100,13 @@ export default function CartPage() {
         </div>
       )}
       {notice && <p role="status" className="mt-5 rounded-xl bg-surface p-4">{notice}</p>}
+      {orderAccessToken && (
+        <div className="mt-3 rounded-xl border border-ink/10 bg-surface p-4">
+          <p className="text-sm font-semibold">Private order access code</p>
+          <code className="mt-2 block break-all text-sm">{orderAccessToken}</code>
+          <p className="mt-2 text-xs text-ink/60">Anyone with this code can view this order. It is shown only once.</p>
+        </div>
+      )}
     </div>
   );
 }

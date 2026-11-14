@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS orders (
   city TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'placed',
   total_paise INTEGER NOT NULL CHECK (total_paise >= 0),
+  access_token_hash TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

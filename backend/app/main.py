@@ -1,4 +1,7 @@
+import hashlib
+import hmac
 import os
+import secrets
 from contextlib import asynccontextmanager
 from typing import Annotated
 
@@ -48,7 +51,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "X-Admin-Key"],
+    allow_headers=["Content-Type", "X-Admin-Key", "X-Order-Access-Token"],
 )
 
 
@@ -96,6 +99,7 @@ class OrderOut(BaseModel):
     order_id: int
     total_paise: int
     status: str
+    order_access_token: str
 
 
 @app.get("/health")
@@ -238,18 +242,25 @@ async def checkout(data: CheckoutIn) -> dict:
     async with db.acquire() as conn:
         customer_id = await conn.fetchval(
             """INSERT INTO customers (email, name, city) VALUES ($1, $2, $3)
-               ON CONFLICT (email) DO UPDATE
-               SET name = EXCLUDED.name, city = EXCLUDED.city RETURNING id""",
+               ON CONFLICT (email) DO NOTHING RETURNING id""",
             str(data.customer_email),
             data.customer_name,
             data.city,
         )
+        if customer_id is None:
+            customer_id = await conn.fetchval(
+                "SELECT id FROM customers WHERE email = $1",
+                str(data.customer_email),
+            )
+    order_access_token = secrets.token_urlsafe(32)
+    access_token_hash = hash_order_access_token(order_access_token)
     try:
         order_id = await place_order(
             db,
             customer_id,
             data.city,
             [(item.product_id, item.qty) for item in data.items],
+            access_token_hash,
         )
     except OutOfStock as exc:
         raise HTTPException(409, f"Product {exc.product_id} is out of stock in {data.city}") from exc
@@ -258,16 +269,32 @@ async def checkout(data: CheckoutIn) -> dict:
     row = await db.fetchrow(
         "SELECT total_paise, status FROM orders WHERE id = $1", order_id
     )
-    return {"order_id": order_id, "total_paise": row["total_paise"], "status": row["status"]}
+    return {
+        "order_id": order_id,
+        "total_paise": row["total_paise"],
+        "status": row["status"],
+        "order_access_token": order_access_token,
+    }
 
 
 @app.get("/orders/{order_id}")
-async def get_order(order_id: int) -> dict:
+async def get_order(
+    order_id: int,
+    x_order_access_token: Annotated[str | None, Header()] = None,
+) -> dict:
+    if not x_order_access_token:
+        raise HTTPException(401, "Order access token required")
     db = db_pool()
+    access_token_hash = hash_order_access_token(x_order_access_token)
     async with db.acquire() as conn:
-        order = await conn.fetchrow("SELECT * FROM orders WHERE id = $1", order_id)
+        order = await conn.fetchrow(
+            """SELECT id, city, status, total_paise, created_at
+               FROM orders WHERE id = $1 AND access_token_hash = $2""",
+            order_id,
+            access_token_hash,
+        )
         if order is None:
-            raise HTTPException(404, "Order not found")
+            raise HTTPException(404, "Order not found or access token is invalid")
         items = await conn.fetch(
             """SELECT oi.product_id, oi.qty, oi.price_paise, p.name, p.sku
                FROM order_items oi JOIN products p ON p.id = oi.product_id
@@ -275,6 +302,10 @@ async def get_order(order_id: int) -> dict:
             order_id,
         )
     return {"order": dict(order), "items": [dict(item) for item in items]}
+
+
+def hash_order_access_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 @app.get("/categories")
@@ -291,7 +322,12 @@ async def list_cities() -> list[str]:
 
 def require_admin_key(x_admin_key: Annotated[str | None, Header()] = None) -> None:
     expected = os.getenv("ADMIN_KEY")
-    if expected and x_admin_key != expected:
+    environment = os.getenv("APP_ENV", "production").lower()
+    if not expected:
+        if environment == "development":
+            return
+        raise HTTPException(503, "Admin access is not configured")
+    if x_admin_key is None or not hmac.compare_digest(x_admin_key, expected):
         raise HTTPException(401, "Invalid admin key")
 
 

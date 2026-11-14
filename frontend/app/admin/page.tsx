@@ -10,16 +10,18 @@ export default function AdminPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [error, setError] = useState('');
   const [updated, setUpdated] = useState('');
+  const [keyDraft, setKeyDraft] = useState('');
+  const [adminKey, setAdminKey] = useState('');
 
   useEffect(() => {
     let active = true;
     const load = async () => {
       try {
         const [orderResponse, eventResponse] = await Promise.all([
-          fetch('/api/admin/orders'),
-          fetch('/api/admin/outbox'),
+          fetch('/api/admin/orders', { headers: adminKey ? { 'X-Admin-Key': adminKey } : {} }),
+          fetch('/api/admin/outbox', { headers: adminKey ? { 'X-Admin-Key': adminKey } : {} }),
         ]);
-        if (!orderResponse.ok || !eventResponse.ok) throw new Error('Admin API unavailable');
+        if (!orderResponse.ok || !eventResponse.ok) throw new Error('Admin access unavailable. Enter a valid admin key if required.');
         const [orderData, eventData] = await Promise.all([
           orderResponse.json() as Promise<Order[]>,
           eventResponse.json() as Promise<Event[]>,
@@ -30,14 +32,14 @@ export default function AdminPage() {
           setUpdated(new Date().toLocaleTimeString());
           setError('');
         }
-      } catch {
-        if (active) setError('Could not load events. Ensure the API and database are running.');
+      } catch (cause) {
+        if (active) setError(cause instanceof Error ? cause.message : 'Could not load admin data.');
       }
     };
     void load();
     const timer = window.setInterval(load, 5000);
     return () => { active = false; window.clearInterval(timer); };
-  }, []);
+  }, [adminKey]);
 
   return (
     <div>
@@ -45,6 +47,22 @@ export default function AdminPage() {
         <div><p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">System pulse</p><h1 className="mt-2 text-4xl font-black">Order & event room</h1></div>
         <p className="text-sm text-ink/50">Refreshes every 5 seconds{updated ? ` · Updated ${updated}` : ''}</p>
       </div>
+      <form className="mt-5 flex flex-wrap gap-2" onSubmit={(event) => {
+        event.preventDefault();
+        setAdminKey(keyDraft);
+      }}>
+        <label className="sr-only" htmlFor="admin-key">Admin key</label>
+        <input
+          id="admin-key"
+          type="password"
+          autoComplete="current-password"
+          className="min-w-60 rounded-lg border border-ink/15 px-3 py-2"
+          placeholder="Admin key (if configured)"
+          value={keyDraft}
+          onChange={(event) => setKeyDraft(event.target.value)}
+        />
+        <button type="submit" className="rounded-lg bg-moss-solid px-4 py-2 font-semibold text-white">Connect</button>
+      </form>
       {error && <p role="alert" className="mt-5 rounded-xl bg-danger-soft p-4 text-danger">{error}</p>}
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-ink/10 bg-surface p-5">

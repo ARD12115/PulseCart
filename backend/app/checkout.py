@@ -20,6 +20,7 @@ async def place_order(
     customer_id: int,
     city: str,
     items: list[tuple[int, int]],
+    access_token_hash: str,
 ) -> int:
     """Create an order and outbox events atomically; items are product ID/quantity pairs."""
     quantities: dict[int, int] = {}
@@ -61,11 +62,12 @@ async def place_order(
                 lines.append((product_id, qty, price, row["stock"]))
 
             order_id = await conn.fetchval(
-                """INSERT INTO orders (customer_id, city, total_paise)
-                   VALUES ($1, $2, $3) RETURNING id""",
+                """INSERT INTO orders (customer_id, city, total_paise, access_token_hash)
+                   VALUES ($1, $2, $3, $4) RETURNING id""",
                 customer_id,
                 city,
                 total,
+                access_token_hash,
             )
             for product_id, qty, price, _ in lines:
                 await conn.execute(
