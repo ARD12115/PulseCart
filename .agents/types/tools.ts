@@ -188,7 +188,7 @@ export interface GlobParams {
 /**
  * Use the Gravity Index tool discovery and install API.
  */
-export type GravityIndexParams =
+interface GravityIndexParamsBase {
   /** Which Gravity Index operation to perform. search: recommend a provider; browse: list catalog services; list_categories: list categories with counts; get_service: full detail for a known slug; provision: create the account for the user and receive credentials; report_integration: report a completed integration. */
   action:
     | 'search'
@@ -214,6 +214,24 @@ export type GravityIndexParams =
   /** For action "provision": must be true, and only after the user has explicitly approved creating an account on this service (required). */
   user_consent?: true
 }
+
+export type GravityIndexParams = GravityIndexParamsBase & (
+  | { action: 'search' }
+  | { action: 'browse' }
+  | { action: 'list_categories' }
+  | { action: 'get_service'; slug: string }
+  | {
+      action: 'provision'
+      search_id: string
+      slug: string
+      user_consent: true
+    }
+  | {
+      action: 'report_integration'
+      search_id: string
+      integrated_slug: string
+    }
+)
 
 /**
  * List files and directories in the specified path. Returns separate arrays of file names and directory names.
