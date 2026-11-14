@@ -41,7 +41,7 @@ To stop the services, press `Ctrl+C`, then run `docker compose down`. Add `-v` o
 2. Copy `.env.example` to `.env`; set the PostgreSQL DSN (with `?sslmode=require`), Kafka bootstrap host, OpenSearch HTTPS URL and service username/password, and CORS origin.
 3. Configure Kafka with `KAFKA_SECURITY_PROTOCOL=SSL`; download `ca.pem`, `service.cert`, and `service.key` into the ignored `certs/` folder. Never commit secrets.
 4. Create Kafka topics `order.placed` and `inventory.changed`.
-5. Apply `db/schema.sql` to a new Aiven PostgreSQL database. For an existing database, apply each migration in `db/migrations/` first. For example, from PowerShell with Compose Postgres: `Get-Content db/migrations/001_order_access_token.sql | docker compose exec -T postgres psql -U postgres -d pulsecart`.
+5. Apply `db/schema.sql` to a new Aiven PostgreSQL database. For an existing database, apply each migration in `db/migrations/` using the provider's SQL console or `psql "$env:PG_DSN" -f db/migrations/001_order_access_token.sql`. Existing orders created before `001_order_access_token.sql` have no customer access token, so customer lookup through `GET /orders/{order_id}` is intentionally unavailable for those legacy orders; use the protected admin view if they must be inspected.
 6. Set `APP_ENV=production` and a long random `ADMIN_KEY` in the deployment environment before exposing the API.
 7. Install backend requirements, seed once, then start the API and workers in separate terminals:
 
@@ -74,7 +74,7 @@ The local `.env` is read from the project root. Aiven credentials and TLS certif
 
 1. Browse products and try searching `bluetoth`.
 2. Filter by city/category/price and add a product to your cart.
-3. Checkout with an email, name, and delivery city. Save the private order access code displayed after checkout; it is required to retrieve order details.
+3. Checkout with an email, name, and delivery city. Save both the displayed order ID and private access code; the ID selects the order, and the code authorizes access to its details.
 4. Open `/admin` to inspect orders and outbox publication.
 5. Open `/demo`, choose the seeded Bluetooth Headphones item in Bengaluru (the first product ID on a fresh database), and run the race. One checkout should succeed and the other should get an out-of-stock response.
 
@@ -88,12 +88,13 @@ docker-compose.yml Local PostgreSQL, Kafka, and OpenSearch stack
 scripts/           Pitch deck generator
 ```
 
-The editable pitch deck is `PulseCart - Aiven Hackathon Build the Online Store.pptx`. Regenerate it with `python -m pip install -r requirements-presentation.txt` and `python scripts/create_pitch_deck.py`.
+The editable pitch deck is `PulseCart_HackBriven.pptx`; a PDF version is also included for sharing. Regenerate the deck with `python -m pip install -r requirements-presentation.txt` and `python scripts/create_pitch_deck.py`.
 
 ## Operational notes
 
 - Consumers record handled outbox event IDs in `processed_events`.
 - Kafka delivery is at-least-once; outbox event IDs make consumer processing idempotent.
 - Admin routes require `ADMIN_KEY` unless `APP_ENV=development` is explicitly selected. Order details require the private access code returned at checkout; only its hash is stored.
+- Customer order lookup is available only for orders created after the access-token migration; legacy orders have no automatically issued access credential.
 - The confirmation worker logs rather than sending email. Configure customer notifications, payment, and fulfillment before accepting real orders.
 - Keep Aiven credentials in environment variables and certificates in the ignored `certs/` directory.

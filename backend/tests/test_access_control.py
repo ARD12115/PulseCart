@@ -62,8 +62,8 @@ class CheckoutPool:
 
 
 class AdminAccessTests(unittest.TestCase):
-    def test_admin_is_closed_when_key_is_missing_outside_development(self):
-        with patch.dict(os.environ, {"APP_ENV": "production"}, clear=True):
+    def test_admin_is_closed_when_key_and_environment_are_unset(self):
+        with patch.dict(os.environ, {}, clear=True):
             with self.assertRaises(HTTPException) as error:
                 require_admin_key()
 

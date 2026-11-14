@@ -7,7 +7,7 @@ from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "PulseCart - Aiven Hackathon Build the Online Store.pptx"
+OUTPUT = ROOT / "PulseCart_HackBriven.pptx"
 
 INK = RGBColor(23, 33, 28)
 MOSS = RGBColor(40, 99, 75)

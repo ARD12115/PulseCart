@@ -1,3 +1,4 @@
+# Local environment and credentials
 .env
 .env.*
 !.env.example
@@ -5,12 +6,38 @@ certs/
 *.pem
 *.key
 *.cert
+
+# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
 .venv/
 venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+
+# Node.js and frontend build output
 node_modules/
 .next/
+out/
 dist/
 coverage/
 *.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Browser test artifacts
+playwright-report/
+test-results/
+
+# Local logs and operating-system files
+*.log
+.DS_Store
+Thumbs.db

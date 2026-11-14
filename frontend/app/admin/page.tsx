@@ -56,27 +56,27 @@ export default function AdminPage() {
           id="admin-key"
           type="password"
           autoComplete="current-password"
-          className="min-w-60 rounded-lg border border-ink/15 px-3 py-2"
+          className="min-w-60 rounded-md border border-ink/15 px-3 py-2"
           placeholder="Admin key (if configured)"
           value={keyDraft}
           onChange={(event) => setKeyDraft(event.target.value)}
         />
-        <button type="submit" className="rounded-lg bg-moss-solid px-4 py-2 font-semibold text-white">Connect</button>
+        <button type="submit" className="rounded-md bg-moss-solid px-4 py-2 font-semibold text-white">Connect</button>
       </form>
-      {error && <p role="alert" className="mt-5 rounded-xl bg-danger-soft p-4 text-danger">{error}</p>}
+      {error && <p role="alert" className="mt-5 rounded-lg bg-danger-soft p-4 text-danger">{error}</p>}
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-ink/10 bg-surface p-5">
+        <section className="rounded-lg border border-ink/10 bg-surface p-5">
           <h2 className="text-xl font-bold">Recent orders</h2>
           <div className="mt-4 space-y-3">
             {orders.map((order) => <article key={order.id} className="flex justify-between gap-3 border-b border-ink/10 pb-3 text-sm"><div><p className="font-bold">Order #{order.id} · {order.city}</p><p className="text-ink/50">{new Date(order.created_at).toLocaleString()}</p></div><span className="font-semibold">₹{(order.total_paise / 100).toFixed(2)}</span></article>)}
-            {!orders.length && <p className="text-sm text-ink/50">No orders yet.</p>}
+            {!orders.length && <p className="text-sm text-ink/50">No orders yet. Place an order from the store to see it here.</p>}
           </div>
         </section>
-        <section className="rounded-2xl border border-ink/10 bg-surface p-5">
+        <section className="rounded-lg border border-ink/10 bg-surface p-5">
           <h2 className="text-xl font-bold">Outbox events</h2>
           <div className="mt-4 space-y-3">
             {events.map((event) => <article key={event.id} className="flex items-center justify-between gap-3 border-b border-ink/10 pb-3 text-sm"><div><p className="font-bold">{event.topic}</p><p className="text-ink/50">#{event.id} · {event.key}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${event.published_at ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>{event.published_at ? 'Published' : 'Pending'}</span></article>)}
-            {!events.length && <p className="text-sm text-ink/50">No events yet.</p>}
+            {!events.length && <p className="text-sm text-ink/50">No events yet. Events appear after checkouts are placed.</p>}
           </div>
         </section>
       </div>

@@ -1,6 +1,0 @@
-fastapi
-uvicorn[standard]
-asyncpg
-aiokafka
-opensearch-py
-python-dotenv
