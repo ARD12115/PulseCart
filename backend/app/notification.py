@@ -6,7 +6,7 @@ import asyncpg
 from aiokafka import AIOKafkaConsumer
 from dotenv import load_dotenv
 
-from app.connections import PROJECT_ROOT, kafka_client_options
+from app.connections import PROJECT_ROOT, kafka_client_options, postgres_connection_kwargs
 
 load_dotenv(PROJECT_ROOT / ".env")
 
@@ -17,7 +17,9 @@ CONSUMER_NAME = "notification"
 async def main() -> None:
     if not PG_DSN:
         raise RuntimeError("PG_DSN is not configured")
-    pool = await asyncpg.create_pool(PG_DSN, min_size=1, max_size=4)
+    pool = await asyncpg.create_pool(
+        PG_DSN, min_size=1, max_size=4, **postgres_connection_kwargs()
+    )
     consumer = AIOKafkaConsumer(
         "order.placed",
         **kafka_client_options(),

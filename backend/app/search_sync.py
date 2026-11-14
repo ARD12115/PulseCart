@@ -8,7 +8,12 @@ from dotenv import load_dotenv
 from opensearchpy._async.client import AsyncOpenSearch
 from opensearchpy.exceptions import NotFoundError
 
-from app.connections import PROJECT_ROOT, create_opensearch_client, kafka_client_options
+from app.connections import (
+    PROJECT_ROOT,
+    create_opensearch_client,
+    kafka_client_options,
+    postgres_connection_kwargs,
+)
 
 load_dotenv(PROJECT_ROOT / ".env")
 
@@ -86,11 +91,11 @@ async def upsert_product(
 
 async def sync_existing_inventory(client: AsyncOpenSearch, pool: asyncpg.Pool) -> None:
     rows = await pool.fetch(
-        """SELECT product_id, city, stock FROM store_inventory ORDER BY product_id, city"""
+        """SELECT product_id, city FROM store_inventory ORDER BY product_id, city"""
     )
     for row in rows:
-        await upsert_product(
-            client, pool, row["product_id"], row["city"], row["stock"]
+        await sync_stock_from_database(
+            client, pool, row["product_id"], row["city"]
         )
     print(f"Indexed inventory rows: {len(rows)}")
 
@@ -115,15 +120,51 @@ async def sync_stock_from_database(
     not ordered against order events, so applying that payload can put a sold
     unit back into search. Postgres is the source of truth.
     """
-    stock = await pool.fetchval(
-        "SELECT stock FROM store_inventory WHERE product_id = $1 AND city = $2",
-        product_id,
-        city,
+    async with pool.acquire() as conn:
+        lock_id = await conn.fetchval(
+            "SELECT hashtextextended($1, $2)", city, product_id
+        )
+        await conn.fetchval("SELECT pg_advisory_lock($1)", lock_id)
+        try:
+            stock = await conn.fetchval(
+                "SELECT stock FROM store_inventory WHERE product_id = $1 AND city = $2",
+                product_id,
+                city,
+            )
+            if stock is None or stock <= 0:
+                await delete_product(client, product_id, city)
+                return
+            product = await conn.fetchrow(
+                """SELECT id, sku, name, description, category, price_paise, image_url
+                   FROM products WHERE id = $1""",
+                product_id,
+            )
+            if product is None:
+                return
+            await index_product(client, product, city, stock)
+        finally:
+            await conn.fetchval("SELECT pg_advisory_unlock($1)", lock_id)
+
+
+async def index_product(
+    client: AsyncOpenSearch, product, city: str, stock: int
+) -> None:
+    await client.index(
+        index=INDEX_NAME,
+        id=f"{product['id']}:{city}",
+        refresh=True,
+        body={
+            "product_id": product["id"],
+            "sku": product["sku"],
+            "name": product["name"],
+            "description": product["description"],
+            "category": product["category"],
+            "price_paise": product["price_paise"],
+            "image_url": product["image_url"],
+            "city": city,
+            "stock": stock,
+        },
     )
-    if stock is None:
-        await delete_product(client, product_id, city)
-        return
-    await upsert_product(client, pool, product_id, city, stock)
 
 
 async def process_message(
@@ -162,7 +203,9 @@ async def process_message(
 async def main() -> None:
     if not PG_DSN:
         raise RuntimeError("PG_DSN is not configured")
-    pool = await asyncpg.create_pool(PG_DSN, min_size=1, max_size=4)
+    pool = await asyncpg.create_pool(
+        PG_DSN, min_size=1, max_size=4, **postgres_connection_kwargs()
+    )
     client = create_opensearch_client()
     consumer = AIOKafkaConsumer(
         "inventory.changed",

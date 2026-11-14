@@ -127,7 +127,11 @@ test.describe('Security / Vulnerability Tests', () => {
   });
 
   test('Order access with invalid token fails', async ({ page }) => {
-    await page.goto('/orders/1', { headers: { 'X-Order-Access-Token': 'invalid-token' } });
+    await page.goto('/orders/1');
+    await page.evaluate(() => {
+      localStorage.setItem('order_access_token', 'invalid-token');
+    });
+    await page.reload();
     await expect(page.locator('text=Order not found or access token is invalid')).toBeVisible();
   });
 

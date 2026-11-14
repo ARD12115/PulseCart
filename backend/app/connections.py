@@ -13,6 +13,11 @@ def project_path(value: str) -> Path:
     return path if path.is_absolute() else PROJECT_ROOT / path
 
 
+def postgres_connection_kwargs() -> dict[str, str]:
+    password = os.getenv("PG_PASSWORD")
+    return {"password": password} if password is not None else {}
+
+
 def create_opensearch_client() -> AsyncOpenSearch:
     url = os.getenv("OPENSEARCH_URL")
     if not url:

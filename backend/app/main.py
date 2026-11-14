@@ -13,7 +13,7 @@ from opensearchpy._async.client import AsyncOpenSearch
 from pydantic import BaseModel, EmailStr, Field
 
 from app.checkout import OutOfStock, UnknownProduct, place_order
-from app.connections import create_opensearch_client
+from app.connections import create_opensearch_client, postgres_connection_kwargs
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
@@ -30,7 +30,9 @@ async def lifespan(_: FastAPI):
     global pool, search_client
     if not PG_DSN:
         raise RuntimeError("PG_DSN must be configured")
-    pool = await asyncpg.create_pool(PG_DSN, min_size=2, max_size=10)
+    pool = await asyncpg.create_pool(
+        PG_DSN, min_size=2, max_size=10, **postgres_connection_kwargs()
+    )
     try:
         search_client = create_opensearch_client()
         try:

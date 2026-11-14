@@ -35,13 +35,23 @@ Compose defaults to a production-safe admin policy: admin endpoints require `ADM
 
 To stop the services, press `Ctrl+C`, then run `docker compose down`. Add `-v` only if you intentionally want to delete the local database and search data.
 
+### Change the local PostgreSQL password without deleting data
+
+Changing `POSTGRES_PASSWORD` in `.env` does not change the password of a database that already exists in the `postgres_data` volume; the official Postgres image only applies that variable when initializing an empty data directory. Do not remove the volume to rotate credentials.
+
+1. Take and verify a database backup.
+2. Connect to the existing database over TCP using the current password: `docker compose exec postgres psql -h 127.0.0.1 -U postgres -d pulsecart`. Enter the current password when prompted.
+3. At the `psql` prompt, run `\password postgres`, enter the new password twice, then exit with `\q`.
+4. Update both `POSTGRES_PASSWORD` and `PG_PASSWORD` in the ignored root `.env` to the new raw password. Keep the password out of `PG_DSN`; Compose passes it separately to asyncpg, so URI-special characters do not need URL encoding. If using a `.env` value containing `$`, escape it as `$$` for Compose interpolation.
+5. Recreate the services that connect to PostgreSQL: `docker compose up -d --force-recreate postgres backend relay search-sync notification`. This preserves `postgres_data`; do not run `docker compose down -v`.
+
 ## Run against Aiven
 
 1. Create PostgreSQL, Kafka, and OpenSearch services in the same Aiven project/region.
-2. Copy `.env.example` to `.env`; set the PostgreSQL DSN (with `?sslmode=require`), Kafka bootstrap host, OpenSearch HTTPS URL and service username/password, and CORS origin.
+2. Copy `.env.example` to `.env`; set a password-free PostgreSQL DSN (with `?sslmode=require`) and put its raw password in `PG_PASSWORD`; set the Kafka bootstrap host, OpenSearch HTTPS URL and service username/password, and CORS origin.
 3. Configure Kafka with `KAFKA_SECURITY_PROTOCOL=SSL`; download `ca.pem`, `service.cert`, and `service.key` into the ignored `certs/` folder. Never commit secrets.
 4. Create Kafka topics `order.placed` and `inventory.changed`.
-5. Apply `db/schema.sql` to a new Aiven PostgreSQL database. For an existing database, apply each migration in `db/migrations/` using the provider's SQL console or `psql "$env:PG_DSN" -f db/migrations/001_order_access_token.sql`. Existing orders created before `001_order_access_token.sql` have no customer access token, so customer lookup through `GET /orders/{order_id}` is intentionally unavailable for those legacy orders; use the protected admin view if they must be inspected.
+5. Apply `db/schema.sql` to a new Aiven PostgreSQL database. For an existing database, apply each migration in `db/migrations/` using the provider's SQL console or `psql "$env:PG_DSN" -W -f db/migrations/001_order_access_token.sql`. Existing orders created before `001_order_access_token.sql` have no customer access token, so customer lookup through `GET /orders/{order_id}` is intentionally unavailable for those legacy orders; use the protected admin view if they must be inspected.
 6. Set `APP_ENV=production` and a long random `ADMIN_KEY` in the deployment environment before exposing the API.
 7. Install backend requirements, seed once, then start the API and workers in separate terminals:
 
