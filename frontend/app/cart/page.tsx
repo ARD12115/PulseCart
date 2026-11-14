@@ -64,7 +64,7 @@ export default function CartPage() {
     <div className="mx-auto max-w-4xl">
       <h1 className="text-3xl font-black">Your cart</h1>
       {!cart.length ? (
-        <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-8 text-center">
+        <div className="mt-6 rounded-2xl border border-ink/10 bg-surface p-8 text-center">
           <p className="text-ink/60">Your cart is waiting for something good.</p>
           <Link href="/" className="mt-4 inline-block font-bold text-moss underline">Browse the store</Link>
         </div>
@@ -72,19 +72,19 @@ export default function CartPage() {
         <div className="mt-6 grid gap-6 md:grid-cols-[1fr_320px]">
           <div className="space-y-3">
             {cart.map((item) => (
-              <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-ink/10 bg-white p-4">
+              <div key={item.id} className="flex items-center justify-between gap-4 rounded-2xl border border-ink/10 bg-surface p-4">
                 <div><p className="font-bold">{item.name}</p><p className="text-sm text-ink/50">{item.sku}</p></div>
                 <div className="flex items-center gap-3">
                   <input aria-label={`Quantity for ${item.name}`} type="number" min="1" max="50" value={item.qty} className="w-16 rounded-lg border px-2 py-1" onChange={(event) => {
                     const qty = Number(event.target.value);
                     updateCart(cart.map((line) => line.id === item.id ? { ...line, qty: Math.max(1, Math.min(50, qty || 1)) } : line));
                   }} />
-                  <button className="text-sm text-red-700 underline" onClick={() => updateCart(cart.filter((line) => line.id !== item.id))}>Remove</button>
+                  <button className="text-sm text-danger underline" onClick={() => updateCart(cart.filter((line) => line.id !== item.id))}>Remove</button>
                 </div>
               </div>
             ))}
           </div>
-          <aside className="h-fit space-y-4 rounded-2xl border border-ink/10 bg-white p-5">
+          <aside className="h-fit space-y-4 rounded-2xl border border-ink/10 bg-surface p-5">
             <h2 className="text-lg font-bold">Checkout</h2>
             <p className="flex justify-between"><span>Total</span><strong>₹{(total / 100).toFixed(2)}</strong></p>
             <input className="w-full rounded-xl border px-3 py-2" type="email" placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
@@ -93,11 +93,11 @@ export default function CartPage() {
               <option value="">Choose delivery city</option>
               {cities.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
-            <button disabled={busy} onClick={checkout} className="w-full rounded-xl bg-moss px-4 py-3 font-bold text-white disabled:opacity-50">{busy ? 'Placing order…' : 'Place order'}</button>
+            <button disabled={busy} onClick={checkout} className="w-full rounded-xl bg-moss-solid px-4 py-3 font-bold text-white disabled:opacity-50">{busy ? 'Placing order…' : 'Place order'}</button>
           </aside>
         </div>
       )}
-      {notice && <p role="status" className="mt-5 rounded-xl bg-white p-4">{notice}</p>}
+      {notice && <p role="status" className="mt-5 rounded-xl bg-surface p-4">{notice}</p>}
     </div>
   );
 }

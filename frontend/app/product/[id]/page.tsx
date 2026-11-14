@@ -40,13 +40,13 @@ export default function ProductPage() {
     setMessage('Added to your cart.');
   }
 
-  if (error) return <div role="alert" className="rounded-xl bg-red-50 p-5 text-red-800">{error}</div>;
+  if (error) return <div role="alert" className="rounded-xl bg-danger-soft p-5 text-danger">{error}</div>;
   if (!product) return <p>Loading product…</p>;
 
   return (
     <div className="mx-auto max-w-4xl">
       <Link href="/" className="text-sm font-semibold text-moss hover:underline">← Back to shop</Link>
-      <div className="mt-5 grid gap-8 rounded-3xl border border-ink/10 bg-white p-6 sm:grid-cols-2 sm:p-9">
+      <div className="mt-5 grid gap-8 rounded-3xl border border-ink/10 bg-surface p-6 sm:grid-cols-2 sm:p-9">
         <div className="flex min-h-72 items-center justify-center rounded-2xl bg-lime/35 text-8xl" aria-hidden="true">✳</div>
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-moss">{product.category}</p>
@@ -58,13 +58,13 @@ export default function ProductPage() {
             {inventory.map((item) => (
               <li key={item.city} className="flex justify-between rounded-lg bg-paper px-3 py-2 text-sm">
                 <span>{item.city}</span>
-                <span className={item.stock > 0 ? 'font-semibold text-moss' : 'text-red-700'}>
+                <span className={item.stock > 0 ? 'font-semibold text-moss' : 'text-danger'}>
                   {item.stock > 0 ? `${item.stock} in stock` : 'Out of stock'}
                 </span>
               </li>
             ))}
           </ul>
-          <button onClick={addToCart} className="mt-6 w-full rounded-xl bg-moss px-5 py-3 font-bold text-white hover:bg-ink">Add to cart</button>
+          <button onClick={addToCart} className="mt-6 w-full rounded-xl bg-moss-solid px-5 py-3 font-bold text-white hover:brightness-90">Add to cart</button>
           {message && <p role="status" className="mt-3 text-sm text-moss">{message} <Link href="/cart" className="underline">View cart</Link></p>}
         </div>
       </div>

@@ -45,19 +45,19 @@ export default function AdminPage() {
         <div><p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">System pulse</p><h1 className="mt-2 text-4xl font-black">Order & event room</h1></div>
         <p className="text-sm text-ink/50">Refreshes every 5 seconds{updated ? ` · Updated ${updated}` : ''}</p>
       </div>
-      {error && <p role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-red-800">{error}</p>}
+      {error && <p role="alert" className="mt-5 rounded-xl bg-danger-soft p-4 text-danger">{error}</p>}
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-ink/10 bg-white p-5">
+        <section className="rounded-2xl border border-ink/10 bg-surface p-5">
           <h2 className="text-xl font-bold">Recent orders</h2>
           <div className="mt-4 space-y-3">
             {orders.map((order) => <article key={order.id} className="flex justify-between gap-3 border-b border-ink/10 pb-3 text-sm"><div><p className="font-bold">Order #{order.id} · {order.city}</p><p className="text-ink/50">{new Date(order.created_at).toLocaleString()}</p></div><span className="font-semibold">₹{(order.total_paise / 100).toFixed(2)}</span></article>)}
             {!orders.length && <p className="text-sm text-ink/50">No orders yet.</p>}
           </div>
         </section>
-        <section className="rounded-2xl border border-ink/10 bg-white p-5">
+        <section className="rounded-2xl border border-ink/10 bg-surface p-5">
           <h2 className="text-xl font-bold">Outbox events</h2>
           <div className="mt-4 space-y-3">
-            {events.map((event) => <article key={event.id} className="flex items-center justify-between gap-3 border-b border-ink/10 pb-3 text-sm"><div><p className="font-bold">{event.topic}</p><p className="text-ink/50">#{event.id} · {event.key}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${event.published_at ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-900'}`}>{event.published_at ? 'Published' : 'Pending'}</span></article>)}
+            {events.map((event) => <article key={event.id} className="flex items-center justify-between gap-3 border-b border-ink/10 pb-3 text-sm"><div><p className="font-bold">{event.topic}</p><p className="text-ink/50">#{event.id} · {event.key}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${event.published_at ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>{event.published_at ? 'Published' : 'Pending'}</span></article>)}
             {!events.length && <p className="text-sm text-ink/50">No events yet.</p>}
           </div>
         </section>

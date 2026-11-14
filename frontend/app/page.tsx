@@ -52,8 +52,25 @@ export default function HomePage() {
     const params = new URLSearchParams();
     if (category) params.set('category', category);
     if (city) params.set('city', city);
-    if (minPrice) params.set('min_price', minPrice);
-    if (maxPrice) params.set('max_price', maxPrice);
+    const minPricePaise = minPrice === '' ? null : Math.round(Number(minPrice) * 100);
+    const maxPricePaise = maxPrice === '' ? null : Math.round(Number(maxPrice) * 100);
+    if (
+      (minPricePaise !== null && !Number.isFinite(minPricePaise)) ||
+      (maxPricePaise !== null && !Number.isFinite(maxPricePaise)) ||
+      (minPricePaise !== null && minPricePaise < 0) ||
+      (maxPricePaise !== null && maxPricePaise < 0)
+    ) {
+      setLoading(false);
+      setError('Enter a valid non-negative price in rupees.');
+      return;
+    }
+    if (minPricePaise !== null && maxPricePaise !== null && minPricePaise > maxPricePaise) {
+      setLoading(false);
+      setError('Minimum price cannot exceed maximum price.');
+      return;
+    }
+    if (minPricePaise !== null) params.set('min_price', String(minPricePaise));
+    if (maxPricePaise !== null) params.set('max_price', String(maxPricePaise));
     if (query.trim()) {
       params.set('q', query.trim());
     }
@@ -80,13 +97,13 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="mb-10 rounded-3xl bg-moss px-7 py-10 text-white sm:px-12 sm:py-14">
+      <section className="mb-10 rounded-3xl bg-moss-solid px-7 py-10 text-white sm:px-12 sm:py-14">
         <p className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-lime">The neighborhood store, reimagined</p>
         <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-6xl">Good things, close to home.</h1>
         <p className="mt-4 max-w-xl text-white/75">Search the live catalog and find what’s actually in stock near you.</p>
       </section>
 
-      <section aria-label="Product filters" className="mb-8 rounded-2xl border border-ink/10 bg-white p-4">
+      <section aria-label="Product filters" className="mb-8 rounded-2xl border border-ink/10 bg-surface p-4">
         <form onSubmit={onSearch} className="grid gap-3 md:grid-cols-6">
           <input
             className="rounded-xl border border-ink/15 px-4 py-3 md:col-span-2"
@@ -103,8 +120,8 @@ export default function HomePage() {
             <option value="">All cities</option>
             {cities.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
-          <input className="rounded-xl border border-ink/15 px-3 py-3" type="number" min="0" placeholder="Min paise" value={minPrice} onChange={(event) => setMinPrice(event.target.value)} />
-          <input className="rounded-xl border border-ink/15 px-3 py-3" type="number" min="0" placeholder="Max paise" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} />
+          <input aria-label="Minimum price in rupees" className="rounded-xl border border-ink/15 px-3 py-3" type="number" min="0" step="0.01" placeholder="Min price (₹)" value={minPrice} onChange={(event) => setMinPrice(event.target.value)} />
+          <input aria-label="Maximum price in rupees" className="rounded-xl border border-ink/15 px-3 py-3" type="number" min="0" step="0.01" placeholder="Max price (₹)" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} />
         </form>
       </section>
 
@@ -112,11 +129,11 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold">Shop the edit</h2>
         <span className="text-sm text-ink/60">{loading ? 'Loading…' : `${products.length} items`}</span>
       </div>
-      {error && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-red-800">{error}</p>}
-      {!loading && !error && products.length === 0 && <p className="rounded-xl border border-ink/10 bg-white p-8 text-center text-ink/60">No matching products found.</p>}
+      {error && <p role="alert" className="mb-5 rounded-xl bg-danger-soft p-4 text-danger">{error}</p>}
+      {!loading && !error && products.length === 0 && <p className="rounded-xl border border-ink/10 bg-surface p-8 text-center text-ink/60">No matching products found.</p>}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {products.map((product) => (
-          <Link key={`${product.id}-${product.city || ''}`} href={`/product/${product.id}`} className="group overflow-hidden rounded-2xl border border-ink/10 bg-white transition hover:-translate-y-1 hover:shadow-lg">
+          <Link key={`${product.id}-${product.city || ''}`} href={`/product/${product.id}`} className="group overflow-hidden rounded-2xl border border-ink/10 bg-surface transition hover:-translate-y-1 hover:shadow-lg">
             <div className="flex aspect-[4/3] items-center justify-center bg-lime/35 text-5xl" aria-hidden="true">✳</div>
             <div className="p-5">
               <p className="text-xs font-bold uppercase tracking-wider text-moss">{product.category}</p>

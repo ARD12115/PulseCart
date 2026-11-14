@@ -1,6 +1,7 @@
 import os
 import ssl
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from opensearchpy._async.client import AsyncOpenSearch
 
@@ -17,6 +18,16 @@ def create_opensearch_client() -> AsyncOpenSearch:
     if not url:
         raise RuntimeError("OPENSEARCH_URL is not configured")
 
+    parsed_url = urlsplit(url)
+    if not parsed_url.netloc:
+        parsed_url = urlsplit(f"//{url}")
+    is_https = parsed_url.scheme.lower() == "https"
+    has_url_credentials = (
+        parsed_url.username is not None or parsed_url.password is not None
+    )
+    if has_url_credentials and not is_https:
+        raise RuntimeError("Authenticated OpenSearch connections require HTTPS")
+
     username = os.getenv("OPENSEARCH_USERNAME")
     password = os.getenv("OPENSEARCH_PASSWORD")
     if bool(username) != bool(password):
@@ -25,10 +36,12 @@ def create_opensearch_client() -> AsyncOpenSearch:
         )
 
     options = {
-        "use_ssl": url.startswith("https://"),
+        "use_ssl": is_https,
         "verify_certs": True,
     }
     if username and password:
+        if not is_https:
+            raise RuntimeError("Authenticated OpenSearch connections require HTTPS")
         return AsyncOpenSearch(url, **options, http_auth=(username, password))
     return AsyncOpenSearch(url, **options)
 
