@@ -24,8 +24,13 @@ export default function SiteControls() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem(themeStorageKey);
-    const initialTheme = isTheme(savedTheme) ? savedTheme : 'system';
+    let initialTheme: Theme = 'system';
+    try {
+      const savedTheme = window.localStorage.getItem(themeStorageKey);
+      if (isTheme(savedTheme)) initialTheme = savedTheme;
+    } catch (cause) {
+      console.warn('Could not read saved theme preference; using system mode.', cause);
+    }
     document.documentElement.dataset.theme = initialTheme;
     setTheme(initialTheme);
   }, []);
@@ -35,8 +40,12 @@ export default function SiteControls() {
     if (!isTheme(nextTheme)) return;
 
     document.documentElement.dataset.theme = nextTheme;
-    window.localStorage.setItem(themeStorageKey, nextTheme);
     setTheme(nextTheme);
+    try {
+      window.localStorage.setItem(themeStorageKey, nextTheme);
+    } catch (cause) {
+      console.warn('Could not save theme preference.', cause);
+    }
   }
 
   return (
@@ -62,8 +71,10 @@ export default function SiteControls() {
               key={href}
               href={href}
               aria-current={active ? 'page' : undefined}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition hover:bg-ink/5 hover:text-moss ${
-                active ? 'bg-lime/35 text-moss' : 'text-ink/75'
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                active
+                  ? 'bg-moss-solid text-white hover:bg-moss-solid hover:text-white'
+                  : 'text-ink/75 hover:bg-ink/5 hover:text-moss'
               }`}
               onClick={() => setMenuOpen(false)}
             >

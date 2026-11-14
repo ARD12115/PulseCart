@@ -1,3 +1,5 @@
+import type { JSONObject } from './util-types'
+
 /**
  * Union type of all available tool names
  */
@@ -84,14 +86,27 @@ export interface AddMessageParams {
  */
 export interface ApplyPatchParams {
   /** The file operation to perform. */
-  operation: {
-    /** Operation type: create_file, update_file, or delete_file */
-    type: 'create_file' | 'update_file' | 'delete_file'
-    /** File path relative to project root */
-    path: string
-    /** Diff content. Required for create_file and update_file. Lines prefixed with + for creates, unified diff with @@ hunks for updates. */
-    diff?: string
-  }
+  operation:
+    | {
+        type: 'create_file'
+        /** File path relative to project root */
+        path: string
+        /** Lines prefixed with + for creates. */
+        diff: string
+      }
+    | {
+        type: 'update_file'
+        /** File path relative to project root */
+        path: string
+        /** Unified diff with @@ hunks for updates. */
+        diff: string
+      }
+    | {
+        type: 'delete_file'
+        /** File path relative to project root */
+        path: string
+        diff?: string
+      }
 }
 
 /**
@@ -173,7 +188,7 @@ export interface GlobParams {
 /**
  * Use the Gravity Index tool discovery and install API.
  */
-export interface GravityIndexParams {
+export type GravityIndexParams =
   /** Which Gravity Index operation to perform. search: recommend a provider; browse: list catalog services; list_categories: list categories with counts; get_service: full detail for a known slug; provision: create the account for the user and receive credentials; report_integration: report a completed integration. */
   action:
     | 'search'
@@ -334,7 +349,7 @@ export interface SetMessagesParams {
 /**
  * JSON object to set as the agent output. This completely replaces any previous output. If the agent was spawned, this value will be passed back to its parent. If the agent has an outputSchema defined, the output will be validated against it.
  */
-export interface SetOutputParams {}
+export type SetOutputParams = JSONObject
 
 /**
  * Load a skill's full instructions when relevant to the current task. Skills are loaded on-demand - only load them when you need their specific guidance.
