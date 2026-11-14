@@ -3,10 +3,10 @@ services:
     image: postgres:16
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: pulsecart
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
@@ -44,7 +44,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     ports:
-      - "9093:9093"
+      - "127.0.0.1:9093:9093"
     healthcheck:
       test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
       interval: 10s
@@ -58,7 +58,7 @@ services:
       DISABLE_SECURITY_PLUGIN: "true"
       OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
     ports:
-      - "9200:9200"
+      - "127.0.0.1:9200:9200"
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     healthcheck:
@@ -76,10 +76,11 @@ services:
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
       OPENSEARCH_URL: http://opensearch:9200
       API_CORS_ORIGINS: http://localhost:3000
+      API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
       APP_ENV: ${APP_ENV:-production}
       ADMIN_KEY: ${ADMIN_KEY:-}
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -98,7 +99,7 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://postgres:postgres@postgres:5432/pulsecart
+      PG_DSN: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/pulsecart
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
     depends_on:
@@ -137,7 +138,7 @@ services:
       args:
         API_INTERNAL_URL: http://backend:8000
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       backend:
         condition: service_healthy

@@ -41,7 +41,24 @@ async def lifespan(_: FastAPI):
         await pool.close()
 
 
-app = FastAPI(title="PulseCart API", version="1.0.0", lifespan=lifespan)
+def create_app() -> FastAPI:
+    docs_enabled = os.getenv("API_DOCS_ENABLED", "false").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    return FastAPI(
+        title="PulseCart API",
+        version="1.0.0",
+        lifespan=lifespan,
+        docs_url="/docs" if docs_enabled else None,
+        redoc_url="/redoc" if docs_enabled else None,
+        openapi_url="/openapi.json" if docs_enabled else None,
+    )
+
+
+app = create_app()
 origins = [
     origin.strip()
     for origin in os.getenv("API_CORS_ORIGINS", "http://localhost:3000").split(",")

@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from app.main import (
     CheckoutIn,
     checkout,
+    create_app,
     get_order,
     hash_order_access_token,
     require_admin_key,
@@ -82,6 +83,24 @@ class AdminAccessTests(unittest.TestCase):
                 require_admin_key("wrong-key")
 
         self.assertEqual(error.exception.status_code, 401)
+
+
+class ApiDocsTests(unittest.TestCase):
+    def test_api_docs_are_disabled_by_default(self):
+        with patch.dict(os.environ, {}, clear=True):
+            app = create_app()
+
+        self.assertIsNone(app.docs_url)
+        self.assertIsNone(app.redoc_url)
+        self.assertIsNone(app.openapi_url)
+
+    def test_api_docs_can_be_enabled_explicitly(self):
+        with patch.dict(os.environ, {"API_DOCS_ENABLED": "true"}, clear=True):
+            app = create_app()
+
+        self.assertEqual(app.docs_url, "/docs")
+        self.assertEqual(app.redoc_url, "/redoc")
+        self.assertEqual(app.openapi_url, "/openapi.json")
 
 
 class OrderAccessTests(unittest.IsolatedAsyncioTestCase):

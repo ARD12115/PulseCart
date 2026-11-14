@@ -26,11 +26,11 @@ docker compose up --build
 Open:
 
 - Storefront: http://localhost:3000
-- API docs: http://localhost:8000/docs
+- API docs: http://localhost:8000/docs (enable with `API_DOCS_ENABLED=true` in the root `.env`)
 - API health: http://localhost:8000/health
 - OpenSearch: http://localhost:9200
 
-The local Compose stack includes PostgreSQL, Kafka, and OpenSearch. It does not need Aiven credentials or certificates. The backend seeds 50 products on startup.
+The local Compose stack includes PostgreSQL, Kafka, and OpenSearch. Its published ports bind to localhost only; it does not need Aiven credentials or certificates. The backend seeds 50 products on startup. API docs and the OpenAPI schema are disabled by default; after setting `API_DOCS_ENABLED=true` in the ignored root `.env`, recreate the backend with `docker compose up -d --force-recreate backend`. Leave docs disabled in public deployments.
 Compose defaults to a production-safe admin policy: admin endpoints require `ADMIN_KEY`. For a local-only, unauthenticated admin demo, explicitly set `APP_ENV=development` in the shell before starting Compose (PowerShell: `$env:APP_ENV='development'`). Never use development mode on a public deployment.
 
 To stop the services, press `Ctrl+C`, then run `docker compose down`. Add `-v` only if you intentionally want to delete the local database and search data.
