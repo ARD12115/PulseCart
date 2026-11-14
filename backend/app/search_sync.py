@@ -103,6 +103,29 @@ async def is_processed(pool: asyncpg.Pool, event_id: int) -> bool:
     )
 
 
+async def sync_stock_from_database(
+    client: AsyncOpenSearch,
+    pool: asyncpg.Pool,
+    product_id: int,
+    city: str,
+) -> None:
+    """Index the stock currently stored in Postgres.
+
+    Inventory events carry the stock from the moment they were written. They are
+    not ordered against order events, so applying that payload can put a sold
+    unit back into search. Postgres is the source of truth.
+    """
+    stock = await pool.fetchval(
+        "SELECT stock FROM store_inventory WHERE product_id = $1 AND city = $2",
+        product_id,
+        city,
+    )
+    if stock is None:
+        await delete_product(client, product_id, city)
+        return
+    await upsert_product(client, pool, product_id, city, stock)
+
+
 async def process_message(
     message, client: AsyncOpenSearch, pool: asyncpg.Pool
 ) -> None:
@@ -112,24 +135,18 @@ async def process_message(
         return
 
     if message.topic == "inventory.changed":
-        await upsert_product(
+        await sync_stock_from_database(
             client,
             pool,
             int(payload["product_id"]),
             str(payload["city"]),
-            int(payload["stock"]),
         )
     elif message.topic == "order.placed":
         city = str(payload["city"])
         for item in payload.get("items", []):
-            product_id = int(item["product_id"])
-            stock = await pool.fetchval(
-                "SELECT stock FROM store_inventory WHERE product_id = $1 AND city = $2",
-                product_id,
-                city,
+            await sync_stock_from_database(
+                client, pool, int(item["product_id"]), city
             )
-            if stock is not None:
-                await upsert_product(client, pool, product_id, city, stock)
     else:
         raise ValueError(f"Unexpected Kafka topic: {message.topic}")
 

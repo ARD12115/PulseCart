@@ -71,7 +71,7 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://postgres:postgres@postgres:5432/pulsecart
+      PG_DSN: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/pulsecart
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
       OPENSEARCH_URL: http://opensearch:9200
@@ -111,7 +111,7 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://postgres:postgres@postgres:5432/pulsecart
+      PG_DSN: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/pulsecart
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
       OPENSEARCH_URL: http://opensearch:9200
@@ -124,7 +124,7 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://postgres:postgres@postgres:5432/pulsecart
+      PG_DSN: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/pulsecart
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
     depends_on:
