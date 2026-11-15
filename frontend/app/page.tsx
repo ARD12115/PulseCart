@@ -110,20 +110,44 @@ export default function HomePage() {
 
   return (
     <div className="storefront">
-      <section className="editorial-hero" aria-labelledby="hero-title">
+      <div className="storefront-ticker" role="note" aria-label="PulseCart catalog features">
+        <span>LOCAL CATALOG</span><b aria-hidden="true">//</b>
+        <span>POSTGRESQL / INVENTORY</span><b aria-hidden="true">//</b>
+        <span>APACHE KAFKA / EVENT FLOW</span><b aria-hidden="true">//</b>
+        <span>OPENSEARCH / FUZZY CATALOG</span>
+      </div>
+      <section className="editorial-hero" id="hero" aria-labelledby="hero-title">
         <div className="hero-grain" aria-hidden="true" />
+        <div className="hero-coordinate hero-coordinate-left">// PULSECART / LOCAL COMMERCE</div>
+        <div className="hero-coordinate hero-coordinate-right">INVENTORY / ORDERS / EVENTS</div>
         <ScrollReveal className="hero-copy">
-          <p className="eyebrow"><span>01</span> PulseCart / local signal</p>
-          <h1 id="hero-title">Good things.<br /><em>Close to home.</em></h1>
-          <p className="hero-description">A brighter way to find what your neighborhood has in stock. Explore the local feed and pick up something good.</p>
+          <p className="eyebrow"><span>01</span> High-tensile event-driven retail</p>
+          <h1 id="hero-title">Kinetic 3D<br /><em>local hardware.</em></h1>
+          <p className="hero-description">Browse products from nearby shops, search with typo tolerance, and place orders against current inventory.</p>
           <div className="hero-actions">
             <a className="button-dark" href="#shop">Explore the collection <span aria-hidden="true">↘</span></a>
-            <span className="hero-note">NEARBY / AVAILABLE NOW</span>
+            <a className="button-outline" href="#architecture">Inspect the architecture <span aria-hidden="true">↗</span></a>
           </div>
         </ScrollReveal>
 
         <ScrollReveal className="hero-visual" delay={120}>
           <div className="hero-art-halo" aria-hidden="true" />
+          <div className="kinetic-engine" aria-hidden="true">
+            <div className="engine-ring engine-ring-one" />
+            <div className="engine-ring engine-ring-two" />
+            <div className="engine-ring engine-ring-three" />
+            <div className="engine-cube">
+              <span className="engine-face engine-face-front">PC</span>
+              <span className="engine-face engine-face-back" />
+              <span className="engine-face engine-face-right" />
+              <span className="engine-face engine-face-left" />
+              <span className="engine-face engine-face-top" />
+              <span className="engine-face engine-face-bottom" />
+            </div>
+            <span className="engine-satellite engine-satellite-one" />
+            <span className="engine-satellite engine-satellite-two" />
+            <span className="engine-satellite engine-satellite-three" />
+          </div>
           <div className="hero-product-card">
             <ProductArtwork category={featured?.category ?? 'home'} imageUrl={featured?.image_url} name={featured?.name ?? 'A neighborhood find'} hero />
             {featured && (
@@ -135,31 +159,32 @@ export default function HomePage() {
           </div>
           <div className="hero-stamp" aria-hidden="true"><span>FOUND</span><b>NEARBY</b></div>
         </ScrollReveal>
+        <div className="hero-baseline"><span>01 / STOREFRONT</span><span>INVENTORY-AWARE CHECKOUT</span><a href="#architecture">SCROLL TO EXPLORE ↓</a></div>
       </section>
 
-      <ScrollReveal className="manifesto-section">
-        <div className="manifesto-heading">
-          <p className="eyebrow"><span>02</span> Signal from your city</p>
-          <h2>Good things are<br /><em>closer than you think.</em></h2>
+      <div className="signal-ribbon" role="note" aria-label="Store architecture services">
+        <span>POSTGRESQL / INVENTORY + ORDERS</span><b aria-hidden="true">◆</b><span>APACHE KAFKA / EVENT STREAM</span><b aria-hidden="true">◆</b><span>OPENSEARCH / FUZZY SEARCH</span>
+      </div>
+
+      <ScrollReveal className="architecture-section-reveal">
+      <section className="architecture-section" id="architecture" aria-labelledby="architecture-heading">
+        <div className="section-heading-row">
+          <div><p className="eyebrow"><span>02</span> System architecture / overview</p><h2 id="architecture-heading">One storefront.<br /><em>Three engines.</em></h2></div>
+          <p>Each service has a focused role in the shopping flow. These are architecture notes, not live cluster metrics.</p>
         </div>
-        <div className="manifesto-aside">
-          <span className="signal-mark" aria-hidden="true">✳</span>
-          <p>Meet a more connected neighborhood: useful finds, live local stock, and a smoother way to shop the stores around you.</p>
-          <a className="text-link" href="#shop">Tune into the collection <span aria-hidden="true">↘</span></a>
+        <div className="architecture-grid">
+          <article className="architecture-card"><span className="architecture-index">SYS / 01</span><span className="architecture-glyph" aria-hidden="true">▦</span><h3>PostgreSQL</h3><p>Products, inventory, carts, and checkout transactions live in the relational store.</p><span className="architecture-role">SOURCE OF TRUTH / INVENTORY</span></article>
+          <article className="architecture-card"><span className="architecture-index">SYS / 02</span><span className="architecture-glyph" aria-hidden="true">⟿</span><h3>Apache Kafka</h3><p>Committed checkout events move through the outbox relay to asynchronous consumers.</p><span className="architecture-role">EVENT DELIVERY / ASYNC WORKERS</span></article>
+          <article className="architecture-card"><span className="architecture-index">SYS / 03</span><span className="architecture-glyph" aria-hidden="true">⌕</span><h3>OpenSearch</h3><p>Catalog queries use fuzzy matching so shoppers can find products despite small typos.</p><span className="architecture-role">PRODUCT DISCOVERY / SEARCH</span></article>
         </div>
+      </section>
       </ScrollReveal>
-
-      <section className="shop-section" id="shop" aria-labelledby="shop-heading">
-        <div className="shop-heading-row">
-          <ScrollReveal className="shop-title-block">
-            <p className="eyebrow"><span>03</span> The local collection</p>
-            <h2 id="shop-heading">Browse the <em>signal.</em></h2>
-          </ScrollReveal>
-          <p className="shop-intro">Search or narrow by category and delivery city.</p>
-        </div>
-
+      <ScrollReveal className="console-reveal">
+      <section className="search-console" id="search-console" aria-labelledby="search-heading">
+        <div className="console-topline"><span>OPENSEARCH / CATALOG QUERY</span><span>FUZZY MATCH ENABLED ON SEARCH</span></div>
+        <div className="console-heading"><div><p className="eyebrow"><span>03</span> Product discovery</p><h2 id="search-heading">Search the <em>catalog.</em></h2></div><p>Try a product name or a close spelling. Results update as you type.</p></div>
         <div className="filter-panel">
-          <form onSubmit={onSearch} className="filter-form" aria-label="Find products">
+          <form id="catalog-search" onSubmit={onSearch} className="filter-form" aria-label="Find products">
             <label className="search-field">
               <span aria-hidden="true" className="search-icon">⌕</span>
               <span className="sr-only">Search products</span>
@@ -189,9 +214,21 @@ export default function HomePage() {
             </details>
             {hasFilters && <button className="clear-filter-button" type="button" onClick={clearFilters}>Clear</button>}
           </form>
+          <button className="run-query-button" type="submit" form="catalog-search">Run fuzzy query <span aria-hidden="true">→</span></button>
           <div className="results-count" aria-live="polite">{loading ? 'Loading…' : `${products.length} ${products.length === 1 ? 'product' : 'products'}`}</div>
         </div>
 
+      </section>
+      </ScrollReveal>
+
+      <section className="shop-section" id="shop" aria-labelledby="shop-heading">
+        <div className="shop-heading-row">
+          <ScrollReveal className="shop-title-block">
+            <p className="eyebrow"><span>04</span> Hardware drops / local catalog</p>
+            <h2 id="shop-heading">Browse the <em>hardware.</em></h2>
+          </ScrollReveal>
+          <p className="shop-intro">Filter above to narrow products by name, price, category, and delivery city.</p>
+        </div>
         {error && <p role="alert" className="store-error">{error}</p>}
         {!loading && !error && products.length === 0 && (
           <div className="empty-results">
@@ -200,7 +237,7 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="product-grid">
+        <div className="product-grid" aria-busy={loading}>
           {products.map((product, index) => (
             <ScrollReveal key={`${product.id}-${product.city || ''}`} className="product-reveal" delay={(index % 4) * 55}>
               <Link href={`/product/${product.id}`} className="product-card">
@@ -209,7 +246,7 @@ export default function HomePage() {
                   <span className="card-arrow" aria-hidden="true">↗</span>
                 </div>
                 <div className="product-card-copy">
-                  <div className="product-card-topline"><span>{product.category}</span>{product.city && <span>{product.city}</span>}</div>
+                  <div className="product-card-topline"><span>{product.sku}</span><span>{product.city || product.category}</span></div>
                   <h3>{product.name}</h3>
                   <p>{product.description}</p>
                   <div className="product-card-bottom"><strong>{formatPrice(product.price_paise)}</strong><span>View details <span aria-hidden="true">↗</span></span></div>
@@ -220,19 +257,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      <ScrollReveal className="closing-story">
-        <div className="closing-art" aria-hidden="true">
-          <div className="closing-grid" />
-          <div className="closing-orbit closing-orbit-one" />
-          <div className="closing-orbit closing-orbit-two" />
-          <span className="closing-core">PC<span>_</span></span>
-          <span className="closing-art-label">LOCAL NETWORK / ONLINE</span>
+      <ScrollReveal className="system-callout">
+        <div className="system-callout-copy">
+          <p className="eyebrow"><span>05</span> Architecture / concurrency / operations</p>
+          <h2>Built for the<br /><em>last item.</em></h2>
+          <p>Explore the concurrency demo or review real outbox events and order confirmations in the operations console.</p>
         </div>
-        <div className="closing-copy">
-          <p className="eyebrow"><span>04</span> Your next good find</p>
-          <h2>Stay close.<br /><em>Find more.</em></h2>
-          <p>Your neighborhood is full of good things. Take another look around.</p>
-          <a href="#shop" className="button-light">Back to the collection <span aria-hidden="true">↑</span></a>
+        <div className="system-callout-actions">
+          <a className="button-dark" href="/demo">Run concurrency lab <span aria-hidden="true">→</span></a>
+          <a className="button-outline" href="/admin">Open operations <span aria-hidden="true">↗</span></a>
         </div>
       </ScrollReveal>
     </div>

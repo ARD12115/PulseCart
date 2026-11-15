@@ -68,7 +68,10 @@ export default function SiteControls() {
   return (
     <div className="header-controls">
       <nav className="consumer-nav" aria-label="Main navigation">
-        <Link href="/#shop">Shop</Link>
+        <Link href="/#hero">3D dive</Link>
+        <Link href="/#architecture">Architecture</Link>
+        <Link href="/#search-console">OpenSearch</Link>
+        <Link href="/#shop">Hardware</Link>
         <Link href="/cart" className="cart-nav-link" aria-label={`Cart, ${cartCount} items`}>
           Cart <span aria-hidden="true">{cartCount}</span>
         </Link>
@@ -79,7 +82,7 @@ export default function SiteControls() {
           <label htmlFor="color-theme">Color theme</label>
           <select id="color-theme" value={theme} onChange={changeTheme}>
             <option value="system">System</option>
-            <option value="dark">Cybercore dark</option>
+            <option value="dark">Acid dark</option>
             <option value="light">Light</option>
           </select>
           <label htmlFor="motion-preference">Animation</label>

@@ -47,7 +47,7 @@ export default function ConcurrencyDemoPage() {
   }
 
   return (
-      <div className="mx-auto max-w-3xl">
+      <div className="concurrency-page mx-auto max-w-3xl">
         <p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">Concurrency lab</p>
         <h1 className="mt-2 text-4xl font-black">One last item. Two buyers.</h1>
         <p className="mt-3 max-w-2xl text-ink/65">Both checkouts run at the same time. PostgreSQL's conditional stock update lets only one transaction claim the last unit.</p>

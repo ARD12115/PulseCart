@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { currentCartId, LOCAL_CART_UPDATED_KEY, newIdempotencyKey, restoreCart, syncCart } from '../cart-sync';
+import ProductArtwork from '../product-artwork';
 
-type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number };
+type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number; category?: string; image_url?: string | null };
 
 const formatPrice = (paise: number) => new Intl.NumberFormat('en-IN', {
   style: 'currency',
@@ -200,6 +201,7 @@ export default function CartPage() {
 
   return (
     <div className="cart-page">
+      <div className="cart-hud"><span>LIVE CART / CHECKOUT</span><span>INVENTORY IS VERIFIED WHEN YOU PLACE THE ORDER</span></div>
       <div className="cart-heading">
         <div><p className="eyebrow">Your bag</p><h1>Review and check out.</h1></div>
         <span>{cart.reduce((count, item) => count + item.qty, 0)} items</span>
@@ -209,6 +211,8 @@ export default function CartPage() {
         <section className="cart-items" aria-label="Items in your cart">
           {cart.map((item) => (
             <article key={item.id} className="cart-item">
+              <span className="cart-item-sku">SKU / {item.sku}</span>
+              <div className="cart-thumb"><ProductArtwork category={item.category ?? 'home'} imageUrl={item.image_url} name={item.name} /></div>
               <div className="cart-item-copy">
                 <h2>{item.name}</h2>
                 <p>{formatPrice(item.price_paise)} each</p>
@@ -260,6 +264,11 @@ export default function CartPage() {
             {busy ? 'Placing order…' : 'Place order'} <span aria-hidden="true">↗</span>
           </button>
           <p className="checkout-note">Your order is placed with the shop after you confirm.</p>
+          <div className="checkout-flow" aria-label="Order processing information">
+            <span>01 / PostgreSQL confirms inventory and order</span>
+            <span>02 / Outbox event is relayed to Kafka</span>
+            <span>03 / Confirmation is handled asynchronously</span>
+          </div>
           {notice && <p role="alert" className="cart-notice">{notice}</p>}
         </form>
       </div>
