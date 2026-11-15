@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import hmac
 import ipaddress
@@ -6,6 +7,7 @@ import os
 import re
 import secrets
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from uuid import UUID
 
@@ -30,6 +32,9 @@ PG_DSN = os.getenv("PG_DSN")
 INDEX_NAME = "products"
 log = logging.getLogger("pulsecart")
 IDEMPOTENCY_KEY_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{8,100}$")
+ORDER_ACCESS_TOKEN_TTL = timedelta(days=90)
+CART_CLEANUP_INTERVAL_SECONDS = 24 * 60 * 60
+CART_RETENTION_DAYS = 30
 
 
 def checkout_rate_limit() -> str:
@@ -74,6 +79,21 @@ def get_client_address(request: Request) -> str:
 limiter = Limiter(key_func=get_client_address)
 
 
+async def cart_cleanup_loop(db: asyncpg.Pool) -> None:
+    while True:
+        try:
+            result = await db.execute(
+                "DELETE FROM carts WHERE updated_at < now() - ($1 * interval '1 day')",
+                CART_RETENTION_DAYS,
+            )
+            log.info("Expired carts cleanup: %s", result)
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            log.exception("Expired carts cleanup failed")
+        await asyncio.sleep(CART_CLEANUP_INTERVAL_SECONDS)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     global pool, search_client
@@ -82,6 +102,7 @@ async def lifespan(_: FastAPI):
     pool = await asyncpg.create_pool(
         PG_DSN, min_size=2, max_size=10, **postgres_connection_kwargs()
     )
+    cleanup_task = asyncio.create_task(cart_cleanup_loop(pool))
     try:
         search_client = create_opensearch_client()
         try:
@@ -89,6 +110,8 @@ async def lifespan(_: FastAPI):
         finally:
             await search_client.close()
     finally:
+        cleanup_task.cancel()
+        await asyncio.gather(cleanup_task, return_exceptions=True)
         await pool.close()
 
 
@@ -112,6 +135,26 @@ def create_app() -> FastAPI:
 app = create_app()
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path not in {"/docs", "/redoc"}:
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+        )
+    response.headers.setdefault("Strict-Transport-Security", "max-age=31536000")
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Permissions-Policy", "camera=(), microphone=(), geolocation=()"
+    )
+    return response
+
+
 origins = [
     origin.strip()
     for origin in os.getenv("API_CORS_ORIGINS", "http://localhost:3000").split(",")
@@ -120,8 +163,13 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "X-Admin-Key", "X-Order-Access-Token"],
+    allow_methods=["GET", "POST", "PUT"],
+    allow_headers=[
+        "Content-Type",
+        "Idempotency-Key",
+        "X-Admin-Key",
+        "X-Order-Access-Token",
+    ],
 )
 
 
@@ -173,6 +221,7 @@ class OrderOut(BaseModel):
     # None when an Idempotency-Key replay returns an existing order: only the hash of the
     # token is stored, so the original token cannot be shown again.
     order_access_token: str | None = None
+    order_access_token_expires_at: datetime | None = None
 
 
 class CartLineIn(BaseModel):
@@ -342,7 +391,7 @@ async def _existing_order(
     db: asyncpg.Pool, customer_id: int, idempotency_key: str
 ) -> dict | None:
     row = await db.fetchrow(
-        """SELECT id, total_paise, status FROM orders
+        """SELECT id, total_paise, status, access_token_expires_at FROM orders
            WHERE customer_id = $1 AND idempotency_key = $2""",
         customer_id,
         idempotency_key,
@@ -354,6 +403,7 @@ async def _existing_order(
         "total_paise": row["total_paise"],
         "status": row["status"],
         "order_access_token": None,
+        "order_access_token_expires_at": row["access_token_expires_at"],
     }
 
 
@@ -390,6 +440,7 @@ async def checkout(
             return replay
     order_access_token = secrets.token_urlsafe(32)
     access_token_hash = hash_order_access_token(order_access_token)
+    access_token_expires_at = datetime.now(timezone.utc) + ORDER_ACCESS_TOKEN_TTL
     try:
         order_id = await place_order(
             db,
@@ -399,6 +450,7 @@ async def checkout(
             access_token_hash,
             idempotency_key=idempotency_key,
             cart_id=data.cart_id,
+            access_token_expires_at=access_token_expires_at,
         )
     except OutOfStock as exc:
         raise HTTPException(409, f"Product {exc.product_id} is out of stock in {data.city}") from exc
@@ -424,6 +476,7 @@ async def checkout(
         "total_paise": row["total_paise"],
         "status": row["status"],
         "order_access_token": order_access_token,
+        "order_access_token_expires_at": access_token_expires_at,
     }
 
 
@@ -439,7 +492,10 @@ async def get_order(
     async with db.acquire() as conn:
         order = await conn.fetchrow(
             """SELECT id, city, status, total_paise, created_at
-               FROM orders WHERE id = $1 AND access_token_hash = $2""",
+               FROM orders
+               WHERE id = $1 AND access_token_hash = $2
+                 AND access_token_expires_at > now()
+                 AND access_token_revoked_at IS NULL""",
             order_id,
             access_token_hash,
         )
@@ -452,6 +508,25 @@ async def get_order(
             order_id,
         )
     return {"order": dict(order), "items": [dict(item) for item in items]}
+
+
+@app.post("/orders/{order_id}/revoke-access", status_code=204)
+async def revoke_order_access(
+    order_id: int,
+    x_order_access_token: Annotated[str | None, Header()] = None,
+) -> Response:
+    if not x_order_access_token:
+        raise HTTPException(401, "Order access token required")
+    result = await db_pool().execute(
+        """UPDATE orders
+           SET access_token_revoked_at = COALESCE(access_token_revoked_at, now())
+           WHERE id = $1 AND access_token_hash = $2""",
+        order_id,
+        hash_order_access_token(x_order_access_token),
+    )
+    if result.endswith(" 0"):
+        raise HTTPException(404, "Order not found or access token is invalid")
+    return Response(status_code=204)
 
 
 def hash_order_access_token(token: str) -> str:

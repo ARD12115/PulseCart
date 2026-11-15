@@ -3,6 +3,7 @@
 
 const CART_ID_KEY = 'pulsecart_cart_id';
 const LOCAL_CART_KEY = 'pulsecart_cart';
+export const LOCAL_CART_UPDATED_KEY = 'pulsecart_cart_updated_at';
 
 export type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number };
 
@@ -56,6 +57,7 @@ export async function restoreCart(): Promise<CartItem[]> {
     if (!response.ok) return [];
     const cart = (await response.json()) as ServerCart;
     localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(cart.items));
+    localStorage.setItem(LOCAL_CART_UPDATED_KEY, String(Date.now()));
     return cart.items;
   } catch {
     return [];

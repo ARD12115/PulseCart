@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { currentCartId, newIdempotencyKey, restoreCart, syncCart } from '../cart-sync';
+import { currentCartId, LOCAL_CART_UPDATED_KEY, newIdempotencyKey, restoreCart, syncCart } from '../cart-sync';
 
 type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number };
 
@@ -10,6 +10,7 @@ const formatPrice = (paise: number) => new Intl.NumberFormat('en-IN', {
   style: 'currency',
   currency: 'INR',
 }).format(paise / 100);
+const LOCAL_CART_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export default function CartPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -19,6 +20,10 @@ export default function CartPage() {
   const [name, setName] = useState('');
   const [notice, setNotice] = useState('');
   const [orderId, setOrderId] = useState<number | null>(null);
+  const [orderAccessToken, setOrderAccessToken] = useState<string | null>(null);
+  const [orderAccessTokenExpiresAt, setOrderAccessTokenExpiresAt] = useState<string | null>(null);
+  const [accessCodeCopied, setAccessCodeCopied] = useState(false);
+  const [accessCodeCopyError, setAccessCodeCopyError] = useState('');
   const [busy, setBusy] = useState(false);
   // One key per order attempt: a retry after a lost response returns the same order instead of a duplicate.
   const idempotencyKey = useRef<string | null>(null);
@@ -26,8 +31,17 @@ export default function CartPage() {
 
   useEffect(() => {
     try {
+      const savedAt = Number(localStorage.getItem(LOCAL_CART_UPDATED_KEY));
+      const hasTimestamp = localStorage.getItem(LOCAL_CART_UPDATED_KEY) !== null;
+      const isExpired = hasTimestamp && (!Number.isFinite(savedAt) || Date.now() - savedAt > LOCAL_CART_TTL_MS);
+      if (isExpired) {
+        localStorage.removeItem('pulsecart_cart');
+        localStorage.removeItem('pulsecart_cart_id');
+        localStorage.removeItem(LOCAL_CART_UPDATED_KEY);
+      }
       const saved = JSON.parse(localStorage.getItem('pulsecart_cart') || '[]') as CartItem[];
       setCart(saved);
+      if (saved.length && !hasTimestamp) localStorage.setItem(LOCAL_CART_UPDATED_KEY, String(Date.now()));
       if (!saved.length) void restoreCart().then((restored) => { if (restored.length) setCart(restored); });
     } catch {
       localStorage.removeItem('pulsecart_cart');
@@ -47,6 +61,7 @@ export default function CartPage() {
     setCart(next);
     idempotencyKey.current = null; // the order changed, so the next attempt is a new order
     localStorage.setItem('pulsecart_cart', JSON.stringify(next));
+    localStorage.setItem(LOCAL_CART_UPDATED_KEY, String(Date.now()));
     window.dispatchEvent(new Event('pulsecart:cart-updated'));
     void syncCart(next);
   }
@@ -72,11 +87,18 @@ export default function CartPage() {
       // Keep the key after a network error or a 5xx (the order may exist); drop it
       // after a definite client error or once a successful response is validated.
       if ([404, 409, 422, 429].includes(response.status)) idempotencyKey.current = null;
-      const result = await response.json() as { order_id?: number; detail?: string };
+      const result = await response.json() as {
+        order_id?: number;
+        order_access_token?: string | null;
+        order_access_token_expires_at?: string | null;
+        detail?: string;
+      };
       if (!response.ok) throw new Error(result.detail || 'Checkout failed. Please try again.');
       if (!result.order_id) throw new Error('We could not confirm your order. Please contact the store.');
       idempotencyKey.current = null;
       setOrderId(result.order_id);
+      setOrderAccessToken(result.order_access_token ?? null);
+      setOrderAccessTokenExpiresAt(result.order_access_token_expires_at ?? null);
       updateCart([]);
     } catch (cause) {
       setNotice(cause instanceof Error ? cause.message : 'Checkout failed. Please try again.');
@@ -91,7 +113,40 @@ export default function CartPage() {
         <span className="success-mark" aria-hidden="true">✓</span>
         <p className="eyebrow">Order confirmed</p>
         <h1 id="order-success-title">Thanks for shopping nearby.</h1>
-        <p>Your order number is <strong>#{orderId}</strong>.</p>
+        <p>Your order number is <strong>Order #{orderId}</strong>.</p>
+        {orderAccessToken ? (
+          <div className="order-access-code" aria-labelledby="order-access-code-title">
+            <strong id="order-access-code-title">Private order access code</strong>
+            <code>{orderAccessToken}</code>
+            <p>
+              Save this code now. It is shown only once and expires{' '}
+              {orderAccessTokenExpiresAt
+                ? new Date(orderAccessTokenExpiresAt).toLocaleDateString()
+                : 'after 90 days'}.
+            </p>
+            <button
+              type="button"
+              className="button-dark"
+              onClick={() => {
+                if (!navigator.clipboard) {
+                  setAccessCodeCopyError('Clipboard access is unavailable. Select and copy the code above.');
+                  return;
+                }
+                void navigator.clipboard.writeText(orderAccessToken)
+                  .then(() => setAccessCodeCopied(true))
+                  .catch(() => setAccessCodeCopyError('Could not copy the code. Select and copy it above.'));
+              }}
+            >
+              {accessCodeCopied ? 'Copied' : 'Copy access code'}
+            </button>
+            {accessCodeCopyError && <span role="status">{accessCodeCopyError}</span>}
+          </div>
+        ) : (
+          <p role="status">
+            This order was confirmed from a retry, but its private access code can’t be shown again.
+            Contact the store if you need help with this order.
+          </p>
+        )}
         <Link href="/#shop" className="button-dark">Continue shopping <span aria-hidden="true">↗</span></Link>
       </section>
     );

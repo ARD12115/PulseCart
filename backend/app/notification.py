@@ -123,7 +123,7 @@ def smtp_settings() -> dict | None:
     host = os.getenv("SMTP_HOST", "").strip()
     if not host:
         return None
-    return {
+    settings = {
         "host": host,
         "port": int(os.getenv("SMTP_PORT", "587")),
         "user": os.getenv("SMTP_USER", ""),
@@ -131,6 +131,9 @@ def smtp_settings() -> dict | None:
         "sender": os.getenv("SMTP_FROM") or os.getenv("SMTP_USER") or "store@pulsecart.local",
         "starttls": os.getenv("SMTP_STARTTLS", "true").strip().lower() not in {"0", "false", "no"},
     }
+    if settings["user"] and not settings["starttls"]:
+        raise RuntimeError("SMTP_STARTTLS must be enabled when SMTP_USER is configured")
+    return settings
 
 
 def _send_smtp(settings: dict, row) -> None:
@@ -157,6 +160,8 @@ async def deliver(row) -> str:
             row["subject"],
         )
         return "logged"
+    if settings["user"] and not settings["starttls"]:
+        raise RuntimeError("SMTP_STARTTLS must be enabled when SMTP_USER is configured")
     await asyncio.to_thread(_send_smtp, settings, row)
     return "sent"
 
@@ -212,6 +217,7 @@ async def sender_loop(pool: asyncpg.Pool) -> None:
 
 async def main() -> None:
     configure_logging()
+    smtp_settings()  # Fail at startup rather than retrying mail with unsafe SMTP settings.
     if not PG_DSN:
         raise RuntimeError("PG_DSN is not configured")
     pool = await asyncpg.create_pool(

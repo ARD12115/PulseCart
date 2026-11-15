@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS orders (
   status TEXT NOT NULL DEFAULT 'placed',
   total_paise INTEGER NOT NULL CHECK (total_paise >= 0),
   access_token_hash TEXT,
+  access_token_expires_at TIMESTAMPTZ,
+  access_token_revoked_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -74,6 +76,7 @@ CREATE TABLE IF NOT EXISTS carts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE INDEX IF NOT EXISTS carts_updated_at ON carts (updated_at);
 
 CREATE TABLE IF NOT EXISTS cart_items (
   cart_id UUID NOT NULL REFERENCES carts(id) ON DELETE CASCADE,

@@ -13,6 +13,7 @@ import asyncio
 import os
 import unittest
 import uuid
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 
 import asyncpg
@@ -58,6 +59,9 @@ class PostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
         )
 
     async def order(self, **kwargs) -> int:
+        kwargs.setdefault(
+            "access_token_expires_at", datetime.now(timezone.utc) + timedelta(days=90)
+        )
         return await place_order(
             self.pool, self.customer_id, self.city, [(self.product_id, 1)], "hash", **kwargs
         )
@@ -111,6 +115,7 @@ class PostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
             await place_order(
                 self.pool, self.customer_id, self.city, [(self.product_id, 99)], "hash",
                 cart_id=cart_id,
+                access_token_expires_at=datetime.now(timezone.utc) + timedelta(days=90),
             )
 
         remaining = await self.pool.fetchval(

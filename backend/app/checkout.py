@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from uuid import UUID
 
 import asyncpg
@@ -25,6 +26,7 @@ async def place_order(
     *,
     idempotency_key: str | None = None,
     cart_id: UUID | None = None,
+    access_token_expires_at: datetime,
 ) -> int:
     """Create an order and outbox events atomically; items are product ID/quantity pairs.
 
@@ -73,13 +75,15 @@ async def place_order(
 
             order_id = await conn.fetchval(
                 """INSERT INTO orders
-                       (customer_id, city, total_paise, access_token_hash, idempotency_key)
-                   VALUES ($1, $2, $3, $4, $5) RETURNING id""",
+                       (customer_id, city, total_paise, access_token_hash, idempotency_key,
+                        access_token_expires_at)
+                   VALUES ($1, $2, $3, $4, $5, $6) RETURNING id""",
                 customer_id,
                 city,
                 total,
                 access_token_hash,
                 idempotency_key,
+                access_token_expires_at,
             )
             for product_id, qty, price, _ in lines:
                 await conn.execute(

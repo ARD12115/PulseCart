@@ -16,6 +16,8 @@ jobs:
   validate:
     name: Validate and build
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: ci-only-password
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -60,6 +62,12 @@ jobs:
 
       - name: Verify seeded product is available
         run: curl --fail http://localhost:8000/products/1
+
+      - name: Run PostgreSQL integration tests
+        working-directory: backend
+        env:
+          TEST_PG_DSN: postgresql://postgres:ci-only-password@localhost:5432/pulsecart
+        run: python -m unittest tests.test_postgres_integration -v
 
       - name: Install Playwright browsers
         working-directory: frontend

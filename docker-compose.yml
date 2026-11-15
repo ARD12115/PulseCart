@@ -3,7 +3,7 @@ services:
     image: postgres:16
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
       POSTGRES_DB: pulsecart
     ports:
       - "127.0.0.1:5432:5432"
@@ -73,7 +73,7 @@ services:
       context: ./backend
     environment:
       PG_DSN: postgresql://postgres@postgres:5432/pulsecart
-      PG_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
       OPENSEARCH_URL: http://opensearch:9200
@@ -106,7 +106,7 @@ services:
       context: ./backend
     environment:
       PG_DSN: postgresql://postgres@postgres:5432/pulsecart
-      PG_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
     depends_on:
@@ -120,7 +120,7 @@ services:
       context: ./backend
     environment:
       PG_DSN: postgresql://postgres@postgres:5432/pulsecart
-      PG_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
       OPENSEARCH_URL: http://opensearch:9200
@@ -141,7 +141,7 @@ services:
       SMTP_FROM: ${SMTP_FROM:-}
       SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
       PG_DSN: postgresql://postgres@postgres:5432/pulsecart
-      PG_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
     depends_on:

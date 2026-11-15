@@ -3,9 +3,11 @@
 .env.*
 !.env.example
 certs/
+backups/
 *.pem
 *.key
 *.cert
+*.dump
 
 # Python
 __pycache__/
