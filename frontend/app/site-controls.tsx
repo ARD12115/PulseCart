@@ -62,7 +62,7 @@ export default function SiteControls() {
       <nav
         id="primary-navigation"
         aria-label="Main navigation"
-        className={`${menuOpen ? 'flex' : 'hidden'} absolute right-0 top-full z-20 mt-2 min-w-40 flex-col gap-1 rounded-xl border border-ink/10 bg-surface p-2 shadow-lg md:static md:mt-0 md:flex md:min-w-0 md:flex-row md:items-center md:gap-2 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
+        className={`${menuOpen ? 'flex' : 'hidden'} absolute right-0 top-full z-20 mt-2 min-w-44 flex-col gap-1 border border-ink/10 bg-surface p-2 shadow-lg md:static md:mt-0 md:flex md:min-w-0 md:flex-row md:items-center md:gap-1 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
       >
         {navigationItems.map(({ href, label }) => {
           const active = href === '/' ? pathname === href : pathname.startsWith(href);
@@ -71,7 +71,7 @@ export default function SiteControls() {
               key={href}
               href={href}
               aria-current={active ? 'page' : undefined}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              className={`rounded-full px-3 py-2 text-xs font-semibold transition ${
                 active
                   ? 'bg-moss-solid text-white hover:bg-moss-solid hover:text-white'
                   : 'text-ink/75 hover:bg-ink/5 hover:text-moss'
