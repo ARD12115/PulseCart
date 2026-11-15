@@ -113,12 +113,12 @@ export default function HomePage() {
       <section className="editorial-hero" aria-labelledby="hero-title">
         <div className="hero-grain" aria-hidden="true" />
         <ScrollReveal className="hero-copy">
-          <p className="eyebrow">Thoughtful everyday finds</p>
+          <p className="eyebrow"><span>01</span> PulseCart / local signal</p>
           <h1 id="hero-title">Good things.<br /><em>Close to home.</em></h1>
-          <p className="hero-description">Discover useful finds from nearby shops. Check what’s in stock, then add your favorite to the cart.</p>
+          <p className="hero-description">A brighter way to find what your neighborhood has in stock. Explore the local feed and pick up something good.</p>
           <div className="hero-actions">
-            <a className="button-dark" href="#shop">Browse products <span aria-hidden="true">↓</span></a>
-            <span className="hero-note">Local finds, easy checkout.</span>
+            <a className="button-dark" href="#shop">Explore the collection <span aria-hidden="true">↘</span></a>
+            <span className="hero-note">NEARBY / AVAILABLE NOW</span>
           </div>
         </ScrollReveal>
 
@@ -137,11 +137,23 @@ export default function HomePage() {
         </ScrollReveal>
       </section>
 
+      <ScrollReveal className="manifesto-section">
+        <div className="manifesto-heading">
+          <p className="eyebrow"><span>02</span> Signal from your city</p>
+          <h2>Good things are<br /><em>closer than you think.</em></h2>
+        </div>
+        <div className="manifesto-aside">
+          <span className="signal-mark" aria-hidden="true">✳</span>
+          <p>Meet a more connected neighborhood: useful finds, live local stock, and a smoother way to shop the stores around you.</p>
+          <a className="text-link" href="#shop">Tune into the collection <span aria-hidden="true">↘</span></a>
+        </div>
+      </ScrollReveal>
+
       <section className="shop-section" id="shop" aria-labelledby="shop-heading">
         <div className="shop-heading-row">
           <ScrollReveal className="shop-title-block">
-            <p className="eyebrow">The local collection</p>
-            <h2 id="shop-heading">Find your <em>thing.</em></h2>
+            <p className="eyebrow"><span>03</span> The local collection</p>
+            <h2 id="shop-heading">Browse the <em>signal.</em></h2>
           </ScrollReveal>
           <p className="shop-intro">Search or narrow by category and delivery city.</p>
         </div>
@@ -207,6 +219,22 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      <ScrollReveal className="closing-story">
+        <div className="closing-art" aria-hidden="true">
+          <div className="closing-grid" />
+          <div className="closing-orbit closing-orbit-one" />
+          <div className="closing-orbit closing-orbit-two" />
+          <span className="closing-core">PC<span>_</span></span>
+          <span className="closing-art-label">LOCAL NETWORK / ONLINE</span>
+        </div>
+        <div className="closing-copy">
+          <p className="eyebrow"><span>04</span> Your next good find</p>
+          <h2>Stay close.<br /><em>Find more.</em></h2>
+          <p>Your neighborhood is full of good things. Take another look around.</p>
+          <a href="#shop" className="button-light">Back to the collection <span aria-hidden="true">↑</span></a>
+        </div>
+      </ScrollReveal>
     </div>
   );
 }
