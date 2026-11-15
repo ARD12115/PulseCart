@@ -45,3 +45,7 @@ work/
 *.log
 .DS_Store
 Thumbs.db
+
+# Local editor and agent tooling configuration
+.vscode/
+.agents/
