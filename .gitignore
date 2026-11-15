@@ -39,6 +39,7 @@ test-results/
 blob-report/
 security-reports/
 work/
+*.patch
 
 # Local logs and operating-system files
 *.log

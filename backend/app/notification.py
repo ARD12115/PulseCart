@@ -236,6 +236,7 @@ async def main() -> None:
             await consumer.commit()
     finally:
         sender.cancel()
+        await asyncio.gather(sender, return_exceptions=True)
         await consumer.stop()
         await pool.close()
 

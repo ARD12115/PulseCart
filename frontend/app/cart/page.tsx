@@ -69,11 +69,13 @@ export default function CartPage() {
           items: cart.map((item) => ({ product_id: item.id, qty: item.qty })),
         }),
       });
-      // Keep the key after a network error or a 5xx (the order may exist); drop it once the server gave a definite answer.
-      if (response.ok || [404, 409, 422, 429].includes(response.status)) idempotencyKey.current = null;
+      // Keep the key after a network error or a 5xx (the order may exist); drop it
+      // after a definite client error or once a successful response is validated.
+      if ([404, 409, 422, 429].includes(response.status)) idempotencyKey.current = null;
       const result = await response.json() as { order_id?: number; detail?: string };
       if (!response.ok) throw new Error(result.detail || 'Checkout failed. Please try again.');
       if (!result.order_id) throw new Error('We could not confirm your order. Please contact the store.');
+      idempotencyKey.current = null;
       setOrderId(result.order_id);
       updateCart([]);
     } catch (cause) {
