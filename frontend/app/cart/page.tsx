@@ -1,10 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number };
-type City = { city: string; stock: number };
+
+const formatPrice = (paise: number) => new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+}).format(paise / 100);
 
 export default function CartPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -14,7 +18,6 @@ export default function CartPage() {
   const [name, setName] = useState('');
   const [notice, setNotice] = useState('');
   const [orderId, setOrderId] = useState<number | null>(null);
-  const [orderAccessToken, setOrderAccessToken] = useState('');
   const [busy, setBusy] = useState(false);
   const total = useMemo(() => cart.reduce((sum, item) => sum + item.price_paise * item.qty, 0), [cart]);
 
@@ -23,22 +26,28 @@ export default function CartPage() {
       setCart(JSON.parse(localStorage.getItem('pulsecart_cart') || '[]') as CartItem[]);
     } catch {
       localStorage.removeItem('pulsecart_cart');
-      setNotice('Your saved cart could not be read and was cleared.');
+      setNotice('Your saved cart could not be read. Please add your items again.');
     }
-    fetch('/api/cities').then((response) => response.json() as Promise<string[]>).then(setCities).catch(() => setNotice('Could not load delivery cities.'));
+
+    fetch('/api/cities')
+      .then((response) => {
+        if (!response.ok) throw new Error('Could not load delivery cities');
+        return response.json() as Promise<string[]>;
+      })
+      .then(setCities)
+      .catch(() => setNotice('Delivery cities are temporarily unavailable. Please try again.'));
   }, []);
 
   function updateCart(next: CartItem[]) {
     setCart(next);
     localStorage.setItem('pulsecart_cart', JSON.stringify(next));
+    window.dispatchEvent(new Event('pulsecart:cart-updated'));
   }
 
-  async function checkout() {
+  async function checkout(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!cart.length || busy) return;
     setNotice('');
-    if (!cart.length || !email || !name || !city) {
-      setNotice('Add items and fill in your email, name, and city.');
-      return;
-    }
     setBusy(true);
     try {
       const response = await fetch('/api/checkout', {
@@ -51,83 +60,107 @@ export default function CartPage() {
           items: cart.map((item) => ({ product_id: item.id, qty: item.qty })),
         }),
       });
-      const result = await response.json() as { order_id: number; order_access_token: string; detail?: string };
-      if (!response.ok) throw new Error(result.detail || 'Checkout failed');
+      const result = await response.json() as { order_id?: number; detail?: string };
+      if (!response.ok) throw new Error(result.detail || 'Checkout failed. Please try again.');
+      if (!result.order_id) throw new Error('We could not confirm your order. Please contact the store.');
       setOrderId(result.order_id);
-      setOrderAccessToken(result.order_access_token);
-      setNotice(`Order #${result.order_id} placed. Save this order ID and the private access code below to view its details later.`);
-      try {
-        updateCart([]);
-      } catch {
-        setNotice(`Order #${result.order_id} was placed, but the saved cart could not be cleared. Save the order ID and access code below, then clear the cart before placing another order.`);
-      }
+      updateCart([]);
     } catch (cause) {
-      setNotice(cause instanceof Error ? cause.message : 'Checkout failed. Please retry.');
+      setNotice(cause instanceof Error ? cause.message : 'Checkout failed. Please try again.');
     } finally {
       setBusy(false);
     }
   }
 
+  if (orderId !== null) {
+    return (
+      <section className="order-success" aria-labelledby="order-success-title">
+        <span className="success-mark" aria-hidden="true">✓</span>
+        <p className="eyebrow">Order confirmed</p>
+        <h1 id="order-success-title">Thanks for shopping nearby.</h1>
+        <p>Your order number is <strong>#{orderId}</strong>.</p>
+        <Link href="/#shop" className="button-dark">Continue shopping <span aria-hidden="true">↗</span></Link>
+      </section>
+    );
+  }
+
+  if (!cart.length) {
+    return (
+      <section className="empty-cart" aria-labelledby="cart-title">
+        <p className="eyebrow">Your bag</p>
+        <h1 id="cart-title">Nothing here yet.</h1>
+        <p>Find something useful or lovely from a shop nearby.</p>
+        <Link href="/#shop" className="button-dark">Browse products <span aria-hidden="true">↗</span></Link>
+        {notice && <p role="status" className="cart-notice">{notice}</p>}
+      </section>
+    );
+  }
+
   return (
-    <div className="mx-auto max-w-4xl">
-      <h1 className="text-3xl font-black">Your cart</h1>
-      {!cart.length ? (
-        <div className="mt-6 rounded-lg border border-ink/10 bg-surface p-8 text-center">
-          <p className="text-ink/60">Your cart is empty.</p>
-          <Link href="/" className="mt-4 inline-block font-bold text-moss underline">Browse the store</Link>
-        </div>
-      ) : (
-        <div className="mt-6 grid gap-6 md:grid-cols-[1fr_320px]">
-          <div className="space-y-3">
-            {cart.map((item) => (
-              <div key={item.id} className="flex items-center justify-between gap-4 rounded-lg border border-ink/10 bg-surface p-4">
-                <div><p className="font-bold">{item.name}</p><p className="text-sm text-ink/50">{item.sku}</p></div>
-                <div className="flex items-center gap-3">
-                  <input aria-label={`Quantity for ${item.name}`} type="number" min="1" max="50" value={item.qty} className="w-16 rounded-md border px-2 py-1" onChange={(event) => {
-                    const qty = Number(event.target.value);
-                    updateCart(cart.map((line) => line.id === item.id ? { ...line, qty: Math.max(1, Math.min(50, qty || 1)) } : line));
-                  }} />
-                  <button className="text-sm text-danger underline" onClick={() => updateCart(cart.filter((line) => line.id !== item.id))}>Remove</button>
-                </div>
+    <div className="cart-page">
+      <div className="cart-heading">
+        <div><p className="eyebrow">Your bag</p><h1>Review and check out.</h1></div>
+        <span>{cart.reduce((count, item) => count + item.qty, 0)} items</span>
+      </div>
+
+      <div className="cart-layout">
+        <section className="cart-items" aria-label="Items in your cart">
+          {cart.map((item) => (
+            <article key={item.id} className="cart-item">
+              <div className="cart-item-copy">
+                <h2>{item.name}</h2>
+                <p>{formatPrice(item.price_paise)} each</p>
               </div>
-            ))}
-          </div>
-          <aside className="h-fit space-y-4 rounded-lg border border-ink/10 bg-surface p-5">
-                      <h2 className="text-lg font-bold">Checkout</h2>
-                      <p className="flex justify-between"><span>Total</span><strong>₹{(total / 100).toFixed(2)}</strong></p>
-                      <label className="block space-y-1">
-                        <span className="sr-only">Email</span>
-                        <input className="w-full rounded-md border px-3 py-2" type="email" autoComplete="email" placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
-                      </label>
-                      <label className="block space-y-1">
-                        <span className="sr-only">Name</span>
-                        <input className="w-full rounded-md border px-3 py-2" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)} />
-                      </label>
-                      <label className="block space-y-1">
-                        <span className="sr-only">Delivery city</span>
-                        <select className="w-full rounded-md border px-3 py-2" value={city} onChange={(event) => setCity(event.target.value)}>
-                          <option value="">Choose delivery city</option>
-                          {cities.map((item) => <option key={item} value={item}>{item}</option>)}
-                        </select>
-                      </label>
-                      <button disabled={busy} onClick={checkout} className="w-full rounded-md bg-moss-solid px-4 py-3 font-bold text-white disabled:opacity-50">{busy ? 'Placing order...' : 'Place order'}</button>
-                    </aside>
-        </div>
-      )}
-      {notice && <p role="status" className="mt-5 rounded-md bg-surface p-4">{notice}</p>}
-      {orderId !== null && (
-        <div className="mt-3 rounded-md border border-ink/10 bg-surface p-4">
-          <p className="text-sm font-semibold">Order ID</p>
-          <code className="mt-2 block text-sm">#{orderId}</code>
-        </div>
-      )}
-      {orderAccessToken && (
-        <div className="mt-3 rounded-md border border-ink/10 bg-surface p-4">
-          <p className="text-sm font-semibold">Private order access code</p>
-          <code className="mt-2 block break-all text-sm">{orderAccessToken}</code>
-          <p className="mt-2 text-xs text-ink/60">Anyone with this code can view this order. It is shown only once.</p>
-        </div>
-      )}
+              <label className="quantity-control">
+                <span>Qty</span>
+                <input
+                  aria-label={`Quantity for ${item.name}`}
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={item.qty}
+                  onChange={(event) => {
+                    const quantity = Number(event.target.value);
+                    updateCart(cart.map((line) => line.id === item.id
+                      ? { ...line, qty: Math.max(1, Math.min(50, quantity || 1)) }
+                      : line));
+                  }}
+                />
+              </label>
+              <strong className="cart-line-total">{formatPrice(item.price_paise * item.qty)}</strong>
+              <button type="button" className="remove-item" onClick={() => updateCart(cart.filter((line) => line.id !== item.id))}>
+                Remove <span className="sr-only">{item.name}</span>
+              </button>
+            </article>
+          ))}
+          <Link href="/#shop" className="continue-shopping">← Continue shopping</Link>
+        </section>
+
+        <form className="checkout-card" onSubmit={checkout}>
+          <h2>Delivery details</h2>
+          <label>
+            <span>Delivery city</span>
+            <select required value={city} onChange={(event) => setCity(event.target.value)}>
+              <option value="">Choose a city</option>
+              {cities.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Your name</span>
+            <input required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
+          </label>
+          <label>
+            <span>Email for your receipt</span>
+            <input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+          </label>
+          <div className="checkout-total"><span>Total</span><strong>{formatPrice(total)}</strong></div>
+          <button type="submit" className="place-order-button" disabled={busy || cities.length === 0}>
+            {busy ? 'Placing order…' : 'Place order'} <span aria-hidden="true">↗</span>
+          </button>
+          <p className="checkout-note">Your order is placed with the shop after you confirm.</p>
+          {notice && <p role="alert" className="cart-notice">{notice}</p>}
+        </form>
+      </div>
     </div>
   );
 }

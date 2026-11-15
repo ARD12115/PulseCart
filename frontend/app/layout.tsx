@@ -24,12 +24,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <footer className="site-footer">
           <div className="site-footer-inner">
             <div className="site-footer-top">
-              <p>Keep good things<br /><em>close by.</em></p>
-              <Link href="/#shop" className="footer-shop-link">Shop the neighborhood <span aria-hidden="true">↗</span></Link>
+              <p>Good things,<br /><em>close by.</em></p>
+              <nav aria-label="Footer navigation">
+                <Link href="/#shop">Shop</Link>
+                <Link href="/cart">Cart</Link>
+              </nav>
             </div>
             <div className="site-footer-bottom">
-              <span>PulseCart · Thoughtful finds, closer to home.</span>
-              <span>Made for everyday living.</span>
+              <span>PulseCart · Everyday finds from shops nearby.</span>
+              <span>Stock is shown by delivery city.</span>
             </div>
           </div>
         </footer>
