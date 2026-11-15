@@ -7,7 +7,7 @@ export const LOCAL_CART_UPDATED_KEY = 'pulsecart_cart_updated_at';
 
 export type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number };
 
-type ServerCart = { cart_id: string; items: CartItem[] };
+type ServerCart = { cart_id: string; updated_at: string; items: CartItem[] };
 
 export function currentCartId(): string | null {
   try {
@@ -30,6 +30,11 @@ async function createCartId(): Promise<string | null> {
 }
 
 export async function syncCart(items: Pick<CartItem, 'id' | 'qty'>[]): Promise<void> {
+  try {
+    localStorage.setItem(LOCAL_CART_UPDATED_KEY, String(Date.now()));
+  } catch {
+    // Keep syncing to the server when browser storage is unavailable.
+  }
   const body = JSON.stringify({ items: items.map((item) => ({ product_id: item.id, qty: item.qty })) });
   const headers = { 'Content-Type': 'application/json' };
   try {
@@ -56,8 +61,10 @@ export async function restoreCart(): Promise<CartItem[]> {
     const response = await fetch(`/api/carts/${cartId}`);
     if (!response.ok) return [];
     const cart = (await response.json()) as ServerCart;
+    const updatedAt = Date.parse(cart.updated_at);
+    if (!Number.isFinite(updatedAt)) return [];
+    localStorage.setItem(LOCAL_CART_UPDATED_KEY, String(updatedAt));
     localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(cart.items));
-    localStorage.setItem(LOCAL_CART_UPDATED_KEY, String(Date.now()));
     return cart.items;
   } catch {
     return [];

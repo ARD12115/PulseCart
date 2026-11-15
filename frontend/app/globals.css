@@ -2355,11 +2355,33 @@ body {
   --neon-acid: var(--focus-ring);
 }
 .hero-product-card {
+  z-index: 1;
   border: 2px solid #d4ff00;
   border-radius: 0;
   background: #141417;
   box-shadow: 5px 5px 0 #f4f4f4;
 }
+.kinetic-engine { position: absolute; inset: 0; z-index: 0; display: grid; place-items: center; overflow: hidden; perspective: 900px; pointer-events: none; }
+.engine-ring { position: absolute; width: min(92%, 440px); aspect-ratio: 1; border: 2px solid rgb(212 255 0 / .72); border-radius: 50%; box-shadow: 0 0 22px rgb(212 255 0 / .16), inset 0 0 22px rgb(212 255 0 / .08); transform-style: preserve-3d; }
+.engine-ring-one { animation: engine-orbit-one 18s linear infinite; }
+.engine-ring-two { width: min(76%, 360px); border-color: rgb(0 240 255 / .55); animation: engine-orbit-two 22s linear infinite; }
+.engine-ring-three { width: min(62%, 290px); border-color: rgb(255 255 255 / .38); animation: engine-orbit-three 28s linear infinite; }
+.engine-cube { position: relative; width: 112px; height: 112px; transform-style: preserve-3d; animation: engine-cube-spin 24s linear infinite; }
+.engine-face { position: absolute; display: grid; width: 112px; height: 112px; place-items: center; border: 2px solid #d4ff00; background: rgb(10 10 11 / .84); color: #d4ff00; box-shadow: inset 0 0 25px rgb(212 255 0 / .12); font: 800 1.6rem 'JetBrains Mono', monospace; backface-visibility: visible; }
+.engine-face-front { transform: translateZ(56px); }
+.engine-face-back { transform: rotateY(180deg) translateZ(56px); }
+.engine-face-right { border-color: #00f0ff; transform: rotateY(90deg) translateZ(56px); }
+.engine-face-left { transform: rotateY(-90deg) translateZ(56px); }
+.engine-face-top { border-color: #fff; transform: rotateX(90deg) translateZ(56px); }
+.engine-face-bottom { transform: rotateX(-90deg) translateZ(56px); }
+.engine-satellite { position: absolute; width: 16px; height: 16px; border: 2px solid #0a0a0b; background: #d4ff00; box-shadow: 3px 3px 0 #f4f4f4, 0 0 20px rgb(212 255 0 / .4); }
+.engine-satellite-one { top: 19%; left: 23%; }
+.engine-satellite-two { right: 17%; bottom: 24%; width: 12px; height: 12px; background: #00f0ff; }
+.engine-satellite-three { top: 24%; right: 21%; width: 9px; height: 9px; background: #ff506e; }
+@keyframes engine-cube-spin { to { transform: rotateX(360deg) rotateY(360deg) rotateZ(90deg); } }
+@keyframes engine-orbit-one { from { transform: rotateX(63deg) rotateZ(0deg); } to { transform: rotateX(63deg) rotateZ(360deg); } }
+@keyframes engine-orbit-two { from { transform: rotateY(66deg) rotateZ(360deg); } to { transform: rotateY(66deg) rotateZ(0deg); } }
+@keyframes engine-orbit-three { from { transform: rotateX(74deg) rotateY(24deg) rotateZ(0deg); } to { transform: rotateX(74deg) rotateY(24deg) rotateZ(360deg); } }
 .hero-product-caption,
 .hero-product-caption strong { color: #f4f4f4; }
 .hero-product-caption > div > span { color: #aaa; }
@@ -2665,6 +2687,14 @@ body {
   .consumer-nav a { flex: 0 0 auto; font-size: .58rem; }
   .editorial-hero { min-height: auto; box-shadow: 3px 3px 0 #d4ff00; }
   .editorial-hero { padding: 5rem 1rem 5rem; }
+  .engine-cube,
+  .engine-face { width: 78px; height: 78px; }
+  .engine-face-front { transform: translateZ(39px); }
+  .engine-face-back { transform: rotateY(180deg) translateZ(39px); }
+  .engine-face-right { transform: rotateY(90deg) translateZ(39px); }
+  .engine-face-left { transform: rotateY(-90deg) translateZ(39px); }
+  .engine-face-top { transform: rotateX(90deg) translateZ(39px); }
+  .engine-face-bottom { transform: rotateX(-90deg) translateZ(39px); }
   .hero-coordinate { top: .7rem; font-size: .48rem; }
   .hero-coordinate-left { left: .7rem; }
   .hero-coordinate-right { right: .7rem; }
@@ -2693,6 +2723,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .engine-ring,
+  .engine-cube { animation-play-state: paused; }
   .scroll-progress { transition: none; }
   .button-dark,
   .button-light,

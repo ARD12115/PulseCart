@@ -46,6 +46,8 @@ To stop the services, press `Ctrl+C`, then run `docker compose down`. Add `-v` o
 
 Changing `POSTGRES_PASSWORD` in `.env` does not change the password of a database that already exists in the `postgres_data` volume; the official Postgres image only applies that variable when initializing an empty data directory. Do not remove the volume to rotate credentials.
 
+The stored `postgres` role and Compose configuration must be changed together: `\password postgres` updates the live database role, while `POSTGRES_PASSWORD` supplies the new value to the `postgres` container and `PG_PASSWORD` to all four database clients (`backend`, `relay`, `search-sync`, and `notification`).
+
 1. Take and verify a database backup.
 2. Connect to the existing database over TCP using the current password: `docker compose exec postgres psql -h 127.0.0.1 -U postgres -d pulsecart`. Enter the current password when prompted.
 3. At the `psql` prompt, run `\password postgres`, enter the new password twice, then exit with `\q`.
@@ -58,7 +60,18 @@ Changing `POSTGRES_PASSWORD` in `.env` does not change the password of a databas
 2. Copy `.env.example` to `.env`; set a password-free PostgreSQL DSN (with `?sslmode=require`) and put its raw password in `PG_PASSWORD`; set the Kafka bootstrap host, OpenSearch HTTPS URL and service username/password, and CORS origin.
 3. Configure Kafka with `KAFKA_SECURITY_PROTOCOL=SSL`; download `ca.pem`, `service.cert`, and `service.key` into the ignored `certs/` folder. Never commit secrets.
 4. Create Kafka topics `order.placed` and `inventory.changed`.
-5. Apply `db/schema.sql` to a new Aiven PostgreSQL database. For an existing database, apply each migration in order from `db/migrations/` using the provider's SQL console or `psql "$env:PG_DSN" -W -f db/migrations/001_order_access_token.sql`. Migration 003 expires existing access tokens after a 90-day grace period; new order access tokens expire after 90 days and can be revoked with `POST /orders/{order_id}/revoke-access` using the token header. Existing orders created before `001_order_access_token.sql` have no customer access token; use the protected admin view if they must be inspected.
+5. Apply `db/schema.sql` to a new Aiven PostgreSQL database. For an existing database, keep the backend and workers stopped until all migrations have been applied in order. Run these commands from the repository root; enter the database password when prompted:
+
+   ```powershell
+   psql "$env:PG_DSN" -W -f db/migrations/001_order_access_token.sql
+   if ($LASTEXITCODE -ne 0) { throw 'Migration 001 failed; keep the backend stopped.' }
+   psql "$env:PG_DSN" -W -f db/migrations/002_carts_idempotency_notifications.sql
+   if ($LASTEXITCODE -ne 0) { throw 'Migration 002 failed; keep the backend stopped.' }
+   psql "$env:PG_DSN" -W -f db/migrations/003_order_token_expiry.sql
+   if ($LASTEXITCODE -ne 0) { throw 'Migration 003 failed; keep the backend stopped.' }
+   ```
+
+   Migration 003 adds both token expiry/revocation columns and gives existing hashed tokens a 90-day grace period starting when the migration runs; those tokens remain usable during that period unless revoked. Start the backend only after the migrations complete. New access tokens also expire after 90 days and can be revoked with `POST /orders/{order_id}/revoke-access` using the token header. Existing orders created before migration 001 have no customer access token; use the protected admin view if they must be inspected.
 6. Set `APP_ENV=production` and a long random `ADMIN_KEY` in the deployment environment before exposing the API.
 7. When a trusted reverse proxy sits directly in front of the API, set `TRUSTED_PROXY_IPS` to only that proxy's IP address or CIDR and configure it to replace any incoming `X-Forwarded-For` header. Uvicorn proxy-header rewriting is disabled so untrusted headers cannot change the limiter's client key.
 8. Install backend requirements, seed once, then start the API and workers in separate terminals:
@@ -139,19 +152,34 @@ For a local Compose backup, create the ignored `backups/` directory and write a 
 
 ```powershell
 New-Item -ItemType Directory -Force backups
+$temporaryBackup = "backups/pulsecart.$([guid]::NewGuid().ToString('N')).tmp"
+$finalBackup = 'backups/pulsecart.dump'
 docker compose exec -T postgres pg_dump -U postgres -d pulsecart -Fc -f /tmp/pulsecart.dump
-docker compose cp postgres:/tmp/pulsecart.dump backups/pulsecart.dump
-docker compose exec postgres rm /tmp/pulsecart.dump
+if ($LASTEXITCODE -ne 0) { throw 'pg_dump failed; the existing backup was not changed.' }
+docker compose cp postgres:/tmp/pulsecart.dump $temporaryBackup
+if ($LASTEXITCODE -ne 0) { throw 'Copying the dump failed; the existing backup was not changed.' }
+if (Test-Path $finalBackup) {
+    [System.IO.File]::Replace((Resolve-Path $temporaryBackup).Path, (Resolve-Path $finalBackup).Path, $null)
+} else {
+    Move-Item -LiteralPath $temporaryBackup -Destination $finalBackup
+}
+docker compose exec -T postgres rm -f /tmp/pulsecart.dump
+if ($LASTEXITCODE -ne 0) { Write-Warning 'The backup is safe, but the temporary dump remains in the postgres container.' }
 ```
 
 To verify a local dump, restore it into a separate disposable database (never overwrite the active store):
 
 ```powershell
 docker compose exec postgres createdb -U postgres pulsecart_restore_check
+if ($LASTEXITCODE -ne 0) { throw 'Could not create the disposable restore-check database.' }
 docker compose cp backups/pulsecart.dump postgres:/tmp/pulsecart.dump
+if ($LASTEXITCODE -ne 0) { throw 'Could not copy the dump; inspect the disposable database before cleanup.' }
 docker compose exec postgres pg_restore -U postgres -d pulsecart_restore_check /tmp/pulsecart.dump
+if ($LASTEXITCODE -ne 0) { throw 'Restore check failed; the disposable database and container dump were left for inspection.' }
 docker compose exec postgres dropdb -U postgres pulsecart_restore_check
+if ($LASTEXITCODE -ne 0) { throw 'Could not remove the disposable database; the dump was left for inspection.' }
 docker compose exec postgres rm /tmp/pulsecart.dump
+if ($LASTEXITCODE -ne 0) { throw 'Could not remove the temporary container dump.' }
 ```
 
 For production, use the managed database's encrypted backup/snapshot facility and retention controls. Test restores periodically into a separate disposable database; a successful backup command alone does not prove a restore will work. Keep backup files out of Git.

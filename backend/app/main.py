@@ -243,6 +243,7 @@ class CartLineOut(BaseModel):
 
 class CartOut(BaseModel):
     cart_id: UUID
+    updated_at: datetime
     items: list[CartLineOut]
 
 
@@ -534,7 +535,7 @@ def hash_order_access_token(token: str) -> str:
 
 
 async def _load_cart(conn: asyncpg.Connection, cart_id: UUID) -> dict | None:
-    cart = await conn.fetchval("SELECT id FROM carts WHERE id = $1", cart_id)
+    cart = await conn.fetchrow("SELECT id, updated_at FROM carts WHERE id = $1", cart_id)
     if cart is None:
         return None
     rows = await conn.fetch(
@@ -543,14 +544,14 @@ async def _load_cart(conn: asyncpg.Connection, cart_id: UUID) -> dict | None:
            WHERE ci.cart_id = $1 ORDER BY p.id""",
         cart_id,
     )
-    return {"cart_id": cart_id, "items": [dict(row) for row in rows]}
+    return {"cart_id": cart_id, "updated_at": cart["updated_at"], "items": [dict(row) for row in rows]}
 
 
 @app.post("/carts", response_model=CartOut, status_code=201)
 @limiter.limit(cart_rate_limit)
 async def create_cart(request: Request, response: Response) -> dict:
-    cart_id = await db_pool().fetchval("INSERT INTO carts DEFAULT VALUES RETURNING id")
-    return {"cart_id": cart_id, "items": []}
+    cart = await db_pool().fetchrow("INSERT INTO carts DEFAULT VALUES RETURNING id, updated_at")
+    return {"cart_id": cart["id"], "updated_at": cart["updated_at"], "items": []}
 
 
 @app.get("/carts/{cart_id}", response_model=CartOut)
