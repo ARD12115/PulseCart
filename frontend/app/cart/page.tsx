@@ -24,6 +24,9 @@ export default function CartPage() {
   const [orderAccessTokenExpiresAt, setOrderAccessTokenExpiresAt] = useState<string | null>(null);
   const [accessCodeCopied, setAccessCodeCopied] = useState(false);
   const [accessCodeCopyError, setAccessCodeCopyError] = useState('');
+  const [accessCodeRevoked, setAccessCodeRevoked] = useState(false);
+  const [accessCodeRevoking, setAccessCodeRevoking] = useState(false);
+  const [accessCodeRevokeError, setAccessCodeRevokeError] = useState('');
   const [busy, setBusy] = useState(false);
   // One key per order attempt: a retry after a lost response returns the same order instead of a duplicate.
   const idempotencyKey = useRef<string | null>(null);
@@ -107,6 +110,26 @@ export default function CartPage() {
     }
   }
 
+  async function revokeOrderAccess() {
+    if (orderId === null || !orderAccessToken || accessCodeRevoking) return;
+    setAccessCodeRevoking(true);
+    setAccessCodeRevokeError('');
+    try {
+      const response = await fetch(`/api/orders/${orderId}/revoke-access`, {
+        method: 'POST',
+        headers: { 'X-Order-Access-Token': orderAccessToken },
+      });
+      if (!response.ok) throw new Error('Could not revoke the access code. Please try again.');
+      setOrderAccessToken(null);
+      setOrderAccessTokenExpiresAt(null);
+      setAccessCodeRevoked(true);
+    } catch (cause) {
+      setAccessCodeRevokeError(cause instanceof Error ? cause.message : 'Could not revoke the access code.');
+    } finally {
+      setAccessCodeRevoking(false);
+    }
+  }
+
   if (orderId !== null) {
     return (
       <section className="order-success" aria-labelledby="order-success-title">
@@ -140,7 +163,18 @@ export default function CartPage() {
               {accessCodeCopied ? 'Copied' : 'Copy access code'}
             </button>
             {accessCodeCopyError && <span role="status">{accessCodeCopyError}</span>}
+            <button
+              type="button"
+              className="order-revoke-button"
+              disabled={accessCodeRevoking}
+              onClick={() => void revokeOrderAccess()}
+            >
+              {accessCodeRevoking ? 'Revoking…' : 'Revoke access code'}
+            </button>
+            {accessCodeRevokeError && <span role="alert">{accessCodeRevokeError}</span>}
           </div>
+        ) : accessCodeRevoked ? (
+          <p role="status">The private order access code has been revoked.</p>
         ) : (
           <p role="status">
             This order was confirmed from a retry, but its private access code can’t be shown again.

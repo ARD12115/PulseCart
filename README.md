@@ -156,6 +156,8 @@ docker compose exec postgres rm /tmp/pulsecart.dump
 
 For production, use the managed database's encrypted backup/snapshot facility and retention controls. Test restores periodically into a separate disposable database; a successful backup command alone does not prove a restore will work. Keep backup files out of Git.
 
+See [the incident runbook](docs/incident-runbook.md) for outage triage, credential exposure, data recovery, and follow-up procedures. Add deployment-specific contacts and alerting before launch.
+
 ## Tests
 
 ```powershell
