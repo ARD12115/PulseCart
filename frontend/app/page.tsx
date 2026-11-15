@@ -106,17 +106,18 @@ export default function HomePage() {
         <section aria-label="Product filters" className="mb-8 rounded-xl border border-ink/10 bg-surface p-4">
           <form onSubmit={onSearch} className="grid gap-3 md:grid-cols-6">
             <input
-              className="rounded-lg border border-ink/15 px-4 py-3 md:col-span-2"
-              type="search"
-              placeholder={'Search products (try "bluetoth")'}
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-            <select className="rounded-lg border border-ink/15 px-3 py-3" value={category} onChange={(event) => setCategory(event.target.value)}>
+                        className="rounded-lg border border-ink/15 px-4 py-3 md:col-span-2"
+                        type="search"
+                        aria-label="Search products"
+                        placeholder={'Search products (try "bluetoth")'}
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                      />
+                        <select aria-label="Category filter" className="rounded-lg border border-ink/15 px-3 py-3" value={category} onChange={(event) => setCategory(event.target.value)}>
               <option value="">All categories</option>
               {categories.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
-            <select className="rounded-lg border border-ink/15 px-3 py-3" value={city} onChange={(event) => setCity(event.target.value)}>
+            <select aria-label="City filter" className="rounded-lg border border-ink/15 px-3 py-3" value={city} onChange={(event) => setCity(event.target.value)}>
               <option value="">All cities</option>
               {cities.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>

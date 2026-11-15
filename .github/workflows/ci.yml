@@ -52,6 +52,27 @@ jobs:
         working-directory: frontend
         run: npm run build
 
+      - name: Start services
+        run: docker compose up -d --wait --wait-timeout 180 postgres zookeeper kafka opensearch
+
+      - name: Start backend
+        run: docker compose up -d --wait --wait-timeout 180 backend
+
+      - name: Verify seeded product is available
+        run: curl --fail http://localhost:8000/products/1
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run Playwright tests
+        working-directory: frontend
+        run: npx playwright test
+
+      - name: Stop services
+        if: always()
+        run: docker compose down
+
       - name: Validate Compose configuration
         run: docker compose config --quiet
 

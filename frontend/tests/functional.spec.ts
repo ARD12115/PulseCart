@@ -36,17 +36,22 @@ test.describe('Core Functionality', () => {
   });
 
   test('Price range filter works', async ({ page }) => {
-    await page.fill('input[placeholder="Min price (₹)"]', '100');
-    await page.fill('input[placeholder="Max price (₹)"]', '500');
+    // Use a range that matches seeded products (~₹17-27)
+    await page.fill('input[placeholder="Min price (₹)"]', '10');
+    await page.fill('input[placeholder="Max price (₹)"]', '50');
     await page.waitForTimeout(500);
     const products = page.locator('[href^="/product/"]');
     await expect(products.first()).toBeVisible();
   });
 
   test('Clear filters button works', async ({ page }) => {
-    await page.fill('input[type="search"]', 'bluetooth');
-    await page.selectOption('select', { index: 1 });
+    // First create a no-results state
+    await page.fill('input[type="search"]', 'nonexistentproduct12345');
     await page.waitForTimeout(500);
+    await expect(page.locator('text=No products match your filters')).toBeVisible();
+    await expect(page.locator('button:has-text("clear all filters")')).toBeVisible();
+
+    // Now click clear and verify filters reset
     await page.click('button:has-text("clear all filters")');
     await expect(page.locator('input[type="search"]')).toHaveValue('');
     await expect(page.locator('select').first()).toHaveValue('');
@@ -59,6 +64,12 @@ test.describe('Core Functionality', () => {
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('text=Availability by city')).toBeVisible();
     await expect(page.locator('button:has-text("Add to cart")')).toBeVisible();
+  });
+
+  test('Product detail page shows placeholder image when no image_url', async ({ page }) => {
+    await page.goto('/product/1');
+    // Fresh seed has no image_url, should show SVG placeholder
+    await expect(page.locator('svg[viewBox="0 0 24 24"]')).toBeVisible();
   });
 
   test('Add to cart from product page', async ({ page }) => {

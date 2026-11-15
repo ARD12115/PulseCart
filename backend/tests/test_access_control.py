@@ -1,17 +1,53 @@
+import ipaddress
 import os
 import unittest
 from unittest.mock import AsyncMock, patch
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Request, Response
 
 from app.main import (
     CheckoutIn,
     checkout,
     create_app,
+    get_client_address,
     get_order,
     hash_order_access_token,
     require_admin_key,
 )
+
+
+class ClientAddressTests(unittest.TestCase):
+    def make_request(self, peer: str, forwarded_for: str = "") -> Request:
+        headers = [(b"x-forwarded-for", forwarded_for.encode())] if forwarded_for else []
+        return Request(
+            {
+                "type": "http",
+                "http_version": "1.1",
+                "method": "POST",
+                "scheme": "http",
+                "path": "/checkout",
+                "raw_path": b"/checkout",
+                "query_string": b"",
+                "headers": headers,
+                "client": (peer, 1234),
+                "server": ("127.0.0.1", 8000),
+            }
+        )
+
+    def test_ignores_forwarded_address_from_untrusted_peer(self):
+        with patch("app.main.trusted_proxy_networks", ()):
+            address = get_client_address(self.make_request("203.0.113.10", "198.51.100.5"))
+
+        self.assertEqual(address, "203.0.113.10")
+
+    def test_uses_client_address_forwarded_by_trusted_proxy(self):
+        trusted_proxy = ipaddress.ip_network("10.0.0.0/8")
+        with patch("app.main.trusted_proxy_networks", (trusted_proxy,)):
+            address = get_client_address(
+                self.make_request("10.0.0.2", "198.51.100.5, 10.0.0.1")
+            )
+
+        self.assertEqual(address, "198.51.100.5")
 
 
 class FakeConnection:
@@ -117,7 +153,19 @@ class OrderAccessTests(unittest.IsolatedAsyncioTestCase):
             patch("app.main.secrets.token_urlsafe", return_value=token),
             patch("app.main.place_order", new_callable=AsyncMock, return_value=42) as place,
         ):
-            result = await checkout(request)
+            scope = {
+                "type": "http",
+                "http_version": "1.1",
+                "method": "POST",
+                "scheme": "http",
+                "path": "/checkout",
+                "raw_path": b"/checkout",
+                "query_string": b"",
+                "headers": [],
+                "client": ("127.0.0.1", 1234),
+                "server": ("127.0.0.1", 8000),
+            }
+            result = await checkout.__wrapped__(Request(scope), Response(), request)
 
         self.assertEqual(result["order_access_token"], token)
         self.assertEqual(place.await_args.args[-1], hash_order_access_token(token))

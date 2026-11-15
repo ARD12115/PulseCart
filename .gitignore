@@ -36,6 +36,7 @@ pnpm-debug.log*
 # Browser test artifacts
 playwright-report/
 test-results/
+work/
 
 # Local logs and operating-system files
 *.log

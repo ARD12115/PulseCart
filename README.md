@@ -53,13 +53,14 @@ Changing `POSTGRES_PASSWORD` in `.env` does not change the password of a databas
 4. Create Kafka topics `order.placed` and `inventory.changed`.
 5. Apply `db/schema.sql` to a new Aiven PostgreSQL database. For an existing database, apply each migration in `db/migrations/` using the provider's SQL console or `psql "$env:PG_DSN" -W -f db/migrations/001_order_access_token.sql`. Existing orders created before `001_order_access_token.sql` have no customer access token, so customer lookup through `GET /orders/{order_id}` is intentionally unavailable for those legacy orders; use the protected admin view if they must be inspected.
 6. Set `APP_ENV=production` and a long random `ADMIN_KEY` in the deployment environment before exposing the API.
-7. Install backend requirements, seed once, then start the API and workers in separate terminals:
+7. When a trusted reverse proxy sits directly in front of the API, set `TRUSTED_PROXY_IPS` to only that proxy's IP address or CIDR and configure it to replace any incoming `X-Forwarded-For` header. Uvicorn proxy-header rewriting is disabled so untrusted headers cannot change the limiter's client key.
+8. Install backend requirements, seed once, then start the API and workers in separate terminals:
 
 ```powershell
 cd backend
 python -m pip install -r requirements.txt
 python -m app.seed
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --no-proxy-headers --port 8000
 ```
 
 In separate terminals, from `backend/`, run:

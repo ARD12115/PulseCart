@@ -5,3 +5,4 @@ aiokafka>=0.10,<1
 opensearch-py[async]>=2.6,<4
 python-dotenv>=1,<2
 email-validator>=2,<3
+slowapi>=0.1.9

@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import ipaddress
 import os
 import secrets
 from contextlib import asynccontextmanager
@@ -7,10 +8,12 @@ from typing import Annotated
 
 import asyncpg
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from opensearchpy._async.client import AsyncOpenSearch
 from pydantic import BaseModel, EmailStr, Field
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.checkout import OutOfStock, UnknownProduct, place_order
 from app.connections import create_opensearch_client, postgres_connection_kwargs
@@ -23,6 +26,36 @@ INDEX_NAME = "products"
 
 pool: asyncpg.Pool | None = None
 search_client: AsyncOpenSearch | None = None
+
+trusted_proxy_networks = tuple(
+    ipaddress.ip_network(value.strip(), strict=False)
+    for value in os.getenv("TRUSTED_PROXY_IPS", "").split(",")
+    if value.strip()
+)
+
+
+def get_client_address(request: Request) -> str:
+    peer = request.client.host if request.client else "unknown"
+    try:
+        peer_ip = ipaddress.ip_address(peer)
+    except ValueError:
+        return peer
+
+    if not any(peer_ip in network for network in trusted_proxy_networks):
+        return peer_ip.compressed
+
+    forwarded_for = request.headers.get("x-forwarded-for", "")
+    for address in reversed(forwarded_for.split(",")):
+        try:
+            candidate = ipaddress.ip_address(address.strip())
+        except ValueError:
+            return peer_ip.compressed
+        if not any(candidate in network for network in trusted_proxy_networks):
+            return candidate.compressed
+    return peer_ip.compressed
+
+
+limiter = Limiter(key_func=get_client_address)
 
 
 @asynccontextmanager
@@ -61,6 +94,8 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 origins = [
     origin.strip()
     for origin in os.getenv("API_CORS_ORIGINS", "http://localhost:3000").split(",")
@@ -256,7 +291,8 @@ async def get_product(product_id: int) -> dict:
 
 
 @app.post("/checkout", response_model=OrderOut)
-async def checkout(data: CheckoutIn) -> dict:
+@limiter.limit("5/minute")
+async def checkout(request: Request, response: Response, data: CheckoutIn) -> dict:
     db = db_pool()
     async with db.acquire() as conn:
         customer_id = await conn.fetchval(

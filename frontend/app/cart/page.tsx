@@ -93,16 +93,25 @@ export default function CartPage() {
             ))}
           </div>
           <aside className="h-fit space-y-4 rounded-lg border border-ink/10 bg-surface p-5">
-            <h2 className="text-lg font-bold">Checkout</h2>
-            <p className="flex justify-between"><span>Total</span><strong>₹{(total / 100).toFixed(2)}</strong></p>
-            <input className="w-full rounded-md border px-3 py-2" type="email" placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
-            <input className="w-full rounded-md border px-3 py-2" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)} />
-            <select className="w-full rounded-md border px-3 py-2" value={city} onChange={(event) => setCity(event.target.value)}>
-              <option value="">Choose delivery city</option>
-              {cities.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
-            <button disabled={busy} onClick={checkout} className="w-full rounded-md bg-moss-solid px-4 py-3 font-bold text-white disabled:opacity-50">{busy ? 'Placing order...' : 'Place order'}</button>
-          </aside>
+                      <h2 className="text-lg font-bold">Checkout</h2>
+                      <p className="flex justify-between"><span>Total</span><strong>₹{(total / 100).toFixed(2)}</strong></p>
+                      <label className="block space-y-1">
+                        <span className="sr-only">Email</span>
+                        <input className="w-full rounded-md border px-3 py-2" type="email" autoComplete="email" placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
+                      </label>
+                      <label className="block space-y-1">
+                        <span className="sr-only">Name</span>
+                        <input className="w-full rounded-md border px-3 py-2" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)} />
+                      </label>
+                      <label className="block space-y-1">
+                        <span className="sr-only">Delivery city</span>
+                        <select className="w-full rounded-md border px-3 py-2" value={city} onChange={(event) => setCity(event.target.value)}>
+                          <option value="">Choose delivery city</option>
+                          {cities.map((item) => <option key={item} value={item}>{item}</option>)}
+                        </select>
+                      </label>
+                      <button disabled={busy} onClick={checkout} className="w-full rounded-md bg-moss-solid px-4 py-3 font-bold text-white disabled:opacity-50">{busy ? 'Placing order...' : 'Place order'}</button>
+                    </aside>
         </div>
       )}
       {notice && <p role="status" className="mt-5 rounded-md bg-surface p-4">{notice}</p>}

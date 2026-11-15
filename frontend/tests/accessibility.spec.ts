@@ -89,19 +89,24 @@ test.describe('Accessibility Tests', () => {
     await expect(loading).toBeVisible({ timeout: 5000 });
   });
 
-  test('Cart page - form fields properly labeled', async ({ page }) => {
+  test('Cart page - form fields have accessible names', async ({ page }) => {
+    // Add an item first so checkout form is visible
+    await page.goto('/product/2'); // Use product with stock
+    await page.click('button:has-text("Add to cart")');
     await page.goto('/cart');
-    const emailInput = page.locator('input[type="email"]');
-    await expect(emailInput).toBeVisible();
-    const emailLabel = await emailInput.getAttribute('placeholder');
-    expect(emailLabel).toBe('Email');
+    await expect(page.getByLabel('Email')).toBeVisible();
+    await expect(page.getByLabel('Name')).toBeVisible();
+    await expect(page.getByLabel('Delivery city')).toBeVisible();
   });
 
-  test('Product detail - images have meaningful alt', async ({ page }) => {
+  test('Product detail - images have meaningful alt or accessible placeholder', async ({ page }) => {
     await page.goto('/product/1');
-    const img = page.locator('img[alt]');
-    const alt = await img.getAttribute('alt');
-    expect(alt).not.toBe('');
+    // Fresh seed has no image_url, should show SVG placeholder with accessible markup
+    const svg = page.locator('svg[viewBox="0 0 24 24"]');
+    await expect(svg).toBeVisible();
+    // SVG should be accessible (aria-hidden is true since it's decorative)
+    const ariaHidden = await svg.getAttribute('aria-hidden');
+    expect(ariaHidden).toBe('true');
   });
 
   test('Navigation is keyboard accessible', async ({ page }) => {

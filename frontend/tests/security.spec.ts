@@ -11,7 +11,6 @@ test.describe('Security / Vulnerability Tests', () => {
     await page.waitForTimeout(500);
     const content = await page.content();
     expect(content).not.toContain('<script>alert("xss")</script>');
-    expect(content).toContain('<script>alert("xss")</script>');
   });
 
   test('XSS in search input - event handlers should be escaped', async ({ page }) => {
@@ -145,38 +144,34 @@ test.describe('Security / Vulnerability Tests', () => {
     await expect(page.locator('text=Exactly one buyer won the last unit')).toBeVisible({ timeout: 10000 });
   });
 
-  test('CSRF protection - checkout should require proper headers', async ({ page }) => {
-    await page.goto('/product/1');
-    await page.click('button:has-text("Add to cart")');
-    await page.goto('/cart');
-    await page.fill('input[type="email"]', 'test@example.com');
-    await page.fill('input[placeholder="Name"]', 'Test');
-    await page.selectOption('select', 'Bengaluru');
-    const response = await page.request.post('http://localhost:8000/api/checkout', {
+  test('Rate limiting enforced on checkout', async ({ page }) => {
+    // Use a product with sufficient stock for all attempts
+    // Product 2+ should have 10 units in each city
+    const productId = 2;
+    const city = 'Bengaluru';
+
+    // Make 5 requests (within limit)
+    for (let i = 0; i < 5; i++) {
+      const response = await page.request.post('http://localhost:8000/checkout', {
+        data: {
+          customer_email: `test${i}@example.com`,
+          customer_name: 'Test',
+          city,
+          items: [{ product_id: productId, qty: 1 }],
+        },
+      });
+      expect(response.status()).toBe(200);
+    }
+
+    // 6th request should be rate limited (429)
+    const limitedResponse = await page.request.post('http://localhost:8000/checkout', {
       data: {
-        customer_email: 'test@example.com',
+        customer_email: 'test5@example.com',
         customer_name: 'Test',
-        city: 'Bengaluru',
-        items: [{ product_id: 1, qty: 1 }],
+        city,
+        items: [{ product_id: productId, qty: 1 }],
       },
     });
-    expect(response.status()).toBe(200);
-  });
-
-  test('Rate limiting not enforced on checkout (vulnerability)', async ({ page }) => {
-    for (let i = 0; i < 5; i++) {
-      await page.goto('/product/1');
-      await page.click('button:has-text("Add to cart")');
-      await page.goto('/cart');
-      await page.fill('input[type="email"]', `test${i}@example.com`);
-      await page.fill('input[placeholder="Name"]', 'Test');
-      await page.selectOption('select', 'Bengaluru');
-      await page.click('button:has-text("Place order")');
-      await page.waitForTimeout(200);
-    }
-    // Should show rate limit error but currently doesn't
-    const content = await page.content();
-    expect(content).not.toContain('rate limit');
-    expect(content).not.toContain('too many requests');
+    expect(limitedResponse.status()).toBe(429);
   });
 });
