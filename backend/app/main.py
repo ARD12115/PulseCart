@@ -620,6 +620,7 @@ def require_admin_key(x_admin_key: Annotated[str | None, Header()] = None) -> No
 
 @app.get("/admin/orders")
 async def admin_orders(
+    response: Response,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     _: None = Depends(require_admin_key),
 ) -> list[dict]:
@@ -628,6 +629,7 @@ async def admin_orders(
            FROM orders o ORDER BY o.created_at DESC LIMIT $1""",
         limit,
     )
+    response.headers["X-Total-Count"] = str(await db_pool().fetchval("SELECT count(*) FROM orders"))
     items_by_order: dict[int, list[dict]] = {row["id"]: [] for row in rows}
     if items_by_order:
         item_rows = await db_pool().fetch(
@@ -645,6 +647,7 @@ async def admin_orders(
 
 @app.get("/admin/outbox")
 async def admin_outbox(
+    response: Response,
     limit: Annotated[int, Query(ge=1, le=500)] = 100,
     _: None = Depends(require_admin_key),
 ) -> list[dict]:
@@ -653,6 +656,7 @@ async def admin_outbox(
            FROM outbox_events ORDER BY id DESC LIMIT $1""",
         limit,
     )
+    response.headers["X-Total-Count"] = str(await db_pool().fetchval("SELECT count(*) FROM outbox_events"))
     return [dict(row) for row in rows]
 
 
@@ -672,6 +676,7 @@ async def admin_inventory(
 
 @app.get("/admin/notifications")
 async def admin_notifications(
+    response: Response,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     _: None = Depends(require_admin_key),
 ) -> list[dict]:
@@ -681,11 +686,13 @@ async def admin_notifications(
            FROM notifications ORDER BY id DESC LIMIT $1""",
         limit,
     )
+    response.headers["X-Total-Count"] = str(await db_pool().fetchval("SELECT count(*) FROM notifications"))
     return [dict(row) for row in rows]
 
 
 @app.get("/admin/dead-letters")
 async def admin_dead_letters(
+    response: Response,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     _: None = Depends(require_admin_key),
 ) -> list[dict]:
@@ -694,4 +701,5 @@ async def admin_dead_letters(
            FROM dead_letter_events ORDER BY id DESC LIMIT $1""",
         limit,
     )
+    response.headers["X-Total-Count"] = str(await db_pool().fetchval("SELECT count(*) FROM dead_letter_events"))
     return [dict(row) for row in rows]

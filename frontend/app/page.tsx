@@ -33,6 +33,7 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchRequest, setSearchRequest] = useState(0);
 
   useEffect(() => {
     Promise.all([
@@ -91,10 +92,11 @@ export default function HomePage() {
       .finally(() => setLoading(false));
 
     return () => controller.abort();
-  }, [query, category, city, minPrice, maxPrice]);
+  }, [query, category, city, minPrice, maxPrice, searchRequest]);
 
   function onSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSearchRequest((request) => request + 1);
   }
 
   function clearFilters() {

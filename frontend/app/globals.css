@@ -2677,6 +2677,15 @@ body {
 .concurrency-page .text-moss { color: #d4ff00; }
 .bg-moss-solid { background-color: #d4ff00; color: #0a0a0b; }
 
+@media (max-width: 1100px) and (min-width: 651px) {
+  .search-console .filter-panel { grid-template-columns: minmax(0, 1fr) auto; }
+  .search-console .filter-form {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(110px, .4fr) minmax(110px, .4fr);
+  }
+  .search-console .filter-form > * { min-width: 0; }
+}
+
 @media (max-width: 650px) {
   .site-header-inner { min-height: 64px; }
   .brand-mark-name strong { font-size: .88rem; }

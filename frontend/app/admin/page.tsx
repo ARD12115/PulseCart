@@ -12,6 +12,7 @@ export default function AdminPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [deadLetters, setDeadLetters] = useState<DeadLetter[]>([]);
+  const [counts, setCounts] = useState<(number | null)[]>([null, null, null, null]);
   const [error, setError] = useState('');
   const [updated, setUpdated] = useState('');
   const [keyDraft, setKeyDraft] = useState('');
@@ -28,23 +29,35 @@ export default function AdminPage() {
           fetch('/api/admin/notifications', { headers }),
           fetch('/api/admin/dead-letters', { headers }),
         ]);
-        if (!orderResponse.ok || !eventResponse.ok) throw new Error('Admin access unavailable. Enter a valid admin key if required.');
-        const [orderData, eventData] = await Promise.all([
-          orderResponse.json() as Promise<Order[]>,
-          eventResponse.json() as Promise<Event[]>,
+        if ([orderResponse, eventResponse, notificationResponse, deadLetterResponse].some((response) => response.status === 401 || response.status === 403)) {
+          throw new Error('Admin access unavailable. Enter a valid admin key if required.');
+        }
+        const [orderData, eventData, notificationData, deadLetterData] = await Promise.all([
+          orderResponse.ok ? orderResponse.json() as Promise<Order[]> : Promise.resolve(null),
+          eventResponse.ok ? eventResponse.json() as Promise<Event[]> : Promise.resolve(null),
+          notificationResponse.ok ? notificationResponse.json() as Promise<Notification[]> : Promise.resolve(null),
+          deadLetterResponse.ok ? deadLetterResponse.json() as Promise<DeadLetter[]> : Promise.resolve(null),
         ]);
-        const notificationData = notificationResponse.ok ? await notificationResponse.json() as Notification[] : [];
-        const deadLetterData = deadLetterResponse.ok ? await deadLetterResponse.json() as DeadLetter[] : [];
+        const total = (response: Response) => {
+          const header = response.headers.get('X-Total-Count');
+          if (!response.ok || header === null || !/^\d+$/.test(header)) return null;
+          const value = Number(header);
+          return Number.isSafeInteger(value) ? value : null;
+        };
         if (active) {
-          setOrders(orderData);
-          setEvents(eventData);
-          setNotifications(notificationData);
-          setDeadLetters(deadLetterData);
+          setOrders(orderData ?? []);
+          setEvents(eventData ?? []);
+          setNotifications(notificationData ?? []);
+          setDeadLetters(deadLetterData ?? []);
+          setCounts([orderResponse, eventResponse, notificationResponse, deadLetterResponse].map(total));
           setUpdated(new Date().toLocaleTimeString());
           setError('');
         }
       } catch (cause) {
-        if (active) setError(cause instanceof Error ? cause.message : 'Could not load admin data.');
+        if (active) {
+          setCounts([null, null, null, null]);
+          setError(cause instanceof Error ? cause.message : 'Could not load admin data.');
+        }
       }
     };
     void load();
@@ -59,10 +72,10 @@ export default function AdminPage() {
         <p className="text-sm text-ink/50">Refreshes every 5 seconds{updated ? ` · Updated ${updated}` : ''}</p>
       </div>
       <div className="operations-overview" aria-label="Operational record counts">
-        <div><span>ORDERS</span><strong>{orders.length}</strong></div>
-        <div><span>OUTBOX EVENTS</span><strong>{events.length}</strong></div>
-        <div><span>CONFIRMATIONS</span><strong>{notifications.length}</strong></div>
-        <div><span>DEAD LETTERS</span><strong>{deadLetters.length}</strong></div>
+        <div><span>ORDERS</span><strong>{counts[0] ?? '—'}</strong></div>
+        <div><span>OUTBOX EVENTS</span><strong>{counts[1] ?? '—'}</strong></div>
+        <div><span>CONFIRMATIONS</span><strong>{counts[2] ?? '—'}</strong></div>
+        <div><span>DEAD LETTERS</span><strong>{counts[3] ?? '—'}</strong></div>
       </div>
       <form className="mt-5 flex flex-wrap gap-2" onSubmit={(event) => {
         event.preventDefault();
@@ -100,14 +113,14 @@ export default function AdminPage() {
           <h2 className="text-xl font-bold">Order confirmations</h2>
           <div className="mt-4 space-y-3">
             {notifications.map((item) => <article key={item.id} className="flex items-center justify-between gap-3 border-b border-ink/10 pb-3 text-sm"><div><p className="font-bold">Order #{item.order_id} · {item.recipient_email}</p><p className="text-ink/50">{item.subject}{item.last_error ? ` · ${item.last_error}` : ''}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${item.status === 'sent' || item.status === 'logged' ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>{item.status}</span></article>)}
-            {!notifications.length && <p className="text-sm text-ink/50">No confirmations yet. The notification worker creates one per order.</p>}
+            {!notifications.length && <p className="text-sm text-ink/50">{counts[2] === null ? 'Confirmations unavailable.' : 'No confirmations yet. The notification worker creates one per order.'}</p>}
           </div>
         </section>
         <section className="rounded-lg border border-ink/10 bg-surface p-5">
           <h2 className="text-xl font-bold">Dead letters</h2>
           <div className="mt-4 space-y-3">
             {deadLetters.map((item) => <article key={item.id} className="border-b border-ink/10 pb-3 text-sm"><p className="font-bold">{item.consumer} · {item.topic}@{item.kafka_offset ?? '?'}</p><p className="text-ink/50">{item.error}</p></article>)}
-            {!deadLetters.length && <p className="text-sm text-ink/50">None. Messages a consumer cannot process after retrying appear here.</p>}
+            {!deadLetters.length && <p className="text-sm text-ink/50">{counts[3] === null ? 'Dead letters unavailable.' : 'None. Messages a consumer cannot process after retrying appear here.'}</p>}
           </div>
         </section>
       </div>
