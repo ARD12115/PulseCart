@@ -1,15 +1,19 @@
 import hashlib
 import hmac
 import ipaddress
+import logging
 import os
+import re
 import secrets
 from contextlib import asynccontextmanager
 from typing import Annotated
+from uuid import UUID
 
 import asyncpg
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from opensearchpy._async.client import AsyncOpenSearch
 from pydantic import BaseModel, EmailStr, Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -17,12 +21,24 @@ from slowapi.errors import RateLimitExceeded
 
 from app.checkout import OutOfStock, UnknownProduct, place_order
 from app.connections import create_opensearch_client, postgres_connection_kwargs
+from app.search_terms import expand_query
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
 PG_DSN = os.getenv("PG_DSN")
 INDEX_NAME = "products"
+log = logging.getLogger("pulsecart")
+IDEMPOTENCY_KEY_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{8,100}$")
+
+
+def checkout_rate_limit() -> str:
+    # Default stays strict; raise it in .env for a busy demo (for example "30/minute").
+    return os.getenv("CHECKOUT_RATE_LIMIT", "5/minute")
+
+
+def cart_rate_limit() -> str:
+    return os.getenv("CART_RATE_LIMIT", "120/minute")
 
 pool: asyncpg.Pool | None = None
 search_client: AsyncOpenSearch | None = None
@@ -147,29 +163,61 @@ class CheckoutIn(BaseModel):
     customer_name: str = Field(min_length=1, max_length=120)
     city: str = Field(min_length=1, max_length=120)
     items: list[CartItem] = Field(min_length=1, max_length=50)
+    cart_id: UUID | None = None  # emptied in the same transaction as the order
 
 
 class OrderOut(BaseModel):
     order_id: int
     total_paise: int
     status: str
-    order_access_token: str
+    # None when an Idempotency-Key replay returns an existing order: only the hash of the
+    # token is stored, so the original token cannot be shown again.
+    order_access_token: str | None = None
+
+
+class CartLineIn(BaseModel):
+    product_id: int = Field(gt=0)
+    qty: int = Field(gt=0, le=50)
+
+
+class CartIn(BaseModel):
+    items: list[CartLineIn] = Field(max_length=50)
+
+
+class CartLineOut(BaseModel):
+    id: int
+    sku: str
+    name: str
+    price_paise: int
+    qty: int
+
+
+class CartOut(BaseModel):
+    cart_id: UUID
+    items: list[CartLineOut]
 
 
 @app.get("/health")
-async def health() -> dict:
+async def health() -> JSONResponse:
     checks: dict[str, str] = {}
     try:
         await db_pool().fetchval("SELECT 1")
         checks["postgres"] = "ok"
     except Exception as exc:
-        checks["postgres"] = type(exc).__name__
+        log.warning("health: postgres check failed: %s", type(exc).__name__)
+        checks["postgres"] = "unavailable"
     try:
         await os_client().cluster.health()
         checks["opensearch"] = "ok"
     except Exception as exc:
-        checks["opensearch"] = type(exc).__name__
-    return {"status": "ok" if all(value == "ok" for value in checks.values()) else "degraded", "checks": checks}
+        log.warning("health: opensearch check failed: %s", type(exc).__name__)
+        checks["opensearch"] = "unavailable"
+    healthy = all(value == "ok" for value in checks.values())
+    # 503 when degraded so Docker and load balancers see the failure.
+    return JSONResponse(
+        {"status": "ok" if healthy else "degraded", "checks": checks},
+        status_code=200 if healthy else 503,
+    )
 
 
 @app.get("/products", response_model=list[ProductOut])
@@ -243,7 +291,7 @@ async def search_products(
                     "must": [
                         {
                             "multi_match": {
-                                "query": q,
+                                "query": expand_query(q),
                                 "fields": ["name^3", "description", "sku"],
                                 "fuzziness": "AUTO",
                             }
@@ -290,9 +338,37 @@ async def get_product(product_id: int) -> dict:
     return dict(row)
 
 
+async def _existing_order(
+    db: asyncpg.Pool, customer_id: int, idempotency_key: str
+) -> dict | None:
+    row = await db.fetchrow(
+        """SELECT id, total_paise, status FROM orders
+           WHERE customer_id = $1 AND idempotency_key = $2""",
+        customer_id,
+        idempotency_key,
+    )
+    if row is None:
+        return None
+    return {
+        "order_id": row["id"],
+        "total_paise": row["total_paise"],
+        "status": row["status"],
+        "order_access_token": None,
+    }
+
+
 @app.post("/checkout", response_model=OrderOut)
-@limiter.limit("5/minute")
-async def checkout(request: Request, response: Response, data: CheckoutIn) -> dict:
+@limiter.limit(checkout_rate_limit)
+async def checkout(
+    request: Request,
+    response: Response,
+    data: CheckoutIn,
+    idempotency_key: Annotated[str | None, Header()] = None,
+) -> dict:
+    if idempotency_key is not None and not IDEMPOTENCY_KEY_PATTERN.match(idempotency_key):
+        raise HTTPException(
+            422, "Idempotency-Key must be 8-100 characters: letters, digits, . _ : -"
+        )
     db = db_pool()
     async with db.acquire() as conn:
         customer_id = await conn.fetchval(
@@ -307,6 +383,11 @@ async def checkout(request: Request, response: Response, data: CheckoutIn) -> di
                 "SELECT id FROM customers WHERE email = $1",
                 str(data.customer_email),
             )
+    if idempotency_key:
+        replay = await _existing_order(db, customer_id, idempotency_key)
+        if replay is not None:
+            response.headers["Idempotent-Replay"] = "true"
+            return replay
     order_access_token = secrets.token_urlsafe(32)
     access_token_hash = hash_order_access_token(order_access_token)
     try:
@@ -316,11 +397,25 @@ async def checkout(request: Request, response: Response, data: CheckoutIn) -> di
             data.city,
             [(item.product_id, item.qty) for item in data.items],
             access_token_hash,
+            idempotency_key=idempotency_key,
+            cart_id=data.cart_id,
         )
     except OutOfStock as exc:
         raise HTTPException(409, f"Product {exc.product_id} is out of stock in {data.city}") from exc
     except UnknownProduct as exc:
         raise HTTPException(404, f"Product {exc.product_id} was not found") from exc
+    except asyncpg.UniqueViolationError:
+        # Two requests with the same key raced; the loser's transaction (including its
+        # stock decrement) rolled back, so return the winner's order.
+        replay = (
+            await _existing_order(db, customer_id, idempotency_key)
+            if idempotency_key
+            else None
+        )
+        if replay is None:
+            raise
+        response.headers["Idempotent-Replay"] = "true"
+        return replay
     row = await db.fetchrow(
         "SELECT total_paise, status FROM orders WHERE id = $1", order_id
     )
@@ -363,6 +458,65 @@ def hash_order_access_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
+async def _load_cart(conn: asyncpg.Connection, cart_id: UUID) -> dict | None:
+    cart = await conn.fetchval("SELECT id FROM carts WHERE id = $1", cart_id)
+    if cart is None:
+        return None
+    rows = await conn.fetch(
+        """SELECT p.id, p.sku, p.name, p.price_paise, ci.qty
+           FROM cart_items ci JOIN products p ON p.id = ci.product_id
+           WHERE ci.cart_id = $1 ORDER BY p.id""",
+        cart_id,
+    )
+    return {"cart_id": cart_id, "items": [dict(row) for row in rows]}
+
+
+@app.post("/carts", response_model=CartOut, status_code=201)
+@limiter.limit(cart_rate_limit)
+async def create_cart(request: Request, response: Response) -> dict:
+    cart_id = await db_pool().fetchval("INSERT INTO carts DEFAULT VALUES RETURNING id")
+    return {"cart_id": cart_id, "items": []}
+
+
+@app.get("/carts/{cart_id}", response_model=CartOut)
+@limiter.limit(cart_rate_limit)
+async def get_cart(request: Request, response: Response, cart_id: UUID) -> dict:
+    async with db_pool().acquire() as conn:
+        cart = await _load_cart(conn, cart_id)
+    if cart is None:
+        raise HTTPException(404, "Cart not found")
+    return cart
+
+
+@app.put("/carts/{cart_id}", response_model=CartOut)
+@limiter.limit(cart_rate_limit)
+async def replace_cart(
+    request: Request, response: Response, cart_id: UUID, data: CartIn
+) -> dict:
+    quantities: dict[int, int] = {}
+    for line in data.items:
+        quantities[line.product_id] = min(50, quantities.get(line.product_id, 0) + line.qty)
+    async with db_pool().acquire() as conn:
+        try:
+            async with conn.transaction():
+                touched = await conn.fetchval(
+                    "UPDATE carts SET updated_at = now() WHERE id = $1 RETURNING id", cart_id
+                )
+                if touched is None:
+                    raise HTTPException(404, "Cart not found")
+                await conn.execute("DELETE FROM cart_items WHERE cart_id = $1", cart_id)
+                if quantities:
+                    await conn.executemany(
+                        "INSERT INTO cart_items (cart_id, product_id, qty) VALUES ($1, $2, $3)",
+                        [(cart_id, product_id, qty) for product_id, qty in quantities.items()],
+                    )
+        except asyncpg.ForeignKeyViolationError as exc:
+            raise HTTPException(404, "One or more products were not found") from exc
+        cart = await _load_cart(conn, cart_id)
+    assert cart is not None
+    return cart
+
+
 @app.get("/categories")
 async def list_categories() -> list[str]:
     rows = await db_pool().fetch("SELECT DISTINCT category FROM products ORDER BY category")
@@ -398,16 +552,19 @@ async def admin_orders(
            FROM orders o ORDER BY o.created_at DESC LIMIT $1""",
         limit,
     )
-    result = []
-    for row in rows:
-        items = await db_pool().fetch(
-            """SELECT oi.product_id, oi.qty, oi.price_paise, p.name, p.sku
+    items_by_order: dict[int, list[dict]] = {row["id"]: [] for row in rows}
+    if items_by_order:
+        item_rows = await db_pool().fetch(
+            """SELECT oi.order_id, oi.product_id, oi.qty, oi.price_paise, p.name, p.sku
                FROM order_items oi JOIN products p ON p.id = oi.product_id
-               WHERE oi.order_id = $1""",
-            row["id"],
+               WHERE oi.order_id = ANY($1::bigint[])
+               ORDER BY oi.order_id, oi.product_id""",
+            list(items_by_order),
         )
-        result.append({**dict(row), "items": [dict(item) for item in items]})
-    return result
+        for item in item_rows:
+            record = dict(item)
+            items_by_order[record.pop("order_id")].append(record)
+    return [{**dict(row), "items": items_by_order[row["id"]]} for row in rows]
 
 
 @app.get("/admin/outbox")
@@ -433,5 +590,32 @@ async def admin_inventory(
                     FILTER (WHERE si.city IS NOT NULL), '{}'::jsonb) AS inventory
            FROM products p LEFT JOIN store_inventory si ON si.product_id = p.id
            GROUP BY p.id ORDER BY p.id"""
+    )
+    return [dict(row) for row in rows]
+
+
+@app.get("/admin/notifications")
+async def admin_notifications(
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    _: None = Depends(require_admin_key),
+) -> list[dict]:
+    rows = await db_pool().fetch(
+        """SELECT id, order_id, recipient_email, subject, status, attempts,
+                  last_error, created_at, sent_at
+           FROM notifications ORDER BY id DESC LIMIT $1""",
+        limit,
+    )
+    return [dict(row) for row in rows]
+
+
+@app.get("/admin/dead-letters")
+async def admin_dead_letters(
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    _: None = Depends(require_admin_key),
+) -> list[dict]:
+    rows = await db_pool().fetch(
+        """SELECT id, consumer, topic, kafka_partition, kafka_offset, key, error, created_at
+           FROM dead_letter_events ORDER BY id DESC LIMIT $1""",
+        limit,
     )
     return [dict(row) for row in rows]

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import ProductArtwork from '../../product-artwork';
+import { syncCart } from '../../cart-sync';
 
 type Product = { id: number; sku: string; name: string; description: string; category: string; price_paise: number; image_url: string | null };
 type CartItem = Product & { qty: number };
@@ -46,6 +47,7 @@ export default function ProductPage() {
       else saved.push({ ...product, qty: 1 });
       localStorage.setItem('pulsecart_cart', JSON.stringify(saved));
       window.dispatchEvent(new Event('pulsecart:cart-updated'));
+      void syncCart(saved);
       setMessage('Added to your cart.');
     } catch {
       setMessage('We could not save this item. Please try again.');

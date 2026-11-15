@@ -2123,8 +2123,12 @@ a:focus-visible { box-shadow: 0 0 0 3px rgb(62 235 255 / .2); }
     position: absolute;
     width: 1px;
     height: 1px;
+    padding: 0;
+    margin: -1px;
+    border: 0;
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
     white-space: nowrap;
   }
   .display-settings summary { min-width: 40px; justify-content: center; padding-inline: .55rem; }

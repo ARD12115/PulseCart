@@ -1,0 +1,1946 @@
+diff --git a/.env.example b/.env.example
+index b02b0f8..43ebbd2 100644
+--- a/.env.example
++++ b/.env.example
+@@ -16,6 +16,19 @@ API_DOCS_ENABLED=false
+ ADMIN_KEY=
+ TRUSTED_PROXY_IPS=
+ 
++# Rate limits. Keep checkout strict by default; raise it for a busy live demo (e.g. 30/minute).
++CHECKOUT_RATE_LIMIT=5/minute
++CART_RATE_LIMIT=120/minute
++
++# Order confirmation emails. Leave SMTP_HOST empty to only store and log confirmations
++# (they still appear on /admin). Never commit real credentials.
++SMTP_HOST=
++SMTP_PORT=587
++SMTP_USER=
++SMTP_PASSWORD=
++SMTP_FROM=
++SMTP_STARTTLS=true
++
+ # For Aiven, replace the service URLs above, set PG_PASSWORD separately from
+ # the password-free PG_DSN, and add ?sslmode=require to PG_DSN.
+ # KAFKA_SECURITY_PROTOCOL=SSL
+diff --git a/README.md b/README.md
+index 45bbd05..9968f6b 100644
+--- a/README.md
++++ b/README.md
+@@ -14,6 +14,11 @@ The storefront uses Next.js 16 and React 19.
+ - Search results come from OpenSearch and support fuzzy matching, category, price, and city filters.
+ - A race demo sends two simultaneous requests for one seeded last-unit item.
+ - Per-city inventory makes availability a real filter rather than a label.
++- Carts are stored in PostgreSQL (`carts`, `cart_items`), so a cart survives clearing the browser's local storage.
++- Checkout accepts an `Idempotency-Key` header: a retried or double-clicked request returns the original order instead of creating a second one.
++- Order confirmations are created by a Kafka consumer, stored in `notifications`, and emailed when SMTP is configured.
++- A consumer retries a failing message three times, then records it in `dead_letter_events` and moves on instead of crashing.
++- Search understands synonyms: "earphones" also finds earbuds and headphones, and typos still work.
+ 
+ ## Run locally with Docker Compose
+ 
+@@ -81,6 +86,17 @@ npm run dev
+ 
+ The local `.env` is read from the project root. Aiven credentials and TLS certificates are intentionally not included.
+ 
++## Before a demo: check the Aiven services
++
++```powershell
++cd backend
++python -m app.preflight
++```
++
++It checks that PostgreSQL has the schema and products, that Kafka has the `order.placed` and `inventory.changed` topics, and that the OpenSearch `products` index exists and has documents. Fix every `FAIL` line before presenting. Then run the demo against Aiven, not the local Compose stack, so judges see all three services doing real work.
++
++For a busy demo (several people ordering from one network), raise the checkout limit in `.env`, for example `CHECKOUT_RATE_LIMIT=30/minute`. The default stays strict at `5/minute`.
++
+ ## Demo walkthrough
+ 
+ 1. Browse products and try searching `bluetoth`.
+@@ -107,5 +123,19 @@ The editable pitch deck is `PulseCart_HackBriven.pptx`; a PDF version is also in
+ - Kafka delivery is at-least-once; outbox event IDs make consumer processing idempotent.
+ - Admin routes require `ADMIN_KEY` unless `APP_ENV=development` is explicitly selected. Order details require the private access code returned at checkout; only its hash is stored.
+ - Customer order lookup is available only for orders created after the access-token migration; legacy orders have no automatically issued access credential.
+-- The confirmation worker logs rather than sending email. Configure customer notifications, payment, and fulfillment before accepting real orders.
++- The notification worker stores one confirmation per order in `notifications` and delivers it by SMTP when `SMTP_HOST` is set; without SMTP it only logs it (status `logged`). Email delivery is at-least-once: a crash between the SMTP server accepting a message and the row being marked `sent` can send that one email again. Configure payment and fulfillment before accepting real orders.
++- The outbox relay locks rows with `FOR UPDATE SKIP LOCKED`, retries with backoff when Kafka is unavailable, and marks events that reached Kafka as published even if a later event in the batch fails.
++- Messages a consumer cannot process are written to `dead_letter_events` (see `/admin`). If the database itself is down the consumer exits and Docker restarts it, so nothing is skipped without being recorded.
++- Replaying a checkout with the same `Idempotency-Key` returns the original order with `Idempotent-Replay: true` and no `order_access_token`, because only its hash is stored. Keep the token from the first response.
++- Cart IDs are random UUIDs and act as the cart's access secret. Remove old carts with `DELETE FROM carts WHERE updated_at < now() - interval '30 days'` if the table grows.
++
++## Tests
++
++```powershell
++cd backend
++python -m unittest discover -s tests
++```
++
++`tests/test_postgres_integration.py` is skipped unless `TEST_PG_DSN` points at a disposable PostgreSQL database that already has `db/schema.sql` applied (it marks unpublished outbox events as published).
++
+ - Keep Aiven credentials in environment variables and certificates in the ignored `certs/` directory.
+diff --git a/backend/app/checkout.py b/backend/app/checkout.py
+index c7c2932..ab27a86 100644
+--- a/backend/app/checkout.py
++++ b/backend/app/checkout.py
+@@ -1,4 +1,5 @@
+ import json
++from uuid import UUID
+ 
+ import asyncpg
+ 
+@@ -21,8 +22,17 @@ async def place_order(
+     city: str,
+     items: list[tuple[int, int]],
+     access_token_hash: str,
++    *,
++    idempotency_key: str | None = None,
++    cart_id: UUID | None = None,
+ ) -> int:
+-    """Create an order and outbox events atomically; items are product ID/quantity pairs."""
++    """Create an order and outbox events atomically; items are product ID/quantity pairs.
++
++    With an idempotency key, a second order for the same customer and key violates the
++    unique index; the whole transaction (including the stock decrement) rolls back and
++    asyncpg.UniqueViolationError propagates so the caller can return the original order.
++    A cart_id is emptied in the same transaction as the order.
++    """
+     quantities: dict[int, int] = {}
+     for product_id, qty in items:
+         if product_id <= 0 or qty <= 0:
+@@ -62,12 +72,14 @@ async def place_order(
+                 lines.append((product_id, qty, price, row["stock"]))
+ 
+             order_id = await conn.fetchval(
+-                """INSERT INTO orders (customer_id, city, total_paise, access_token_hash)
+-                   VALUES ($1, $2, $3, $4) RETURNING id""",
++                """INSERT INTO orders
++                       (customer_id, city, total_paise, access_token_hash, idempotency_key)
++                   VALUES ($1, $2, $3, $4, $5) RETURNING id""",
+                 customer_id,
+                 city,
+                 total,
+                 access_token_hash,
++                idempotency_key,
+             )
+             for product_id, qty, price, _ in lines:
+                 await conn.execute(
+@@ -101,6 +113,8 @@ async def place_order(
+                     f"{product_id}:{city}",
+                     {"product_id": product_id, "city": city, "stock": stock},
+                 )
++            if cart_id is not None:
++                await conn.execute("DELETE FROM cart_items WHERE cart_id = $1", cart_id)
+             return order_id
+ 
+ 
+diff --git a/backend/app/main.py b/backend/app/main.py
+index c8e8a07..ba3065f 100644
+--- a/backend/app/main.py
++++ b/backend/app/main.py
+@@ -1,15 +1,19 @@
+ import hashlib
+ import hmac
+ import ipaddress
++import logging
+ import os
++import re
+ import secrets
+ from contextlib import asynccontextmanager
+ from typing import Annotated
++from uuid import UUID
+ 
+ import asyncpg
+ from dotenv import load_dotenv
+ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
+ from fastapi.middleware.cors import CORSMiddleware
++from fastapi.responses import JSONResponse
+ from opensearchpy._async.client import AsyncOpenSearch
+ from pydantic import BaseModel, EmailStr, Field
+ from slowapi import Limiter, _rate_limit_exceeded_handler
+@@ -17,12 +21,24 @@ from slowapi.errors import RateLimitExceeded
+ 
+ from app.checkout import OutOfStock, UnknownProduct, place_order
+ from app.connections import create_opensearch_client, postgres_connection_kwargs
++from app.search_terms import expand_query
+ 
+ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+ load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
+ 
+ PG_DSN = os.getenv("PG_DSN")
+ INDEX_NAME = "products"
++log = logging.getLogger("pulsecart")
++IDEMPOTENCY_KEY_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{8,100}$")
++
++
++def checkout_rate_limit() -> str:
++    # Default stays strict; raise it in .env for a busy demo (for example "30/minute").
++    return os.getenv("CHECKOUT_RATE_LIMIT", "5/minute")
++
++
++def cart_rate_limit() -> str:
++    return os.getenv("CART_RATE_LIMIT", "120/minute")
+ 
+ pool: asyncpg.Pool | None = None
+ search_client: AsyncOpenSearch | None = None
+@@ -147,29 +163,61 @@ class CheckoutIn(BaseModel):
+     customer_name: str = Field(min_length=1, max_length=120)
+     city: str = Field(min_length=1, max_length=120)
+     items: list[CartItem] = Field(min_length=1, max_length=50)
++    cart_id: UUID | None = None  # emptied in the same transaction as the order
+ 
+ 
+ class OrderOut(BaseModel):
+     order_id: int
+     total_paise: int
+     status: str
+-    order_access_token: str
++    # None when an Idempotency-Key replay returns an existing order: only the hash of the
++    # token is stored, so the original token cannot be shown again.
++    order_access_token: str | None = None
++
++
++class CartLineIn(BaseModel):
++    product_id: int = Field(gt=0)
++    qty: int = Field(gt=0, le=50)
++
++
++class CartIn(BaseModel):
++    items: list[CartLineIn] = Field(max_length=50)
++
++
++class CartLineOut(BaseModel):
++    id: int
++    sku: str
++    name: str
++    price_paise: int
++    qty: int
++
++
++class CartOut(BaseModel):
++    cart_id: UUID
++    items: list[CartLineOut]
+ 
+ 
+ @app.get("/health")
+-async def health() -> dict:
++async def health() -> JSONResponse:
+     checks: dict[str, str] = {}
+     try:
+         await db_pool().fetchval("SELECT 1")
+         checks["postgres"] = "ok"
+     except Exception as exc:
+-        checks["postgres"] = type(exc).__name__
++        log.warning("health: postgres check failed: %s", type(exc).__name__)
++        checks["postgres"] = "unavailable"
+     try:
+         await os_client().cluster.health()
+         checks["opensearch"] = "ok"
+     except Exception as exc:
+-        checks["opensearch"] = type(exc).__name__
+-    return {"status": "ok" if all(value == "ok" for value in checks.values()) else "degraded", "checks": checks}
++        log.warning("health: opensearch check failed: %s", type(exc).__name__)
++        checks["opensearch"] = "unavailable"
++    healthy = all(value == "ok" for value in checks.values())
++    # 503 when degraded so Docker and load balancers see the failure.
++    return JSONResponse(
++        {"status": "ok" if healthy else "degraded", "checks": checks},
++        status_code=200 if healthy else 503,
++    )
+ 
+ 
+ @app.get("/products", response_model=list[ProductOut])
+@@ -243,7 +291,7 @@ async def search_products(
+                     "must": [
+                         {
+                             "multi_match": {
+-                                "query": q,
++                                "query": expand_query(q),
+                                 "fields": ["name^3", "description", "sku"],
+                                 "fuzziness": "AUTO",
+                             }
+@@ -290,9 +338,37 @@ async def get_product(product_id: int) -> dict:
+     return dict(row)
+ 
+ 
++async def _existing_order(
++    db: asyncpg.Pool, customer_id: int, idempotency_key: str
++) -> dict | None:
++    row = await db.fetchrow(
++        """SELECT id, total_paise, status FROM orders
++           WHERE customer_id = $1 AND idempotency_key = $2""",
++        customer_id,
++        idempotency_key,
++    )
++    if row is None:
++        return None
++    return {
++        "order_id": row["id"],
++        "total_paise": row["total_paise"],
++        "status": row["status"],
++        "order_access_token": None,
++    }
++
++
+ @app.post("/checkout", response_model=OrderOut)
+-@limiter.limit("5/minute")
+-async def checkout(request: Request, response: Response, data: CheckoutIn) -> dict:
++@limiter.limit(checkout_rate_limit)
++async def checkout(
++    request: Request,
++    response: Response,
++    data: CheckoutIn,
++    idempotency_key: Annotated[str | None, Header()] = None,
++) -> dict:
++    if idempotency_key is not None and not IDEMPOTENCY_KEY_PATTERN.match(idempotency_key):
++        raise HTTPException(
++            422, "Idempotency-Key must be 8-100 characters: letters, digits, . _ : -"
++        )
+     db = db_pool()
+     async with db.acquire() as conn:
+         customer_id = await conn.fetchval(
+@@ -307,6 +383,11 @@ async def checkout(request: Request, response: Response, data: CheckoutIn) -> di
+                 "SELECT id FROM customers WHERE email = $1",
+                 str(data.customer_email),
+             )
++    if idempotency_key:
++        replay = await _existing_order(db, customer_id, idempotency_key)
++        if replay is not None:
++            response.headers["Idempotent-Replay"] = "true"
++            return replay
+     order_access_token = secrets.token_urlsafe(32)
+     access_token_hash = hash_order_access_token(order_access_token)
+     try:
+@@ -316,11 +397,25 @@ async def checkout(request: Request, response: Response, data: CheckoutIn) -> di
+             data.city,
+             [(item.product_id, item.qty) for item in data.items],
+             access_token_hash,
++            idempotency_key=idempotency_key,
++            cart_id=data.cart_id,
+         )
+     except OutOfStock as exc:
+         raise HTTPException(409, f"Product {exc.product_id} is out of stock in {data.city}") from exc
+     except UnknownProduct as exc:
+         raise HTTPException(404, f"Product {exc.product_id} was not found") from exc
++    except asyncpg.UniqueViolationError:
++        # Two requests with the same key raced; the loser's transaction (including its
++        # stock decrement) rolled back, so return the winner's order.
++        replay = (
++            await _existing_order(db, customer_id, idempotency_key)
++            if idempotency_key
++            else None
++        )
++        if replay is None:
++            raise
++        response.headers["Idempotent-Replay"] = "true"
++        return replay
+     row = await db.fetchrow(
+         "SELECT total_paise, status FROM orders WHERE id = $1", order_id
+     )
+@@ -363,6 +458,65 @@ def hash_order_access_token(token: str) -> str:
+     return hashlib.sha256(token.encode("utf-8")).hexdigest()
+ 
+ 
++async def _load_cart(conn: asyncpg.Connection, cart_id: UUID) -> dict | None:
++    cart = await conn.fetchval("SELECT id FROM carts WHERE id = $1", cart_id)
++    if cart is None:
++        return None
++    rows = await conn.fetch(
++        """SELECT p.id, p.sku, p.name, p.price_paise, ci.qty
++           FROM cart_items ci JOIN products p ON p.id = ci.product_id
++           WHERE ci.cart_id = $1 ORDER BY p.id""",
++        cart_id,
++    )
++    return {"cart_id": cart_id, "items": [dict(row) for row in rows]}
++
++
++@app.post("/carts", response_model=CartOut, status_code=201)
++@limiter.limit(cart_rate_limit)
++async def create_cart(request: Request, response: Response) -> dict:
++    cart_id = await db_pool().fetchval("INSERT INTO carts DEFAULT VALUES RETURNING id")
++    return {"cart_id": cart_id, "items": []}
++
++
++@app.get("/carts/{cart_id}", response_model=CartOut)
++@limiter.limit(cart_rate_limit)
++async def get_cart(request: Request, response: Response, cart_id: UUID) -> dict:
++    async with db_pool().acquire() as conn:
++        cart = await _load_cart(conn, cart_id)
++    if cart is None:
++        raise HTTPException(404, "Cart not found")
++    return cart
++
++
++@app.put("/carts/{cart_id}", response_model=CartOut)
++@limiter.limit(cart_rate_limit)
++async def replace_cart(
++    request: Request, response: Response, cart_id: UUID, data: CartIn
++) -> dict:
++    quantities: dict[int, int] = {}
++    for line in data.items:
++        quantities[line.product_id] = min(50, quantities.get(line.product_id, 0) + line.qty)
++    async with db_pool().acquire() as conn:
++        try:
++            async with conn.transaction():
++                touched = await conn.fetchval(
++                    "UPDATE carts SET updated_at = now() WHERE id = $1 RETURNING id", cart_id
++                )
++                if touched is None:
++                    raise HTTPException(404, "Cart not found")
++                await conn.execute("DELETE FROM cart_items WHERE cart_id = $1", cart_id)
++                if quantities:
++                    await conn.executemany(
++                        "INSERT INTO cart_items (cart_id, product_id, qty) VALUES ($1, $2, $3)",
++                        [(cart_id, product_id, qty) for product_id, qty in quantities.items()],
++                    )
++        except asyncpg.ForeignKeyViolationError as exc:
++            raise HTTPException(404, "One or more products were not found") from exc
++        cart = await _load_cart(conn, cart_id)
++    assert cart is not None
++    return cart
++
++
+ @app.get("/categories")
+ async def list_categories() -> list[str]:
+     rows = await db_pool().fetch("SELECT DISTINCT category FROM products ORDER BY category")
+@@ -398,16 +552,19 @@ async def admin_orders(
+            FROM orders o ORDER BY o.created_at DESC LIMIT $1""",
+         limit,
+     )
+-    result = []
+-    for row in rows:
+-        items = await db_pool().fetch(
+-            """SELECT oi.product_id, oi.qty, oi.price_paise, p.name, p.sku
++    items_by_order: dict[int, list[dict]] = {row["id"]: [] for row in rows}
++    if items_by_order:
++        item_rows = await db_pool().fetch(
++            """SELECT oi.order_id, oi.product_id, oi.qty, oi.price_paise, p.name, p.sku
+                FROM order_items oi JOIN products p ON p.id = oi.product_id
+-               WHERE oi.order_id = $1""",
+-            row["id"],
++               WHERE oi.order_id = ANY($1::bigint[])
++               ORDER BY oi.order_id, oi.product_id""",
++            list(items_by_order),
+         )
+-        result.append({**dict(row), "items": [dict(item) for item in items]})
+-    return result
++        for item in item_rows:
++            record = dict(item)
++            items_by_order[record.pop("order_id")].append(record)
++    return [{**dict(row), "items": items_by_order[row["id"]]} for row in rows]
+ 
+ 
+ @app.get("/admin/outbox")
+@@ -435,3 +592,30 @@ async def admin_inventory(
+            GROUP BY p.id ORDER BY p.id"""
+     )
+     return [dict(row) for row in rows]
++
++
++@app.get("/admin/notifications")
++async def admin_notifications(
++    limit: Annotated[int, Query(ge=1, le=200)] = 50,
++    _: None = Depends(require_admin_key),
++) -> list[dict]:
++    rows = await db_pool().fetch(
++        """SELECT id, order_id, recipient_email, subject, status, attempts,
++                  last_error, created_at, sent_at
++           FROM notifications ORDER BY id DESC LIMIT $1""",
++        limit,
++    )
++    return [dict(row) for row in rows]
++
++
++@app.get("/admin/dead-letters")
++async def admin_dead_letters(
++    limit: Annotated[int, Query(ge=1, le=200)] = 50,
++    _: None = Depends(require_admin_key),
++) -> list[dict]:
++    rows = await db_pool().fetch(
++        """SELECT id, consumer, topic, kafka_partition, kafka_offset, key, error, created_at
++           FROM dead_letter_events ORDER BY id DESC LIMIT $1""",
++        limit,
++    )
++    return [dict(row) for row in rows]
+diff --git a/backend/app/notification.py b/backend/app/notification.py
+index 63c10d1..c3d9f10 100644
+--- a/backend/app/notification.py
++++ b/backend/app/notification.py
+@@ -1,20 +1,217 @@
++"""Order confirmation consumer.
++
++order.placed  ->  notifications row (status pending)  ->  sender loop  ->  email / log
++
++Creating the row and recording the event as processed happen in one transaction, and
++notifications.order_id is UNIQUE, so a redelivered event can never create a second
++confirmation. The sender then delivers pending rows. Sending an email cannot be part of a
++database transaction, so delivery is at-least-once: a crash between "SMTP accepted" and
++"row marked sent" can send that one email again.
++
++Without SMTP_HOST the confirmation is logged and stored (status "logged"), which is enough
++for a demo and visible on the /admin page.
++"""
++
+ import asyncio
+-import json
++import logging
+ import os
++import smtplib
++from email.message import EmailMessage
+ 
+ import asyncpg
+ from aiokafka import AIOKafkaConsumer
+ from dotenv import load_dotenv
+ 
+ from app.connections import PROJECT_ROOT, kafka_client_options, postgres_connection_kwargs
++from app.resilience import configure_logging, handle_with_retry, safe_json_loads
+ 
+ load_dotenv(PROJECT_ROOT / ".env")
+ 
+ PG_DSN = os.getenv("PG_DSN")
+ CONSUMER_NAME = "notification"
++SEND_INTERVAL = 2.0
++SEND_BATCH = 20
++MAX_SEND_ATTEMPTS = 5
++log = logging.getLogger("pulsecart.notification")
++
++
++def format_price(paise: int) -> str:
++    return f"INR {paise / 100:,.2f}"
++
++
++def build_confirmation(
++    order_id: int, name: str, city: str, lines: list[dict], total_paise: int
++) -> tuple[str, str]:
++    subject = f"PulseCart order #{order_id} confirmed"
++    rows = [
++        f"  {line['qty']} x {line['name']} @ {format_price(line['price_paise'])}"
++        for line in lines
++    ]
++    body = "\n".join(
++        [
++            f"Hi {name},",
++            "",
++            f"Thanks for your order #{order_id}. It is being prepared for delivery to {city}.",
++            "",
++            *rows,
++            "",
++            f"Total: {format_price(total_paise)}",
++            "",
++            "PulseCart",
++        ]
++    )
++    return subject, body
++
++
++async def create_notification(message, pool: asyncpg.Pool) -> None:
++    payload = message.value
++    if payload.get("_malformed") or "order_id" not in payload or "customer_id" not in payload:
++        raise ValueError("order.placed event is missing order_id or customer_id")
++    order_id = int(payload["order_id"])
++    event_id = payload.get("outbox_event_id")
++    async with pool.acquire() as conn:
++        async with conn.transaction():
++            if event_id is not None and await conn.fetchval(
++                """SELECT EXISTS(SELECT 1 FROM processed_events
++                   WHERE consumer = $1 AND event_id = $2)""",
++                CONSUMER_NAME,
++                event_id,
++            ):
++                return
++            customer = await conn.fetchrow(
++                "SELECT id, email, name FROM customers WHERE id = $1",
++                int(payload["customer_id"]),
++            )
++            if customer is None:
++                raise ValueError(f"customer {payload['customer_id']} does not exist")
++            lines = [
++                dict(row)
++                for row in await conn.fetch(
++                    """SELECT p.name, oi.qty, oi.price_paise
++                       FROM order_items oi JOIN products p ON p.id = oi.product_id
++                       WHERE oi.order_id = $1 ORDER BY p.name""",
++                    order_id,
++                )
++            ]
++            subject, body = build_confirmation(
++                order_id,
++                customer["name"],
++                str(payload.get("city", "")),
++                lines,
++                int(payload.get("total_paise", 0)),
++            )
++            await conn.execute(
++                """INSERT INTO notifications
++                       (order_id, customer_id, recipient_email, subject, body)
++                   VALUES ($1, $2, $3, $4, $5) ON CONFLICT (order_id) DO NOTHING""",
++                order_id,
++                customer["id"],
++                customer["email"],
++                subject,
++                body,
++            )
++            if event_id is not None:
++                await conn.execute(
++                    """INSERT INTO processed_events (consumer, event_id)
++                       VALUES ($1, $2) ON CONFLICT DO NOTHING""",
++                    CONSUMER_NAME,
++                    event_id,
++                )
++
++
++def smtp_settings() -> dict | None:
++    host = os.getenv("SMTP_HOST", "").strip()
++    if not host:
++        return None
++    return {
++        "host": host,
++        "port": int(os.getenv("SMTP_PORT", "587")),
++        "user": os.getenv("SMTP_USER", ""),
++        "password": os.getenv("SMTP_PASSWORD", ""),
++        "sender": os.getenv("SMTP_FROM") or os.getenv("SMTP_USER") or "store@pulsecart.local",
++        "starttls": os.getenv("SMTP_STARTTLS", "true").strip().lower() not in {"0", "false", "no"},
++    }
++
++
++def _send_smtp(settings: dict, row) -> None:
++    email = EmailMessage()
++    email["From"] = settings["sender"]
++    email["To"] = row["recipient_email"]
++    email["Subject"] = row["subject"]
++    email.set_content(row["body"])
++    with smtplib.SMTP(settings["host"], settings["port"], timeout=15) as smtp:
++        if settings["starttls"]:
++            smtp.starttls()
++        if settings["user"]:
++            smtp.login(settings["user"], settings["password"])
++        smtp.send_message(email)
++
++
++async def deliver(row) -> str:
++    """Deliver one notification; returns the status to store ('sent' or 'logged')."""
++    settings = smtp_settings()
++    if settings is None:
++        log.info(
++            "ORDER CONFIRMATION (no SMTP configured) to=%s subject=%s",
++            row["recipient_email"],
++            row["subject"],
++        )
++        return "logged"
++    await asyncio.to_thread(_send_smtp, settings, row)
++    return "sent"
++
++
++async def send_pending(pool: asyncpg.Pool, send=deliver) -> int:
++    """Deliver pending notifications; rows that keep failing end up 'failed'."""
++    async with pool.acquire() as conn:
++        async with conn.transaction():
++            rows = await conn.fetch(
++                """SELECT id, recipient_email, subject, body, attempts
++                   FROM notifications WHERE status = 'pending'
++                   ORDER BY id LIMIT $1 FOR UPDATE SKIP LOCKED""",
++                SEND_BATCH,
++            )
++            for row in rows:
++                try:
++                    status = await send(row)
++                    await conn.execute(
++                        """UPDATE notifications
++                           SET status = $2, attempts = attempts + 1,
++                               last_error = NULL, sent_at = now()
++                           WHERE id = $1""",
++                        row["id"],
++                        status,
++                    )
++                except Exception as exc:
++                    attempts = row["attempts"] + 1
++                    await conn.execute(
++                        """UPDATE notifications
++                           SET status = $2, attempts = $3, last_error = $4
++                           WHERE id = $1""",
++                        row["id"],
++                        "failed" if attempts >= MAX_SEND_ATTEMPTS else "pending",
++                        attempts,
++                        f"{type(exc).__name__}: {exc}"[:500],
++                    )
++                    log.warning("Notification %s failed (attempt %d): %s", row["id"], attempts, exc)
++            return len(rows)
++
++
++async def sender_loop(pool: asyncpg.Pool) -> None:
++    while True:
++        try:
++            sent = await send_pending(pool)
++            if sent < SEND_BATCH:
++                await asyncio.sleep(SEND_INTERVAL)
++        except asyncio.CancelledError:
++            raise
++        except Exception:
++            log.exception("Notification sender iteration failed")
++            await asyncio.sleep(SEND_INTERVAL * 5)
+ 
+ 
+ async def main() -> None:
++    configure_logging()
+     if not PG_DSN:
+         raise RuntimeError("PG_DSN is not configured")
+     pool = await asyncpg.create_pool(
+@@ -26,41 +223,19 @@ async def main() -> None:
+         group_id=CONSUMER_NAME,
+         auto_offset_reset="earliest",
+         enable_auto_commit=False,
+-        value_deserializer=lambda value: json.loads(value.decode("utf-8")),
++        value_deserializer=safe_json_loads,
+     )
++    sender = asyncio.create_task(sender_loop(pool))
+     try:
+         await consumer.start()
+-        print("Notification consumer started")
++        log.info("Notification consumer started")
+         async for message in consumer:
+-            payload = message.value
+-            event_id = payload.get("outbox_event_id")
+-            async with pool.acquire() as conn:
+-                async with conn.transaction():
+-                    if event_id is not None:
+-                        already_processed = await conn.fetchval(
+-                            """SELECT EXISTS(SELECT 1 FROM processed_events
+-                               WHERE consumer = $1 AND event_id = $2)""",
+-                            CONSUMER_NAME,
+-                            event_id,
+-                        )
+-                    else:
+-                        already_processed = False
+-                    if not already_processed:
+-                        print(
+-                            "ORDER CONFIRMED "
+-                            f"order={payload['order_id']} "
+-                            f"customer={payload['customer_id']} "
+-                            f"total_paise={payload['total_paise']}"
+-                        )
+-                        if event_id is not None:
+-                            await conn.execute(
+-                                """INSERT INTO processed_events (consumer, event_id)
+-                                   VALUES ($1, $2) ON CONFLICT DO NOTHING""",
+-                                CONSUMER_NAME,
+-                                event_id,
+-                            )
++            await handle_with_retry(
++                message, lambda m: create_notification(m, pool), pool, CONSUMER_NAME
++            )
+             await consumer.commit()
+     finally:
++        sender.cancel()
+         await consumer.stop()
+         await pool.close()
+ 
+diff --git a/backend/app/outbox_relay.py b/backend/app/outbox_relay.py
+index d3fc4cf..b7b3779 100644
+--- a/backend/app/outbox_relay.py
++++ b/backend/app/outbox_relay.py
+@@ -1,5 +1,6 @@
+ import asyncio
+ import json
++import logging
+ import os
+ 
+ import asyncpg
+@@ -7,15 +8,61 @@ from aiokafka import AIOKafkaProducer
+ from dotenv import load_dotenv
+ 
+ from app.connections import PROJECT_ROOT, kafka_client_options, postgres_connection_kwargs
++from app.resilience import configure_logging
+ 
+ load_dotenv(PROJECT_ROOT / ".env")
+ 
+ PG_DSN = os.getenv("PG_DSN")
+ POLL_INTERVAL = 1.0
+ BATCH_SIZE = 100
++MAX_BACKOFF = 30.0
++log = logging.getLogger("pulsecart.relay")
++
++
++async def publish_batch(pool: asyncpg.Pool, producer) -> int:
++    """Publish up to BATCH_SIZE unpublished events; return how many were sent.
++
++    Rows are locked with FOR UPDATE SKIP LOCKED, so several relays can run side by side
++    without publishing the same event twice. Events sent before a Kafka error are still
++    marked published (and committed); the error is re-raised afterwards so the caller backs
++    off and retries the rest.
++    """
++    failure: Exception | None = None
++    sent = 0
++    async with pool.acquire() as conn:
++        async with conn.transaction():
++            rows = await conn.fetch(
++                """SELECT id, topic, key, payload FROM outbox_events
++                   WHERE published_at IS NULL ORDER BY id LIMIT $1
++                   FOR UPDATE SKIP LOCKED""",
++                BATCH_SIZE,
++            )
++            for row in rows:
++                payload = row["payload"]
++                if isinstance(payload, str):
++                    payload = json.loads(payload)
++                payload = {**payload, "outbox_event_id": row["id"]}
++                try:
++                    await producer.send_and_wait(
++                        row["topic"],
++                        key=row["key"].encode("utf-8"),
++                        value=json.dumps(payload).encode("utf-8"),
++                    )
++                except Exception as exc:
++                    failure = exc
++                    break
++                await conn.execute(
++                    "UPDATE outbox_events SET published_at = now() WHERE id = $1", row["id"]
++                )
++                sent += 1
++                log.info("Published event %s to %s", row["id"], row["topic"])
++    if failure is not None:
++        raise failure
++    return sent
+ 
+ 
+ async def main() -> None:
++    configure_logging()
+     if not PG_DSN:
+         raise RuntimeError("PG_DSN is not configured")
+     pool = await asyncpg.create_pool(
+@@ -26,31 +73,23 @@ async def main() -> None:
+         acks="all",
+         enable_idempotence=True,
+     )
++    failures = 0
+     try:
+         await producer.start()
+-        print("Outbox relay started")
++        log.info("Outbox relay started")
+         while True:
+-            rows = await pool.fetch(
+-                """SELECT id, topic, key, payload FROM outbox_events
+-                   WHERE published_at IS NULL ORDER BY id LIMIT $1""",
+-                BATCH_SIZE,
+-            )
+-            for row in rows:
+-                payload = row["payload"]
+-                if isinstance(payload, str):
+-                    payload = json.loads(payload)
+-                payload = {**payload, "outbox_event_id": row["id"]}
+-                await producer.send_and_wait(
+-                    row["topic"],
+-                    key=row["key"].encode("utf-8"),
+-                    value=json.dumps(payload).encode("utf-8"),
+-                )
+-                await pool.execute(
+-                    "UPDATE outbox_events SET published_at = now() WHERE id = $1 AND published_at IS NULL",
+-                    row["id"],
+-                )
+-                print(f"Published event {row['id']} to {row['topic']}")
+-            await asyncio.sleep(POLL_INTERVAL)
++            try:
++                sent = await publish_batch(pool, producer)
++                failures = 0
++                if sent < BATCH_SIZE:  # keep draining without sleeping while backlogged
++                    await asyncio.sleep(POLL_INTERVAL)
++            except asyncio.CancelledError:
++                raise
++            except Exception:
++                failures += 1
++                delay = min(MAX_BACKOFF, 2.0**failures)
++                log.exception("Relay iteration failed; retrying in %.0fs", delay)
++                await asyncio.sleep(delay)
+     finally:
+         await producer.stop()
+         await pool.close()
+diff --git a/backend/app/preflight.py b/backend/app/preflight.py
+new file mode 100644
+index 0000000..9f1298d
+--- /dev/null
++++ b/backend/app/preflight.py
+@@ -0,0 +1,98 @@
++"""Check that PostgreSQL, Kafka and OpenSearch are reachable and set up.
++
++    cd backend && python -m app.preflight
++
++Run it against your Aiven services before a demo. It reads the same .env as the app and
++exits non-zero if anything is wrong.
++"""
++
++import asyncio
++import os
++import sys
++
++import asyncpg
++from aiokafka import AIOKafkaConsumer
++from dotenv import load_dotenv
++
++from app.connections import (
++    PROJECT_ROOT,
++    create_opensearch_client,
++    kafka_client_options,
++    postgres_connection_kwargs,
++)
++
++load_dotenv(PROJECT_ROOT / ".env")
++
++REQUIRED_TABLES = {
++    "products", "store_inventory", "customers", "orders", "order_items",
++    "outbox_events", "processed_events", "carts", "cart_items", "notifications",
++    "dead_letter_events",
++}
++REQUIRED_TOPICS = {"order.placed", "inventory.changed"}
++
++
++async def check_postgres() -> str:
++    dsn = os.getenv("PG_DSN")
++    if not dsn:
++        raise RuntimeError("PG_DSN is not set")
++    conn = await asyncpg.connect(dsn, timeout=10, **postgres_connection_kwargs())
++    try:
++        tables = {
++            row["tablename"]
++            for row in await conn.fetch("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
++        }
++        missing = REQUIRED_TABLES - tables
++        if missing:
++            raise RuntimeError(f"missing tables {sorted(missing)}: apply db/schema.sql")
++        products = await conn.fetchval("SELECT count(*) FROM products")
++        if not products:
++            raise RuntimeError("no products: run `python -m app.seed`")
++        return f"{products} products"
++    finally:
++        await conn.close()
++
++
++async def check_kafka() -> str:
++    consumer = AIOKafkaConsumer(**kafka_client_options())
++    try:
++        await asyncio.wait_for(consumer.start(), timeout=15)
++        topics = await consumer.topics()
++    finally:
++        await consumer.stop()
++    missing = REQUIRED_TOPICS - set(topics)
++    if missing:
++        raise RuntimeError(f"missing topics {sorted(missing)}: create them in the Aiven console")
++    return "topics " + ", ".join(sorted(REQUIRED_TOPICS))
++
++
++async def check_opensearch() -> str:
++    client = create_opensearch_client()
++    try:
++        health = await client.cluster.health()
++        if not await client.indices.exists(index="products"):
++            raise RuntimeError("index 'products' not found: start the search-sync worker")
++        count = (await client.count(index="products"))["count"]
++        if not count:
++            raise RuntimeError("index 'products' is empty: wait for search-sync to finish")
++        return f"cluster {health.get('status')}, {count} indexed documents"
++    finally:
++        await client.close()
++
++
++async def main() -> int:
++    failures = 0
++    for name, check in (
++        ("PostgreSQL", check_postgres),
++        ("Kafka", check_kafka),
++        ("OpenSearch", check_opensearch),
++    ):
++        try:
++            print(f"PASS  {name}: {await check()}")
++        except Exception as exc:
++            failures += 1
++            print(f"FAIL  {name}: {type(exc).__name__}: {exc}")
++    return 1 if failures else 0
++
++
++if __name__ == "__main__":
++    sys.exit(asyncio.run(main()))
+diff --git a/backend/app/resilience.py b/backend/app/resilience.py
+new file mode 100644
+index 0000000..4f78484
+--- /dev/null
++++ b/backend/app/resilience.py
+@@ -0,0 +1,87 @@
++"""Shared helpers that keep Kafka consumers alive when a message is bad."""
++
++import asyncio
++import json
++import logging
++from collections.abc import Awaitable, Callable
++
++import asyncpg
++
++log = logging.getLogger("pulsecart")
++
++
++def configure_logging() -> None:
++    logging.basicConfig(
++        level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
++    )
++
++
++def safe_json_loads(value: bytes | None) -> dict:
++    """Deserialize a Kafka value without ever raising.
++
++    A malformed message becomes a marker dict that the handler rejects, so it ends up in
++    the dead-letter table instead of crashing the consumer in a restart loop.
++    """
++    try:
++        decoded = json.loads(value.decode("utf-8")) if value is not None else None
++    except (UnicodeDecodeError, json.JSONDecodeError):
++        decoded = None
++    if isinstance(decoded, dict):
++        return decoded
++    raw = value.decode("utf-8", errors="replace") if value is not None else ""
++    return {"_malformed": True, "_raw": raw[:2000]}
++
++
++async def record_dead_letter(
++    pool: asyncpg.Pool, consumer: str, message, error: BaseException
++) -> None:
++    key = message.key.decode("utf-8", errors="replace") if message.key else None
++    await pool.execute(
++        """INSERT INTO dead_letter_events
++               (consumer, topic, kafka_partition, kafka_offset, key, value, error)
++           VALUES ($1, $2, $3, $4, $5, $6, $7)""",
++        consumer,
++        message.topic,
++        message.partition,
++        message.offset,
++        key,
++        json.dumps(message.value, default=str),
++        f"{type(error).__name__}: {error}"[:1000],
++    )
++
++
++async def handle_with_retry(
++    message,
++    handler: Callable[[object], Awaitable[None]],
++    pool: asyncpg.Pool,
++    consumer: str,
++    *,
++    attempts: int = 3,
++    base_delay: float = 0.5,
++) -> bool:
++    """Run handler(message) with retries. Returns True on success, False if dead-lettered.
++
++    If the dead-letter write itself fails (for example the database is down) the error
++    propagates: the process exits, Docker restarts it, and the uncommitted message is
++    redelivered. A message is only skipped once it has been safely recorded.
++    """
++    last_error: BaseException | None = None
++    for attempt in range(1, attempts + 1):
++        try:
++            await handler(message)
++            return True
++        except asyncio.CancelledError:
++            raise
++        except Exception as exc:
++            last_error = exc
++            log.warning(
++                "%s: attempt %d/%d failed for %s[%s]@%s: %s",
++                consumer, attempt, attempts, message.topic, message.partition,
++                message.offset, exc,
++            )
++            if attempt < attempts:
++                await asyncio.sleep(base_delay * 2 ** (attempt - 1))
++    assert last_error is not None
++    await record_dead_letter(pool, consumer, message, last_error)
++    log.error("%s: dead-lettered %s@%s", consumer, message.topic, message.offset)
++    return False
+diff --git a/backend/app/search_sync.py b/backend/app/search_sync.py
+index bfa700f..c931885 100644
+--- a/backend/app/search_sync.py
++++ b/backend/app/search_sync.py
+@@ -1,5 +1,4 @@
+ import asyncio
+-import json
+ import os
+ 
+ import asyncpg
+@@ -14,6 +13,7 @@ from app.connections import (
+     kafka_client_options,
+     postgres_connection_kwargs,
+ )
++from app.resilience import configure_logging, handle_with_retry, safe_json_loads
+ 
+ load_dotenv(PROJECT_ROOT / ".env")
+ 
+@@ -171,6 +171,8 @@ async def process_message(
+     message, client: AsyncOpenSearch, pool: asyncpg.Pool
+ ) -> None:
+     payload = message.value
++    if payload.get("_malformed"):
++        raise ValueError("malformed Kafka message")
+     event_id = payload.get("outbox_event_id")
+     if event_id is not None and await is_processed(pool, event_id):
+         return
+@@ -201,6 +203,7 @@ async def process_message(
+ 
+ 
+ async def main() -> None:
++    configure_logging()
+     if not PG_DSN:
+         raise RuntimeError("PG_DSN is not configured")
+     pool = await asyncpg.create_pool(
+@@ -214,7 +217,7 @@ async def main() -> None:
+         group_id=CONSUMER_NAME,
+         auto_offset_reset="earliest",
+         enable_auto_commit=False,
+-        value_deserializer=lambda value: json.loads(value.decode("utf-8")),
++        value_deserializer=safe_json_loads,
+     )
+     try:
+         await ensure_index(client)
+@@ -222,7 +225,9 @@ async def main() -> None:
+         await consumer.start()
+         print("Search-sync consumer started")
+         async for message in consumer:
+-            await process_message(message, client, pool)
++            await handle_with_retry(
++                message, lambda m: process_message(m, client, pool), pool, CONSUMER_NAME
++            )
+             await consumer.commit()
+     finally:
+         await consumer.stop()
+diff --git a/backend/app/search_terms.py b/backend/app/search_terms.py
+new file mode 100644
+index 0000000..9cbe861
+--- /dev/null
++++ b/backend/app/search_terms.py
+@@ -0,0 +1,42 @@
++"""Query-time synonym expansion for product search.
++
++OpenSearch handles typos (fuzziness); this handles different words for the same thing
++("earphones" should find "Wireless Earbuds"). Expansion happens in the API, so it needs
++no index changes or reindexing.
++"""
++
++import difflib
++import re
++
++SYNONYM_GROUPS: tuple[frozenset[str], ...] = (
++    frozenset({"earphones", "earphone", "earbuds", "earbud", "headphones", "headphone", "headset"}),
++    frozenset({"laptop", "notebook"}),
++    frozenset({"bottle", "flask"}),
++    frozenset({"vacuum", "hoover"}),
++    frozenset({"lamp", "light", "bulb"}),
++)
++
++_ALL_TERMS = sorted({term for group in SYNONYM_GROUPS for term in group})
++MAX_TERMS = 12
++MIN_FUZZY_LENGTH = 5  # short words ("lap" vs "lamp") are too ambiguous to guess at
++
++
++def expand_query(query: str) -> str:
++    """Return the query plus synonyms for any word that matches a group (typos allowed)."""
++    tokens = re.findall(r"\w+", query.lower())
++    terms = list(dict.fromkeys(tokens))
++    for token in tokens:
++        if token in _ALL_TERMS:
++            match = token
++        elif len(token) >= MIN_FUZZY_LENGTH:
++            match = next(iter(difflib.get_close_matches(token, _ALL_TERMS, n=1, cutoff=0.85)), None)
++        else:
++            match = None
++        if match is None:
++            continue
++        for group in SYNONYM_GROUPS:
++            if match in group:
++                terms.extend(sorted(group - set(terms)))
++    if len(terms) == len(set(tokens)):
++        return query  # nothing to expand: leave the user's text untouched
++    return " ".join(terms[:MAX_TERMS])
+diff --git a/backend/tests/test_postgres_integration.py b/backend/tests/test_postgres_integration.py
+new file mode 100644
+index 0000000..055ac77
+--- /dev/null
++++ b/backend/tests/test_postgres_integration.py
+@@ -0,0 +1,234 @@
++"""Integration tests against a real PostgreSQL database.
++
++Skipped unless TEST_PG_DSN is set. Use a DISPOSABLE database that already has db/schema.sql
++applied, for example:
++
++    TEST_PG_DSN=postgresql://postgres:postgres@localhost:5432/pulsecart python -m unittest tests.test_postgres_integration
++
++The tests create their own product and customer rows, but test_relay marks every unpublished
++outbox event as published, so never point this at data you care about.
++"""
++
++import asyncio
++import os
++import unittest
++import uuid
++from types import SimpleNamespace
++
++import asyncpg
++
++from app.checkout import place_order
++from app.notification import create_notification, send_pending
++from app.outbox_relay import publish_batch
++from app.resilience import handle_with_retry
++
++DSN = os.getenv("TEST_PG_DSN")
++
++
++@unittest.skipUnless(DSN, "set TEST_PG_DSN to run PostgreSQL integration tests")
++class PostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
++    async def asyncSetUp(self):
++        self.pool = await asyncpg.create_pool(DSN, min_size=1, max_size=6)
++        suffix = uuid.uuid4().hex[:10]
++        self.city = f"TestCity-{suffix}"
++        self.product_id = await self.pool.fetchval(
++            """INSERT INTO products (sku, name, category, price_paise)
++               VALUES ($1, 'Integration Widget', 'test', 1500) RETURNING id""",
++            f"IT-{suffix}",
++        )
++        await self.pool.execute(
++            "INSERT INTO store_inventory (product_id, city, stock) VALUES ($1, $2, 5)",
++            self.product_id,
++            self.city,
++        )
++        self.customer_id = await self.pool.fetchval(
++            "INSERT INTO customers (email, name, city) VALUES ($1, 'Tester', $2) RETURNING id",
++            f"it-{suffix}@example.com",
++            self.city,
++        )
++
++    async def asyncTearDown(self):
++        await self.pool.close()
++
++    async def stock(self) -> int:
++        return await self.pool.fetchval(
++            "SELECT stock FROM store_inventory WHERE product_id = $1 AND city = $2",
++            self.product_id,
++            self.city,
++        )
++
++    async def order(self, **kwargs) -> int:
++        return await place_order(
++            self.pool, self.customer_id, self.city, [(self.product_id, 1)], "hash", **kwargs
++        )
++
++    async def test_same_idempotency_key_creates_one_order_and_one_decrement(self):
++        results = await asyncio.gather(
++            self.order(idempotency_key="key-12345678"),
++            self.order(idempotency_key="key-12345678"),
++            return_exceptions=True,
++        )
++
++        winners = [r for r in results if isinstance(r, int)]
++        losers = [r for r in results if isinstance(r, asyncpg.UniqueViolationError)]
++        self.assertEqual((len(winners), len(losers)), (1, 1))
++        self.assertEqual(await self.stock(), 4)
++        count = await self.pool.fetchval(
++            "SELECT count(*) FROM orders WHERE customer_id = $1", self.customer_id
++        )
++        self.assertEqual(count, 1)
++
++    async def test_orders_without_a_key_are_independent(self):
++        await self.order()
++        await self.order()
++
++        self.assertEqual(await self.stock(), 3)
++
++    async def test_cart_is_emptied_in_the_same_transaction_as_the_order(self):
++        cart_id = await self.pool.fetchval("INSERT INTO carts DEFAULT VALUES RETURNING id")
++        await self.pool.execute(
++            "INSERT INTO cart_items (cart_id, product_id, qty) VALUES ($1, $2, 1)",
++            cart_id,
++            self.product_id,
++        )
++
++        await self.order(cart_id=cart_id)
++
++        remaining = await self.pool.fetchval(
++            "SELECT count(*) FROM cart_items WHERE cart_id = $1", cart_id
++        )
++        self.assertEqual(remaining, 0)
++
++    async def test_failed_order_does_not_empty_the_cart(self):
++        cart_id = await self.pool.fetchval("INSERT INTO carts DEFAULT VALUES RETURNING id")
++        await self.pool.execute(
++            "INSERT INTO cart_items (cart_id, product_id, qty) VALUES ($1, $2, 1)",
++            cart_id,
++            self.product_id,
++        )
++
++        with self.assertRaises(Exception):
++            await place_order(
++                self.pool, self.customer_id, self.city, [(self.product_id, 99)], "hash",
++                cart_id=cart_id,
++            )
++
++        remaining = await self.pool.fetchval(
++            "SELECT count(*) FROM cart_items WHERE cart_id = $1", cart_id
++        )
++        self.assertEqual(remaining, 1)
++
++    async def test_relay_marks_sent_events_even_when_kafka_fails_midway(self):
++        await self.pool.execute(
++            "UPDATE outbox_events SET published_at = now() WHERE published_at IS NULL"
++        )
++        prefix = f"relay-{uuid.uuid4().hex[:8]}-"  # unique per run so reruns do not collide
++        for number in range(3):
++            await self.pool.execute(
++                "INSERT INTO outbox_events (topic, key, payload) VALUES ('t', $1, '{}'::jsonb)",
++                f"{prefix}{number}",
++            )
++
++        class FlakyProducer:
++            def __init__(self):
++                self.sent = []
++
++            async def send_and_wait(self, topic, key, value):
++                if len(self.sent) == 1:
++                    raise ConnectionError("broker gone")
++                self.sent.append(key)
++
++        producer = FlakyProducer()
++        with self.assertRaises(ConnectionError):
++            await publish_batch(self.pool, producer)
++
++        published = await self.pool.fetchval(
++            "SELECT count(*) FROM outbox_events WHERE published_at IS NOT NULL AND key LIKE $1",
++            prefix + "%",
++        )
++        self.assertEqual(published, 1)  # only the event that really reached Kafka
++
++        class GoodProducer:
++            def __init__(self):
++                self.sent = []
++
++            async def send_and_wait(self, topic, key, value):
++                self.sent.append(key)
++
++        good = GoodProducer()
++        self.assertEqual(await publish_batch(self.pool, good), 2)
++        self.assertEqual(sorted(good.sent), [f"{prefix}1".encode(), f"{prefix}2".encode()])
++
++    async def test_notification_is_created_once_even_if_the_event_is_redelivered(self):
++        order_id = await self.order()
++        event_id = int(uuid.uuid4().int % 10**9)
++        message = SimpleNamespace(
++            topic="order.placed",
++            value={
++                "order_id": order_id,
++                "customer_id": self.customer_id,
++                "city": self.city,
++                "total_paise": 1500,
++                "outbox_event_id": event_id,
++            },
++        )
++
++        await create_notification(message, self.pool)
++        await create_notification(message, self.pool)
++
++        rows = await self.pool.fetch("SELECT * FROM notifications WHERE order_id = $1", order_id)
++        self.assertEqual(len(rows), 1)
++        self.assertIn("Integration Widget", rows[0]["body"])
++        self.assertEqual(rows[0]["status"], "pending")
++
++        async def fake_send(row):
++            return "logged"
++
++        await send_pending(self.pool, fake_send)
++        status = await self.pool.fetchval(
++            "SELECT status FROM notifications WHERE order_id = $1", order_id
++        )
++        self.assertEqual(status, "logged")
++
++    async def test_failing_delivery_is_retried_then_marked_failed(self):
++        order_id = await self.order()
++        await create_notification(
++            SimpleNamespace(
++                topic="order.placed",
++                value={"order_id": order_id, "customer_id": self.customer_id, "city": self.city,
++                       "total_paise": 1500},
++            ),
++            self.pool,
++        )
++
++        async def broken_send(row):
++            raise ConnectionError("smtp down")
++
++        for _ in range(5):
++            await send_pending(self.pool, broken_send)
++
++        row = await self.pool.fetchrow(
++            "SELECT status, attempts, last_error FROM notifications WHERE order_id = $1", order_id
++        )
++        self.assertEqual((row["status"], row["attempts"]), ("failed", 5))
++        self.assertIn("smtp down", row["last_error"])
++
++    async def test_poison_message_lands_in_dead_letters(self):
++        message = SimpleNamespace(
++            topic="order.placed", partition=0, offset=123456, key=b"x", value={"_malformed": True}
++        )
++
++        ok = await handle_with_retry(
++            message, lambda m: create_notification(m, self.pool), self.pool,
++            f"it-{self.city}", base_delay=0,
++        )
++
++        self.assertFalse(ok)
++        count = await self.pool.fetchval(
++            "SELECT count(*) FROM dead_letter_events WHERE consumer = $1", f"it-{self.city}"
++        )
++        self.assertEqual(count, 1)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/backend/tests/test_resilience.py b/backend/tests/test_resilience.py
+new file mode 100644
+index 0000000..8ab0818
+--- /dev/null
++++ b/backend/tests/test_resilience.py
+@@ -0,0 +1,87 @@
++import unittest
++from types import SimpleNamespace
++
++from app.resilience import handle_with_retry, safe_json_loads
++
++
++class RecordingPool:
++    def __init__(self):
++        self.executed: list[tuple] = []
++
++    async def execute(self, query: str, *args):
++        self.executed.append(args)
++
++
++def make_message(value: dict | None = None):
++    return SimpleNamespace(
++        topic="order.placed",
++        partition=0,
++        offset=7,
++        key=b"42",
++        value=value if value is not None else {"order_id": 42},
++    )
++
++
++class SafeJsonTests(unittest.TestCase):
++    def test_valid_object_is_returned(self):
++        self.assertEqual(safe_json_loads(b'{"order_id": 1}'), {"order_id": 1})
++
++    def test_garbage_becomes_a_marker_instead_of_raising(self):
++        result = safe_json_loads(b"not json \xff")
++
++        self.assertTrue(result["_malformed"])
++
++    def test_non_object_json_is_marked_malformed(self):
++        self.assertTrue(safe_json_loads(b"[1, 2]")["_malformed"])
++        self.assertTrue(safe_json_loads(None)["_malformed"])
++
++
++class HandleWithRetryTests(unittest.IsolatedAsyncioTestCase):
++    async def test_success_after_transient_failures_is_not_dead_lettered(self):
++        pool = RecordingPool()
++        calls = 0
++
++        async def flaky(message):
++            nonlocal calls
++            calls += 1
++            if calls < 3:
++                raise RuntimeError("temporary")
++
++        ok = await handle_with_retry(make_message(), flaky, pool, "c", base_delay=0)
++
++        self.assertTrue(ok)
++        self.assertEqual(calls, 3)
++        self.assertEqual(pool.executed, [])
++
++    async def test_persistent_failure_is_recorded_and_skipped(self):
++        pool = RecordingPool()
++
++        async def always_fails(message):
++            raise ValueError("poison")
++
++        ok = await handle_with_retry(
++            make_message(), always_fails, pool, "search-sync", attempts=2, base_delay=0
++        )
++
++        self.assertFalse(ok)
++        self.assertEqual(len(pool.executed), 1)
++        consumer, topic, partition, offset, key, _value, error = pool.executed[0]
++        self.assertEqual((consumer, topic, partition, offset, key), ("search-sync", "order.placed", 0, 7, "42"))
++        self.assertIn("ValueError: poison", error)
++
++    async def test_dead_letter_write_failure_propagates_so_the_message_is_redelivered(self):
++        class BrokenPool:
++            async def execute(self, *args):
++                raise ConnectionError("database down")
++
++        async def always_fails(message):
++            raise ValueError("poison")
++
++        with self.assertRaises(ConnectionError):
++            await handle_with_retry(
++                make_message(), always_fails, BrokenPool(), "c", attempts=1, base_delay=0
++            )
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/backend/tests/test_search_terms.py b/backend/tests/test_search_terms.py
+new file mode 100644
+index 0000000..2e83334
+--- /dev/null
++++ b/backend/tests/test_search_terms.py
+@@ -0,0 +1,32 @@
++import unittest
++
++from app.search_terms import expand_query
++
++
++class ExpandQueryTests(unittest.TestCase):
++    def test_earphones_also_finds_earbuds_and_headphones(self):
++        terms = expand_query("earphones").split()
++
++        self.assertIn("earbuds", terms)
++        self.assertIn("headphones", terms)
++        self.assertEqual(terms[0], "earphones")
++
++    def test_typo_in_a_synonym_word_still_expands(self):
++        self.assertIn("earbuds", expand_query("earphons").split())
++
++    def test_unrelated_queries_are_left_untouched(self):
++        self.assertEqual(expand_query("Wireless Mouse"), "Wireless Mouse")
++        self.assertEqual(expand_query("bluetoth"), "bluetoth")
++
++    def test_short_words_are_not_fuzzy_matched(self):
++        self.assertEqual(expand_query("lap top"), "lap top")
++
++    def test_other_words_in_the_query_are_kept(self):
++        terms = expand_query("wireless earbuds").split()
++
++        self.assertIn("wireless", terms)
++        self.assertIn("headphones", terms)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/db/migrations/002_carts_idempotency_notifications.sql b/db/migrations/002_carts_idempotency_notifications.sql
+new file mode 100644
+index 0000000..402631e
+--- /dev/null
++++ b/db/migrations/002_carts_idempotency_notifications.sql
+@@ -0,0 +1,52 @@
++-- Run once on an existing database (db/schema.sql already contains this for fresh ones).
++
++-- Checkout idempotency: a retried request with the same key returns the same order.
++ALTER TABLE orders ADD COLUMN IF NOT EXISTS idempotency_key TEXT;
++CREATE UNIQUE INDEX IF NOT EXISTS orders_customer_idempotency_key
++  ON orders (customer_id, idempotency_key) WHERE idempotency_key IS NOT NULL;
++
++-- Server-side carts. The cart ID is an unguessable UUID kept by the browser.
++CREATE TABLE IF NOT EXISTS carts (
++  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
++  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
++  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
++);
++
++CREATE TABLE IF NOT EXISTS cart_items (
++  cart_id UUID NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
++  product_id BIGINT NOT NULL REFERENCES products(id),
++  qty INTEGER NOT NULL CHECK (qty > 0 AND qty <= 50),
++  PRIMARY KEY (cart_id, product_id)
++);
++
++-- Order confirmations. The notification consumer inserts one row per order
++-- (UNIQUE order_id makes redelivery harmless); a sender loop delivers pending rows.
++CREATE TABLE IF NOT EXISTS notifications (
++  id BIGSERIAL PRIMARY KEY,
++  order_id BIGINT NOT NULL UNIQUE REFERENCES orders(id),
++  customer_id BIGINT NOT NULL REFERENCES customers(id),
++  recipient_email TEXT NOT NULL,
++  subject TEXT NOT NULL,
++  body TEXT NOT NULL,
++  status TEXT NOT NULL DEFAULT 'pending'
++    CHECK (status IN ('pending', 'sent', 'logged', 'failed')),
++  attempts INTEGER NOT NULL DEFAULT 0,
++  last_error TEXT,
++  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
++  sent_at TIMESTAMPTZ
++);
++CREATE INDEX IF NOT EXISTS notifications_pending
++  ON notifications (id) WHERE status = 'pending';
++
++-- Messages a consumer could not process after retrying; inspect via /admin/dead-letters.
++CREATE TABLE IF NOT EXISTS dead_letter_events (
++  id BIGSERIAL PRIMARY KEY,
++  consumer TEXT NOT NULL,
++  topic TEXT NOT NULL,
++  kafka_partition INTEGER,
++  kafka_offset BIGINT,
++  key TEXT,
++  value TEXT,
++  error TEXT NOT NULL,
++  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
++);
+diff --git a/db/schema.sql b/db/schema.sql
+index 96cc3ae..9465a59 100644
+--- a/db/schema.sql
++++ b/db/schema.sql
+@@ -62,3 +62,54 @@ CREATE TABLE IF NOT EXISTS processed_events (
+ 
+ CREATE INDEX IF NOT EXISTS store_inventory_in_stock_city_product
+   ON store_inventory (city, product_id) WHERE stock > 0;
++
++-- Checkout idempotency: a retried request with the same key returns the same order.
++ALTER TABLE orders ADD COLUMN IF NOT EXISTS idempotency_key TEXT;
++CREATE UNIQUE INDEX IF NOT EXISTS orders_customer_idempotency_key
++  ON orders (customer_id, idempotency_key) WHERE idempotency_key IS NOT NULL;
++
++-- Server-side carts. The cart ID is an unguessable UUID kept by the browser.
++CREATE TABLE IF NOT EXISTS carts (
++  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
++  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
++  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
++);
++
++CREATE TABLE IF NOT EXISTS cart_items (
++  cart_id UUID NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
++  product_id BIGINT NOT NULL REFERENCES products(id),
++  qty INTEGER NOT NULL CHECK (qty > 0 AND qty <= 50),
++  PRIMARY KEY (cart_id, product_id)
++);
++
++-- Order confirmations. The notification consumer inserts one row per order
++-- (UNIQUE order_id makes redelivery harmless); a sender loop delivers pending rows.
++CREATE TABLE IF NOT EXISTS notifications (
++  id BIGSERIAL PRIMARY KEY,
++  order_id BIGINT NOT NULL UNIQUE REFERENCES orders(id),
++  customer_id BIGINT NOT NULL REFERENCES customers(id),
++  recipient_email TEXT NOT NULL,
++  subject TEXT NOT NULL,
++  body TEXT NOT NULL,
++  status TEXT NOT NULL DEFAULT 'pending'
++    CHECK (status IN ('pending', 'sent', 'logged', 'failed')),
++  attempts INTEGER NOT NULL DEFAULT 0,
++  last_error TEXT,
++  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
++  sent_at TIMESTAMPTZ
++);
++CREATE INDEX IF NOT EXISTS notifications_pending
++  ON notifications (id) WHERE status = 'pending';
++
++-- Messages a consumer could not process after retrying; inspect via /admin/dead-letters.
++CREATE TABLE IF NOT EXISTS dead_letter_events (
++  id BIGSERIAL PRIMARY KEY,
++  consumer TEXT NOT NULL,
++  topic TEXT NOT NULL,
++  kafka_partition INTEGER,
++  kafka_offset BIGINT,
++  key TEXT,
++  value TEXT,
++  error TEXT NOT NULL,
++  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
++);
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 0a56182..0fd63b8 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -68,6 +68,7 @@ services:
+       retries: 30
+ 
+   backend:
++    restart: unless-stopped
+     build:
+       context: ./backend
+     environment:
+@@ -81,6 +82,8 @@ services:
+       TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:-}
+       APP_ENV: ${APP_ENV:-production}
+       ADMIN_KEY: ${ADMIN_KEY:-}
++      CHECKOUT_RATE_LIMIT: ${CHECKOUT_RATE_LIMIT:-5/minute}
++      CART_RATE_LIMIT: ${CART_RATE_LIMIT:-120/minute}
+     ports:
+       - "127.0.0.1:8000:8000"
+     depends_on:
+@@ -98,6 +101,7 @@ services:
+       retries: 15
+ 
+   relay:
++    restart: unless-stopped
+     build:
+       context: ./backend
+     environment:
+@@ -111,6 +115,7 @@ services:
+     command: ["python", "-m", "app.outbox_relay"]
+ 
+   search-sync:
++    restart: unless-stopped
+     build:
+       context: ./backend
+     environment:
+@@ -125,9 +130,16 @@ services:
+     command: ["python", "-m", "app.search_sync"]
+ 
+   notification:
++    restart: unless-stopped
+     build:
+       context: ./backend
+     environment:
++      SMTP_HOST: ${SMTP_HOST:-}
++      SMTP_PORT: ${SMTP_PORT:-587}
++      SMTP_USER: ${SMTP_USER:-}
++      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
++      SMTP_FROM: ${SMTP_FROM:-}
++      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+       PG_DSN: postgresql://postgres@postgres:5432/pulsecart
+       PG_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+       KAFKA_BOOTSTRAP: kafka:9092
+@@ -138,6 +150,7 @@ services:
+     command: ["python", "-m", "app.notification"]
+ 
+   frontend:
++    restart: unless-stopped
+     build:
+       context: ./frontend
+       args:
+diff --git a/frontend/app/admin/page.tsx b/frontend/app/admin/page.tsx
+index 2d0021c..689e1b9 100644
+--- a/frontend/app/admin/page.tsx
++++ b/frontend/app/admin/page.tsx
+@@ -4,10 +4,14 @@ import { useEffect, useState } from 'react';
+ 
+ type Order = { id: number; city: string; status: string; total_paise: number; created_at: string };
+ type Event = { id: number; topic: string; key: string; published_at: string | null; created_at: string };
++type Notification = { id: number; order_id: number; recipient_email: string; subject: string; status: string; attempts: number; last_error: string | null };
++type DeadLetter = { id: number; consumer: string; topic: string; kafka_offset: number | null; error: string };
+ 
+ export default function AdminPage() {
+   const [orders, setOrders] = useState<Order[]>([]);
+   const [events, setEvents] = useState<Event[]>([]);
++  const [notifications, setNotifications] = useState<Notification[]>([]);
++  const [deadLetters, setDeadLetters] = useState<DeadLetter[]>([]);
+   const [error, setError] = useState('');
+   const [updated, setUpdated] = useState('');
+   const [keyDraft, setKeyDraft] = useState('');
+@@ -17,18 +21,25 @@ export default function AdminPage() {
+     let active = true;
+     const load = async () => {
+       try {
+-        const [orderResponse, eventResponse] = await Promise.all([
+-          fetch('/api/admin/orders', { headers: adminKey ? { 'X-Admin-Key': adminKey } : {} }),
+-          fetch('/api/admin/outbox', { headers: adminKey ? { 'X-Admin-Key': adminKey } : {} }),
++        const headers: Record<string, string> = adminKey ? { 'X-Admin-Key': adminKey } : {};
++        const [orderResponse, eventResponse, notificationResponse, deadLetterResponse] = await Promise.all([
++          fetch('/api/admin/orders', { headers }),
++          fetch('/api/admin/outbox', { headers }),
++          fetch('/api/admin/notifications', { headers }),
++          fetch('/api/admin/dead-letters', { headers }),
+         ]);
+         if (!orderResponse.ok || !eventResponse.ok) throw new Error('Admin access unavailable. Enter a valid admin key if required.');
+         const [orderData, eventData] = await Promise.all([
+           orderResponse.json() as Promise<Order[]>,
+           eventResponse.json() as Promise<Event[]>,
+         ]);
++        const notificationData = notificationResponse.ok ? await notificationResponse.json() as Notification[] : [];
++        const deadLetterData = deadLetterResponse.ok ? await deadLetterResponse.json() as DeadLetter[] : [];
+         if (active) {
+           setOrders(orderData);
+           setEvents(eventData);
++          setNotifications(notificationData);
++          setDeadLetters(deadLetterData);
+           setUpdated(new Date().toLocaleTimeString());
+           setError('');
+         }
+@@ -79,6 +90,20 @@ export default function AdminPage() {
+             {!events.length && <p className="text-sm text-ink/50">No events yet. Events appear after checkouts are placed.</p>}
+           </div>
+         </section>
++        <section className="rounded-lg border border-ink/10 bg-surface p-5">
++          <h2 className="text-xl font-bold">Order confirmations</h2>
++          <div className="mt-4 space-y-3">
++            {notifications.map((item) => <article key={item.id} className="flex items-center justify-between gap-3 border-b border-ink/10 pb-3 text-sm"><div><p className="font-bold">Order #{item.order_id} · {item.recipient_email}</p><p className="text-ink/50">{item.subject}{item.last_error ? ` · ${item.last_error}` : ''}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${item.status === 'sent' || item.status === 'logged' ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>{item.status}</span></article>)}
++            {!notifications.length && <p className="text-sm text-ink/50">No confirmations yet. The notification worker creates one per order.</p>}
++          </div>
++        </section>
++        <section className="rounded-lg border border-ink/10 bg-surface p-5">
++          <h2 className="text-xl font-bold">Dead letters</h2>
++          <div className="mt-4 space-y-3">
++            {deadLetters.map((item) => <article key={item.id} className="border-b border-ink/10 pb-3 text-sm"><p className="font-bold">{item.consumer} · {item.topic}@{item.kafka_offset ?? '?'}</p><p className="text-ink/50">{item.error}</p></article>)}
++            {!deadLetters.length && <p className="text-sm text-ink/50">None. Messages a consumer cannot process after retrying appear here.</p>}
++          </div>
++        </section>
+       </div>
+     </div>
+   );
+diff --git a/frontend/app/cart-sync.ts b/frontend/app/cart-sync.ts
+new file mode 100644
+index 0000000..25ea3b2
+--- /dev/null
++++ b/frontend/app/cart-sync.ts
+@@ -0,0 +1,71 @@
++// Keeps the browser cart (localStorage, for instant UI) mirrored in PostgreSQL.
++// Syncing is best-effort: if the API is unreachable the cart still works locally.
++
++const CART_ID_KEY = 'pulsecart_cart_id';
++const LOCAL_CART_KEY = 'pulsecart_cart';
++
++export type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number };
++
++type ServerCart = { cart_id: string; items: CartItem[] };
++
++export function currentCartId(): string | null {
++  try {
++    return localStorage.getItem(CART_ID_KEY);
++  } catch {
++    return null;
++  }
++}
++
++async function createCartId(): Promise<string | null> {
++  try {
++    const response = await fetch('/api/carts', { method: 'POST' });
++    if (!response.ok) return null;
++    const cart = (await response.json()) as ServerCart;
++    localStorage.setItem(CART_ID_KEY, cart.cart_id);
++    return cart.cart_id;
++  } catch {
++    return null;
++  }
++}
++
++export async function syncCart(items: Pick<CartItem, 'id' | 'qty'>[]): Promise<void> {
++  const body = JSON.stringify({ items: items.map((item) => ({ product_id: item.id, qty: item.qty })) });
++  const headers = { 'Content-Type': 'application/json' };
++  try {
++    let cartId = currentCartId() ?? (await createCartId());
++    if (!cartId) return;
++    const response = await fetch(`/api/carts/${cartId}`, { method: 'PUT', headers, body });
++    if (response.status === 404) {
++      // The server no longer knows this cart (for example a reset database): start a new one.
++      localStorage.removeItem(CART_ID_KEY);
++      cartId = await createCartId();
++      if (!cartId) return;
++      await fetch(`/api/carts/${cartId}`, { method: 'PUT', headers, body });
++    }
++  } catch {
++    // Offline or API down: the local cart keeps working.
++  }
++}
++
++// If localStorage was cleared but the cart ID survived, rebuild the cart from PostgreSQL.
++export async function restoreCart(): Promise<CartItem[]> {
++  const cartId = currentCartId();
++  if (!cartId) return [];
++  try {
++    const response = await fetch(`/api/carts/${cartId}`);
++    if (!response.ok) return [];
++    const cart = (await response.json()) as ServerCart;
++    localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(cart.items));
++    return cart.items;
++  } catch {
++    return [];
++  }
++}
++
++// crypto.randomUUID only exists in secure contexts (https or localhost).
++export function newIdempotencyKey(): string {
++  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
++    return crypto.randomUUID();
++  }
++  return `k-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
++}
+diff --git a/frontend/app/cart/page.tsx b/frontend/app/cart/page.tsx
+index 2266cab..cef2c8e 100644
+--- a/frontend/app/cart/page.tsx
++++ b/frontend/app/cart/page.tsx
+@@ -1,7 +1,8 @@
+ 'use client';
+ 
+ import Link from 'next/link';
+-import { FormEvent, useEffect, useMemo, useState } from 'react';
++import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
++import { currentCartId, newIdempotencyKey, restoreCart, syncCart } from '../cart-sync';
+ 
+ type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number };
+ 
+@@ -19,11 +20,15 @@ export default function CartPage() {
+   const [notice, setNotice] = useState('');
+   const [orderId, setOrderId] = useState<number | null>(null);
+   const [busy, setBusy] = useState(false);
++  // One key per order attempt: a retry after a lost response returns the same order instead of a duplicate.
++  const idempotencyKey = useRef<string | null>(null);
+   const total = useMemo(() => cart.reduce((sum, item) => sum + item.price_paise * item.qty, 0), [cart]);
+ 
+   useEffect(() => {
+     try {
+-      setCart(JSON.parse(localStorage.getItem('pulsecart_cart') || '[]') as CartItem[]);
++      const saved = JSON.parse(localStorage.getItem('pulsecart_cart') || '[]') as CartItem[];
++      setCart(saved);
++      if (!saved.length) void restoreCart().then((restored) => { if (restored.length) setCart(restored); });
+     } catch {
+       localStorage.removeItem('pulsecart_cart');
+       setNotice('Your saved cart could not be read. Please add your items again.');
+@@ -40,8 +45,10 @@ export default function CartPage() {
+ 
+   function updateCart(next: CartItem[]) {
+     setCart(next);
++    idempotencyKey.current = null; // the order changed, so the next attempt is a new order
+     localStorage.setItem('pulsecart_cart', JSON.stringify(next));
+     window.dispatchEvent(new Event('pulsecart:cart-updated'));
++    void syncCart(next);
+   }
+ 
+   async function checkout(event: FormEvent<HTMLFormElement>) {
+@@ -50,16 +57,20 @@ export default function CartPage() {
+     setNotice('');
+     setBusy(true);
+     try {
++      idempotencyKey.current ??= newIdempotencyKey();
+       const response = await fetch('/api/checkout', {
+         method: 'POST',
+-        headers: { 'Content-Type': 'application/json' },
++        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey.current },
+         body: JSON.stringify({
+           customer_email: email,
+           customer_name: name,
+           city,
++          cart_id: currentCartId(),
+           items: cart.map((item) => ({ product_id: item.id, qty: item.qty })),
+         }),
+       });
++      // Keep the key after a network error or a 5xx (the order may exist); drop it once the server gave a definite answer.
++      if (response.ok || [404, 409, 422, 429].includes(response.status)) idempotencyKey.current = null;
+       const result = await response.json() as { order_id?: number; detail?: string };
+       if (!response.ok) throw new Error(result.detail || 'Checkout failed. Please try again.');
+       if (!result.order_id) throw new Error('We could not confirm your order. Please contact the store.');
+diff --git a/frontend/app/product/[id]/page.tsx b/frontend/app/product/[id]/page.tsx
+index e6350fc..a341a66 100644
+--- a/frontend/app/product/[id]/page.tsx
++++ b/frontend/app/product/[id]/page.tsx
+@@ -4,6 +4,7 @@ import Link from 'next/link';
+ import { useEffect, useState } from 'react';
+ import { useParams } from 'next/navigation';
+ import ProductArtwork from '../../product-artwork';
++import { syncCart } from '../../cart-sync';
+ 
+ type Product = { id: number; sku: string; name: string; description: string; category: string; price_paise: number; image_url: string | null };
+ type CartItem = Product & { qty: number };
+@@ -46,6 +47,7 @@ export default function ProductPage() {
+       else saved.push({ ...product, qty: 1 });
+       localStorage.setItem('pulsecart_cart', JSON.stringify(saved));
+       window.dispatchEvent(new Event('pulsecart:cart-updated'));
++      void syncCart(saved);
+       setMessage('Added to your cart.');
+     } catch {
+       setMessage('We could not save this item. Please try again.');
+diff --git a/scripts/create_pitch_deck.py b/scripts/create_pitch_deck.py
+index 5d558d8..9fb045b 100644
+--- a/scripts/create_pitch_deck.py
++++ b/scripts/create_pitch_deck.py
+@@ -212,7 +212,7 @@ def create_deck():
+     add_box(slide, 0.8, 2.75, 11.75, 1.05, INK)
+     add_text(slide, "docker compose up --build", 1.15, 2.98, 10.9, 0.55, 23, LIME, True, font="Cascadia Code")
+     add_card(slide, 0.8, 4.25, 3.75, 1.85, "01", "Browse", "http://localhost:3000")
+-    add_card(slide, 4.8, 4.25, 3.75, 1.85, "02", "Inspect API", "http://localhost:8000/docs", LIME)
++    add_card(slide, 4.8, 4.25, 3.75, 1.85, "02", "Watch events", "http://localhost:3000/admin", LIME)
+     add_card(slide, 8.8, 4.25, 3.75, 1.85, "03", "Run against Aiven", "Use local environment variables and ignored TLS certificate files.")
+     add_text(slide, "Aiven credentials are not stored in the repository.", 0.9, 6.45, 11.2, 0.35, 14, MOSS, True)
+ 

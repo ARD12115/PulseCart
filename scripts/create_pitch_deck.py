@@ -212,7 +212,7 @@ def create_deck():
     add_box(slide, 0.8, 2.75, 11.75, 1.05, INK)
     add_text(slide, "docker compose up --build", 1.15, 2.98, 10.9, 0.55, 23, LIME, True, font="Cascadia Code")
     add_card(slide, 0.8, 4.25, 3.75, 1.85, "01", "Browse", "http://localhost:3000")
-    add_card(slide, 4.8, 4.25, 3.75, 1.85, "02", "Inspect API", "http://localhost:8000/docs", LIME)
+    add_card(slide, 4.8, 4.25, 3.75, 1.85, "02", "Watch events", "http://localhost:3000/admin", LIME)
     add_card(slide, 8.8, 4.25, 3.75, 1.85, "03", "Run against Aiven", "Use local environment variables and ignored TLS certificate files.")
     add_text(slide, "Aiven credentials are not stored in the repository.", 0.9, 6.45, 11.2, 0.35, 14, MOSS, True)
 

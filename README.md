@@ -14,6 +14,11 @@ The storefront uses Next.js 16 and React 19.
 - Search results come from OpenSearch and support fuzzy matching, category, price, and city filters.
 - A race demo sends two simultaneous requests for one seeded last-unit item.
 - Per-city inventory makes availability a real filter rather than a label.
+- Carts are stored in PostgreSQL (`carts`, `cart_items`), so a cart survives clearing the browser's local storage.
+- Checkout accepts an `Idempotency-Key` header: a retried or double-clicked request returns the original order instead of creating a second one.
+- Order confirmations are created by a Kafka consumer, stored in `notifications`, and emailed when SMTP is configured.
+- A consumer retries a failing message three times, then records it in `dead_letter_events` and moves on instead of crashing.
+- Search understands synonyms: "earphones" also finds earbuds and headphones, and typos still work.
 
 ## Run locally with Docker Compose
 
@@ -81,6 +86,17 @@ npm run dev
 
 The local `.env` is read from the project root. Aiven credentials and TLS certificates are intentionally not included.
 
+## Before a demo: check the Aiven services
+
+```powershell
+cd backend
+python -m app.preflight
+```
+
+It checks that PostgreSQL has the schema and products, that Kafka has the `order.placed` and `inventory.changed` topics, and that the OpenSearch `products` index exists and has documents. Fix every `FAIL` line before presenting. Then run the demo against Aiven, not the local Compose stack, so judges see all three services doing real work.
+
+For a busy demo (several people ordering from one network), raise the checkout limit in `.env`, for example `CHECKOUT_RATE_LIMIT=30/minute`. The default stays strict at `5/minute`.
+
 ## Demo walkthrough
 
 1. Browse products and try searching `bluetoth`.
@@ -107,5 +123,19 @@ The editable pitch deck is `PulseCart_HackBriven.pptx`; a PDF version is also in
 - Kafka delivery is at-least-once; outbox event IDs make consumer processing idempotent.
 - Admin routes require `ADMIN_KEY` unless `APP_ENV=development` is explicitly selected. Order details require the private access code returned at checkout; only its hash is stored.
 - Customer order lookup is available only for orders created after the access-token migration; legacy orders have no automatically issued access credential.
-- The confirmation worker logs rather than sending email. Configure customer notifications, payment, and fulfillment before accepting real orders.
+- The notification worker stores one confirmation per order in `notifications` and delivers it by SMTP when `SMTP_HOST` is set; without SMTP it only logs it (status `logged`). Email delivery is at-least-once: a crash between the SMTP server accepting a message and the row being marked `sent` can send that one email again. Configure payment and fulfillment before accepting real orders.
+- The outbox relay locks rows with `FOR UPDATE SKIP LOCKED`, retries with backoff when Kafka is unavailable, and marks events that reached Kafka as published even if a later event in the batch fails.
+- Messages a consumer cannot process are written to `dead_letter_events` (see `/admin`). If the database itself is down the consumer exits and Docker restarts it, so nothing is skipped without being recorded.
+- Replaying a checkout with the same `Idempotency-Key` returns the original order with `Idempotent-Replay: true` and no `order_access_token`, because only its hash is stored. Keep the token from the first response.
+- Cart IDs are random UUIDs and act as the cart's access secret. Remove old carts with `DELETE FROM carts WHERE updated_at < now() - interval '30 days'` if the table grows.
+
+## Tests
+
+```powershell
+cd backend
+python -m unittest discover -s tests
+```
+
+`tests/test_postgres_integration.py` is skipped unless `TEST_PG_DSN` points at a disposable PostgreSQL database that already has `db/schema.sql` applied (it marks unpublished outbox events as published).
+
 - Keep Aiven credentials in environment variables and certificates in the ignored `certs/` directory.

@@ -1,4 +1,5 @@
 import json
+from uuid import UUID
 
 import asyncpg
 
@@ -21,8 +22,17 @@ async def place_order(
     city: str,
     items: list[tuple[int, int]],
     access_token_hash: str,
+    *,
+    idempotency_key: str | None = None,
+    cart_id: UUID | None = None,
 ) -> int:
-    """Create an order and outbox events atomically; items are product ID/quantity pairs."""
+    """Create an order and outbox events atomically; items are product ID/quantity pairs.
+
+    With an idempotency key, a second order for the same customer and key violates the
+    unique index; the whole transaction (including the stock decrement) rolls back and
+    asyncpg.UniqueViolationError propagates so the caller can return the original order.
+    A cart_id is emptied in the same transaction as the order.
+    """
     quantities: dict[int, int] = {}
     for product_id, qty in items:
         if product_id <= 0 or qty <= 0:
@@ -62,12 +72,14 @@ async def place_order(
                 lines.append((product_id, qty, price, row["stock"]))
 
             order_id = await conn.fetchval(
-                """INSERT INTO orders (customer_id, city, total_paise, access_token_hash)
-                   VALUES ($1, $2, $3, $4) RETURNING id""",
+                """INSERT INTO orders
+                       (customer_id, city, total_paise, access_token_hash, idempotency_key)
+                   VALUES ($1, $2, $3, $4, $5) RETURNING id""",
                 customer_id,
                 city,
                 total,
                 access_token_hash,
+                idempotency_key,
             )
             for product_id, qty, price, _ in lines:
                 await conn.execute(
@@ -101,6 +113,8 @@ async def place_order(
                     f"{product_id}:{city}",
                     {"product_id": product_id, "city": city, "stock": stock},
                 )
+            if cart_id is not None:
+                await conn.execute("DELETE FROM cart_items WHERE cart_id = $1", cart_id)
             return order_id
 
 

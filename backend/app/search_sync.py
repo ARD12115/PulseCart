@@ -1,5 +1,4 @@
 import asyncio
-import json
 import os
 
 import asyncpg
@@ -14,6 +13,7 @@ from app.connections import (
     kafka_client_options,
     postgres_connection_kwargs,
 )
+from app.resilience import configure_logging, handle_with_retry, safe_json_loads
 
 load_dotenv(PROJECT_ROOT / ".env")
 
@@ -171,6 +171,8 @@ async def process_message(
     message, client: AsyncOpenSearch, pool: asyncpg.Pool
 ) -> None:
     payload = message.value
+    if payload.get("_malformed"):
+        raise ValueError("malformed Kafka message")
     event_id = payload.get("outbox_event_id")
     if event_id is not None and await is_processed(pool, event_id):
         return
@@ -201,6 +203,7 @@ async def process_message(
 
 
 async def main() -> None:
+    configure_logging()
     if not PG_DSN:
         raise RuntimeError("PG_DSN is not configured")
     pool = await asyncpg.create_pool(
@@ -214,7 +217,7 @@ async def main() -> None:
         group_id=CONSUMER_NAME,
         auto_offset_reset="earliest",
         enable_auto_commit=False,
-        value_deserializer=lambda value: json.loads(value.decode("utf-8")),
+        value_deserializer=safe_json_loads,
     )
     try:
         await ensure_index(client)
@@ -222,7 +225,9 @@ async def main() -> None:
         await consumer.start()
         print("Search-sync consumer started")
         async for message in consumer:
-            await process_message(message, client, pool)
+            await handle_with_retry(
+                message, lambda m: process_message(m, client, pool), pool, CONSUMER_NAME
+            )
             await consumer.commit()
     finally:
         await consumer.stop()

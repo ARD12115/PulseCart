@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { currentCartId, newIdempotencyKey, restoreCart, syncCart } from '../cart-sync';
 
 type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number };
 
@@ -19,11 +20,15 @@ export default function CartPage() {
   const [notice, setNotice] = useState('');
   const [orderId, setOrderId] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
+  // One key per order attempt: a retry after a lost response returns the same order instead of a duplicate.
+  const idempotencyKey = useRef<string | null>(null);
   const total = useMemo(() => cart.reduce((sum, item) => sum + item.price_paise * item.qty, 0), [cart]);
 
   useEffect(() => {
     try {
-      setCart(JSON.parse(localStorage.getItem('pulsecart_cart') || '[]') as CartItem[]);
+      const saved = JSON.parse(localStorage.getItem('pulsecart_cart') || '[]') as CartItem[];
+      setCart(saved);
+      if (!saved.length) void restoreCart().then((restored) => { if (restored.length) setCart(restored); });
     } catch {
       localStorage.removeItem('pulsecart_cart');
       setNotice('Your saved cart could not be read. Please add your items again.');
@@ -40,8 +45,10 @@ export default function CartPage() {
 
   function updateCart(next: CartItem[]) {
     setCart(next);
+    idempotencyKey.current = null; // the order changed, so the next attempt is a new order
     localStorage.setItem('pulsecart_cart', JSON.stringify(next));
     window.dispatchEvent(new Event('pulsecart:cart-updated'));
+    void syncCart(next);
   }
 
   async function checkout(event: FormEvent<HTMLFormElement>) {
@@ -50,16 +57,20 @@ export default function CartPage() {
     setNotice('');
     setBusy(true);
     try {
+      idempotencyKey.current ??= newIdempotencyKey();
       const response = await fetch('/api/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey.current },
         body: JSON.stringify({
           customer_email: email,
           customer_name: name,
           city,
+          cart_id: currentCartId(),
           items: cart.map((item) => ({ product_id: item.id, qty: item.qty })),
         }),
       });
+      // Keep the key after a network error or a 5xx (the order may exist); drop it once the server gave a definite answer.
+      if (response.ok || [404, 409, 422, 429].includes(response.status)) idempotencyKey.current = null;
       const result = await response.json() as { order_id?: number; detail?: string };
       if (!response.ok) throw new Error(result.detail || 'Checkout failed. Please try again.');
       if (!result.order_id) throw new Error('We could not confirm your order. Please contact the store.');

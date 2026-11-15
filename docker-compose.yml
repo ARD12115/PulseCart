@@ -68,6 +68,7 @@ services:
       retries: 30
 
   backend:
+    restart: unless-stopped
     build:
       context: ./backend
     environment:
@@ -81,6 +82,8 @@ services:
       TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:-}
       APP_ENV: ${APP_ENV:-production}
       ADMIN_KEY: ${ADMIN_KEY:-}
+      CHECKOUT_RATE_LIMIT: ${CHECKOUT_RATE_LIMIT:-5/minute}
+      CART_RATE_LIMIT: ${CART_RATE_LIMIT:-120/minute}
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
@@ -98,6 +101,7 @@ services:
       retries: 15
 
   relay:
+    restart: unless-stopped
     build:
       context: ./backend
     environment:
@@ -111,6 +115,7 @@ services:
     command: ["python", "-m", "app.outbox_relay"]
 
   search-sync:
+    restart: unless-stopped
     build:
       context: ./backend
     environment:
@@ -125,9 +130,16 @@ services:
     command: ["python", "-m", "app.search_sync"]
 
   notification:
+    restart: unless-stopped
     build:
       context: ./backend
     environment:
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
       PG_DSN: postgresql://postgres@postgres:5432/pulsecart
       PG_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       KAFKA_BOOTSTRAP: kafka:9092
@@ -138,6 +150,7 @@ services:
     command: ["python", "-m", "app.notification"]
 
   frontend:
+    restart: unless-stopped
     build:
       context: ./frontend
       args:
