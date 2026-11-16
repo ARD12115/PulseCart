@@ -54,15 +54,19 @@ export default function AdminPage() {
           setError('');
         }
       } catch (cause) {
-        if (active) {
+        if (active && adminKey) {
           setCounts([null, null, null, null]);
           setError(cause instanceof Error ? cause.message : 'Could not load admin data.');
         }
       }
     };
-    void load();
-    const timer = window.setInterval(load, 5000);
-    return () => { active = false; window.clearInterval(timer); };
+    // Only poll when an admin key is configured; otherwise show the key entry form.
+    if (adminKey) {
+      void load();
+      const timer = window.setInterval(load, 5000);
+      return () => { active = false; window.clearInterval(timer); };
+    }
+    return () => { active = false; };
   }, [adminKey]);
 
   return (

@@ -118,17 +118,17 @@ export default function HomePage() {
         <span>APACHE KAFKA / EVENT FLOW</span><b aria-hidden="true">//</b>
         <span>OPENSEARCH / FUZZY CATALOG</span>
       </div>
-      <section className="editorial-hero" id="hero" aria-labelledby="hero-title">
+      <section className="editorial-hero acid-hero" id="hero" aria-labelledby="hero-title">
         <div className="hero-grain" aria-hidden="true" />
         <div className="hero-coordinate hero-coordinate-left">// PULSECART / LOCAL COMMERCE</div>
         <div className="hero-coordinate hero-coordinate-right">INVENTORY / ORDERS / EVENTS</div>
         <ScrollReveal className="hero-copy">
-          <p className="eyebrow"><span>01</span> High-tensile event-driven retail</p>
+          <p className="eyebrow acid-label"><span>01</span> High-tensile event-driven retail</p>
           <h1 id="hero-title">Kinetic 3D<br /><em>local hardware.</em></h1>
           <p className="hero-description">Browse products from nearby shops, search with typo tolerance, and place orders against current inventory.</p>
           <div className="hero-actions">
-            <a className="button-dark" href="#shop">Explore the collection <span aria-hidden="true">↘</span></a>
-            <a className="button-outline" href="#architecture">Inspect the architecture <span aria-hidden="true">↗</span></a>
+            <a className="acid-button-primary" href="#shop">Explore the collection <span aria-hidden="true">↘</span></a>
+            <a className="acid-button-secondary" href="#architecture">Inspect the architecture <span aria-hidden="true">↗</span></a>
           </div>
         </ScrollReveal>
 

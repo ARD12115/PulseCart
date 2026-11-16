@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import SiteControls from './site-controls';
 import ScrollProgress from './scroll-progress';
+import ThreeJSBackground from './components/ThreeJSBackground';
 
 export const metadata: Metadata = {
   title: 'PulseCart — Local commerce, in real time',
@@ -15,9 +16,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className="min-h-screen bg-paper">
+      <body className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
         <a className="skip-link" href="#main-content">Skip to content</a>
         <header className="site-header">
           <div className="site-header-inner relative mx-auto flex items-center justify-between gap-3">
@@ -29,7 +33,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </div>
         </header>
         <ScrollProgress />
-        <main id="main-content" className="min-h-[75vh]">{children}</main>
+        <ThreeJSBackground />
+        <main id="main-content" className="min-h-[75vh] bg-transparent">{children}</main>
         <footer className="site-footer">
           <div className="site-footer-inner">
             <div className="site-footer-top">

@@ -23,6 +23,17 @@
   --radius-xl: 1rem;       /* 16px - hero, featured */
   --focus-ring: rgb(var(--color-moss));
   background: rgb(var(--color-paper));
+  --color-acid-surface: 19 19 19;
+  --color-acid-surface-bright: 58 57 57;
+  --color-acid-on-surface: 229 226 225;
+  --color-acid-outline: 143 147 120;
+  --color-acid-primary: 255 255 255;
+  --color-acid-primary-container: 202 243 0;
+  --color-acid-on-primary-container: 89 108 0;
+  --color-acid-secondary: 198 198 199;
+  --color-acid-error: 255 180 171;
+  --color-acid-background: 19 19 19;
+  --color-acid-on-background: 229 226 225;
 }
 
 :root[data-theme='light'] {
@@ -40,6 +51,18 @@
   --color-warning: 127 77 0;
   --color-warning-soft: 255 242 209;
   background: rgb(var(--color-paper));
+  --color-acid-background: 245 245 240;
+  --color-acid-on-background: 19 19 19;
+  --color-acid-surface: 235 235 230;
+  --color-acid-surface-bright: 215 215 210;
+  --color-acid-on-surface: 19 19 19;
+  --color-acid-outline: 143 147 120;
+  --color-acid-primary: 19 19 19;
+  --color-acid-primary-container: 202 243 0;
+  --color-acid-on-primary-container: 19 19 19;
+  --color-acid-secondary: 140 140 140;
+  --color-acid-error: 230 100 90;
+  --color-acid-on-background: 19 19 19;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -61,6 +84,15 @@
     --color-success-soft: 214 247 234;
     --color-warning: 127 77 0;
     --color-warning-soft: 255 242 209;
+    --color-acid-background: 245 245 240;
+    --color-acid-on-background: 19 19 19;
+    --color-acid-surface: 235 235 230;
+    --color-acid-outline: 143 147 120;
+    --color-acid-primary: 19 19 19;
+    --color-acid-primary-container: 202 243 0;
+    --color-acid-on-primary-container: 19 19 19;
+    --color-acid-secondary: 140 140 140;
+    --color-acid-error: 230 100 90;
   }
 }
 
@@ -2676,6 +2708,100 @@ body {
 .operations-page .text-moss,
 .concurrency-page .text-moss { color: #d4ff00; }
 .bg-moss-solid { background-color: #d4ff00; color: #0a0a0b; }
+
+/* ===== ACID NEO-BRUTALIST HERO =====
+   Sharp corners, hard borders, hard shadows, acid lime + jet black.
+   Source: designs/acid-neo-brutalist/DESIGN.md
+*/
+.acid-hero {
+  background: rgb(var(--color-acid-background));
+  color: rgb(var(--color-acid-on-background));
+  border-radius: 0;
+}
+.acid-hero h1,
+.acid-hero h2,
+.acid-hero h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  color: rgb(var(--color-acid-primary));
+  text-shadow: 4px 4px 0px #000;
+}
+.acid-hero p {
+  font-family: 'Space Grotesk', sans-serif;
+  color: rgb(var(--color-acid-on-surface));
+}
+.acid-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgb(var(--color-acid-outline));
+}
+.acid-button-primary {
+  background: rgb(var(--color-acid-primary-container));
+  color: rgb(var(--color-acid-on-primary-container));
+  border: 2px solid #0a0a0a;
+  border-radius: 0;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-shadow: none;
+  box-shadow: 4px 4px 0px #fff;
+}
+.acid-button-primary:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #fff;
+}
+.acid-button-primary:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+.acid-button-secondary {
+  background: #0a0a0a;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 0;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0px #d4ff00;
+}
+.acid-button-secondary:hover {
+  background: #fff;
+  color: #0a0a0a;
+  border-color: #d4ff00;
+  box-shadow: 4px 4px 0px #d4ff00;
+}
+.acid-card {
+  background: #141414;
+  border: 2px solid #fff;
+  border-radius: 0;
+  box-shadow: 6px 6px 0px #000;
+}
+.acid-card:hover {
+  border-color: #d4ff00;
+  box-shadow: 6px 6px 0px #d4ff00;
+}
+.acid-input {
+  background: #0a0a0a;
+  border: 2px solid #777;
+  border-radius: 0;
+  color: #fff;
+  font-family: 'Space Mono', monospace;
+}
+.acid-input:focus {
+  border-color: #d4ff00;
+  outline: none;
+  box-shadow: 3px 3px 0px #d4ff00;
+}
+.acid-divider {
+  border: 0;
+  border-top: 2px solid #fff;
+  margin: 1.5rem 0;
+}
 
 @media (max-width: 1100px) and (min-width: 651px) {
   .search-console .filter-panel { grid-template-columns: minmax(0, 1fr) auto; }
