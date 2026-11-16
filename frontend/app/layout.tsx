@@ -44,6 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <Link href="/cart">Cart</Link>
                 <Link href="/demo">Concurrency lab</Link>
                 <Link href="/admin">Operations</Link>
+                <Link href="/kinetic">Kinetic 3D storefront</Link>
               </nav>
             </div>
             <div className="site-footer-bottom">
