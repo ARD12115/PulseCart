@@ -53,7 +53,7 @@ export default function ConcurrencyDemoPage() {
         <p className="mt-3 max-w-2xl text-ink/65">Both checkouts run at the same time. PostgreSQL's conditional stock update lets only one transaction claim the last unit.</p>
         <div className="mt-7 grid gap-4 rounded-lg border border-ink/10 bg-surface p-5 sm:grid-cols-3">
           <label className="text-sm font-semibold">Product ID<input className="mt-1 w-full rounded-md border p-2" type="number" min="1" value={productId} onChange={(event) => setProductId(event.target.value)} /></label>
-          <label className="text-sm font-semibold">City<select className="mt-1 w-full rounded-md border p-2" value={city} onChange={(event) => setCity(event.target.value)}><option>Bengaluru</option><option>Mangaluru</option><option>Mysuru</option><option>Hubballi</option></select></label>
+          <label className="text-sm font-semibold">City<select id="city-filter" className="mt-1 w-full rounded-md border p-2" value={city} onChange={(event) => setCity(event.target.value)}><option>Bengaluru</option><option>Mangaluru</option><option>Mysuru</option><option>Hubballi</option></select></label>
           <label className="text-sm font-semibold">Email domain<input className="mt-1 w-full rounded-md border p-2" type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
           <button disabled={busy} onClick={runRace} className="rounded-md bg-moss-solid px-5 py-3 font-bold text-white disabled:opacity-50 sm:col-span-3">{busy ? 'Racing...' : 'Run two simultaneous checkouts'}</button>
         </div>

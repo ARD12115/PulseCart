@@ -73,9 +73,24 @@ jobs:
         working-directory: frontend
         run: npx playwright install --with-deps chromium webkit
 
+      - name: Start frontend server
+        working-directory: frontend
+        run: |
+          node .next/standalone/server.js &
+          echo $! > /tmp/frontend.pid
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3000/ && exit 0
+            sleep 2
+          done
+          exit 1
+        env:
+          PORT: 3000
       - name: Run Playwright tests
         working-directory: frontend
         run: npx playwright test
+      - name: Stop frontend server
+        if: always()
+        run: kill $(cat /tmp/frontend.pid) 2>/dev/null || true
 
       - name: Stop services
         if: always()

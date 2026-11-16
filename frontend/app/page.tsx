@@ -187,21 +187,21 @@ export default function HomePage() {
         <div className="console-heading"><div><p className="eyebrow"><span>03</span> Product discovery</p><h2 id="search-heading">Search the <em>catalog.</em></h2></div><p>Try a product name or a close spelling. Results update as you type.</p></div>
         <div className="filter-panel">
           <form id="catalog-search" onSubmit={onSearch} className="filter-form" aria-label="Find products">
-            <label className="search-field">
+            <label className="search-field" htmlFor="search-products">
               <span aria-hidden="true" className="search-icon">⌕</span>
               <span className="sr-only">Search products</span>
-              <input type="search" placeholder="Search products" value={query} onChange={(event) => setQuery(event.target.value)} />
+              <input id="search-products" type="search" placeholder="Search products" value={query} onChange={(event) => setQuery(event.target.value)} />
             </label>
-            <label className="filter-select">
+            <label className="filter-select" htmlFor="category-filter">
               <span className="sr-only">Category</span>
-              <select value={category} onChange={(event) => setCategory(event.target.value)}>
+              <select id="category-filter" value={category} onChange={(event) => setCategory(event.target.value)}>
                 <option value="">All categories</option>
                 {categories.map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
             </label>
-            <label className="filter-select">
+            <label className="filter-select" htmlFor="city-filter">
               <span className="sr-only">Delivery city</span>
-              <select value={city} onChange={(event) => setCity(event.target.value)}>
+              <select id="city-filter" value={city} onChange={(event) => setCity(event.target.value)}>
                 <option value="">All cities</option>
                 {cities.map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
@@ -209,9 +209,9 @@ export default function HomePage() {
             <details className="price-filter">
               <summary>Price <span aria-hidden="true">＋</span></summary>
               <div className="price-fields">
-                <label><span className="sr-only">Minimum price in rupees</span><input type="number" min="0" step="0.01" placeholder="Min ₹" value={minPrice} onChange={(event) => setMinPrice(event.target.value)} /></label>
+                <label htmlFor="min-price"><span className="sr-only">Minimum price in rupees</span><input id="min-price" type="number" min="0" step="0.01" placeholder="Min ₹" value={minPrice} onChange={(event) => setMinPrice(event.target.value)} /></label>
                 <span aria-hidden="true">—</span>
-                <label><span className="sr-only">Maximum price in rupees</span><input type="number" min="0" step="0.01" placeholder="Max ₹" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} /></label>
+                <label htmlFor="max-price"><span className="sr-only">Maximum price in rupees</span><input id="max-price" type="number" min="0" step="0.01" placeholder="Max ₹" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} /></label>
               </div>
             </details>
             {hasFilters && <button className="clear-filter-button" type="button" onClick={clearFilters}>Clear</button>}

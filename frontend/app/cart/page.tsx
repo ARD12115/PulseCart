@@ -251,13 +251,13 @@ export default function CartPage() {
               {cities.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
-          <label>
+          <label htmlFor="checkout-name">
             <span>Your name</span>
-            <input required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
+            <input id="checkout-name" required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
           </label>
-          <label>
+          <label htmlFor="checkout-email">
             <span>Email for your receipt</span>
-            <input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+            <input id="checkout-email" required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} />
           </label>
           <div className="checkout-total"><span>Total</span><strong>{formatPrice(total)}</strong></div>
           <button type="submit" className="place-order-button" disabled={busy || cities.length === 0}>

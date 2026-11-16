@@ -80,33 +80,33 @@ test.describe('UI/UX and Visual Regression', () => {
   test('Empty state has actionable copy', async ({ page }) => {
     await page.fill('input[type="search"]', 'nonexistentproduct12345');
     await page.waitForTimeout(500);
-    await expect(page.locator('text=No products match your filters')).toBeVisible();
-    await expect(page.locator('button:has-text("clear all filters")')).toBeVisible();
+    await expect(page.locator('text=No products found. Try changing your search or filters.')).toBeVisible();
+    await expect(page.locator('button:has-text("Clear")')).toBeVisible();
   });
 
   test('Loading state shows proper text', async ({ page }) => {
     await page.fill('input[type="search"]', 'bluetooth');
-    await expect(page.locator('text=Loading...')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=Loading…')).toBeVisible({ timeout: 5000 });
   });
 
   test('Error state shows actionable message', async ({ page }) => {
     await page.route('/api/products*', route => route.abort());
     await page.fill('input[type="search"]', 'test');
     await page.waitForTimeout(1000);
-    await expect(page.locator('text=Could not load products')).toBeVisible();
+    await expect(page.locator('text=We could not load products. Please try again.')).toBeVisible();
   });
 
   test('Cart empty state has clear CTA', async ({ page }) => {
     await page.goto('/cart');
-    await expect(page.locator('text=Your cart is empty')).toBeVisible();
-    await expect(page.locator('a:has-text("Browse the store")')).toBeVisible();
+    await expect(page.locator('text=Nothing here yet.')).toBeVisible();
+    await expect(page.locator('a:has-text("Browse products")')).toBeVisible();
   });
 
   test('Product detail page shows all required info', async ({ page }) => {
     await page.goto('/product/1');
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('text=₹')).toBeVisible();
-    await expect(page.locator('text=Availability by city')).toBeVisible();
+    await expect(page.locator('h2:has-text("Delivery availability")')).toBeVisible();
     await expect(page.locator('button:has-text("Add to cart")')).toBeVisible();
   });
 
@@ -138,7 +138,7 @@ test.describe('UI/UX and Visual Regression', () => {
     await page.goto('/');
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('input[type="search"]')).toBeVisible();
-    await expect(page.locator('select').first()).toBeVisible();
+    await expect(page.locator('#category-filter')).toBeVisible();
   });
 
   test('Responsive design - tablet viewport', async ({ page }) => {
@@ -151,7 +151,7 @@ test.describe('UI/UX and Visual Regression', () => {
 
   test('Dark mode toggle works', async ({ page }) => {
     await page.goto('/');
-    const themeSelect = page.locator('select[aria-label="Color theme"]');
+    const themeSelect = page.locator('#color-theme');
     await themeSelect.selectOption('dark');
     await page.waitForTimeout(200);
     const bodyBg = await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor);
@@ -160,7 +160,7 @@ test.describe('UI/UX and Visual Regression', () => {
 
   test('Light mode toggle works', async ({ page }) => {
     await page.goto('/');
-    const themeSelect = page.locator('select[aria-label="Color theme"]');
+    const themeSelect = page.locator('#color-theme');
     await themeSelect.selectOption('light');
     await page.waitForTimeout(200);
     const bodyBg = await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor);
@@ -169,7 +169,7 @@ test.describe('UI/UX and Visual Regression', () => {
 
   test('System theme respects OS preference', async ({ page }) => {
     await page.goto('/');
-    const themeSelect = page.locator('select[aria-label="Color theme"]');
+    const themeSelect = page.locator('#color-theme');
     await themeSelect.selectOption('system');
     await page.waitForTimeout(200);
     const bodyBg = await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor);
