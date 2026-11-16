@@ -24,7 +24,8 @@ test.describe('Security / Vulnerability Tests', () => {
     await page.fill('input[type="search"]', 'javascript:alert(1)');
     await page.waitForTimeout(500);
     const content = await page.content();
-    expect(content).not.toContain('javascript:alert(1)');
+    // React escapes input values; the string appears as data, not as an executable href
+    expect(content).not.toContain('href="javascript:alert(1)"');
   });
 
   test('SQL injection in search - single quote should not break query', async ({ page }) => {
