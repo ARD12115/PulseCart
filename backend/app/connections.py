@@ -40,9 +40,15 @@ def create_opensearch_client() -> AsyncOpenSearch:
             "OPENSEARCH_USERNAME and OPENSEARCH_PASSWORD must be configured together"
         )
 
+    verify_certs = os.getenv("OPENSEARCH_VERIFY_CERTS", "true").strip().lower() not in {
+        "0",
+        "false",
+        "no",
+        "off",
+    }
     options = {
         "use_ssl": is_https,
-        "verify_certs": True,
+        "verify_certs": verify_certs,
     }
     if username and password:
         if not is_https:

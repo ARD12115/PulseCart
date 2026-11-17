@@ -5,11 +5,13 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
       POSTGRES_DB: pulsecart
+      PULSECART_APP_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
     ports:
       - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+      - ./db/migrations:/docker-entrypoint-initdb.d/migrations:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d pulsecart"]
       interval: 5s
@@ -55,14 +57,14 @@ services:
     image: opensearchproject/opensearch:2.17.1
     environment:
       discovery.type: single-node
-      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD:?Set OPENSEARCH_ADMIN_PASSWORD in the root .env}
       OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
     ports:
       - "127.0.0.1:9200:9200"
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health >/dev/null"]
+      test: ["CMD-SHELL", "curl -fsS --cacert /etc/opensearch-ca.pem https://localhost:9200/_cluster/health >/dev/null"]
       interval: 10s
       timeout: 10s
       retries: 30
@@ -72,18 +74,21 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://postgres@postgres:5432/pulsecart
-      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+      PG_DSN: postgresql://pulsecart_app@postgres:5432/pulsecart
+      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
-      OPENSEARCH_URL: http://opensearch:9200
+      OPENSEARCH_URL: https://opensearch:9200
+      OPENSEARCH_USERNAME: admin
+      OPENSEARCH_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD:?Set OPENSEARCH_ADMIN_PASSWORD in the root .env}
+      OPENSEARCH_VERIFY_CERTS: "false"
       API_CORS_ORIGINS: http://localhost:3000
       API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
       TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:-}
       APP_ENV: ${APP_ENV:-production}
       ADMIN_KEY: ${ADMIN_KEY:-}
       CHECKOUT_RATE_LIMIT: ${CHECKOUT_RATE_LIMIT:-5/minute}
-      CART_RATE_LIMIT: ${CART_RATE_LIMIT:-120/minute}
+      CART_RATE_LIMIT: ${CART_RATE_LIMIT:-20/minute}
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
@@ -105,8 +110,8 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://postgres@postgres:5432/pulsecart
-      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+      PG_DSN: postgresql://pulsecart_app@postgres:5432/pulsecart
+      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
     depends_on:
@@ -119,11 +124,14 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://postgres@postgres:5432/pulsecart
-      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+      PG_DSN: postgresql://pulsecart_app@postgres:5432/pulsecart
+      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
-      OPENSEARCH_URL: http://opensearch:9200
+      OPENSEARCH_URL: https://opensearch:9200
+      OPENSEARCH_USERNAME: admin
+      OPENSEARCH_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD:?Set OPENSEARCH_ADMIN_PASSWORD in the root .env}
+      OPENSEARCH_VERIFY_CERTS: "false"
     depends_on:
       backend:
         condition: service_healthy
@@ -140,8 +148,8 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
       SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
-      PG_DSN: postgresql://postgres@postgres:5432/pulsecart
-      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+      PG_DSN: postgresql://pulsecart_app@postgres:5432/pulsecart
+      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
     depends_on:

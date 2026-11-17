@@ -2,16 +2,25 @@
 // Syncing is best-effort: if the API is unreachable the cart still works locally.
 
 const CART_ID_KEY = 'pulsecart_cart_id';
+const CART_SECRET_KEY = 'pulsecart_cart_secret';
 const LOCAL_CART_KEY = 'pulsecart_cart';
 export const LOCAL_CART_UPDATED_KEY = 'pulsecart_cart_updated_at';
 
 export type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number };
 
-type ServerCart = { cart_id: string; updated_at: string; items: CartItem[] };
+type ServerCart = { cart_id: string; cart_secret: string; updated_at: string; items: CartItem[] };
 
 export function currentCartId(): string | null {
   try {
     return localStorage.getItem(CART_ID_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function currentCartSecret(): string | null {
+  try {
+    return localStorage.getItem(CART_SECRET_KEY);
   } catch {
     return null;
   }
@@ -23,10 +32,18 @@ async function createCartId(): Promise<string | null> {
     if (!response.ok) return null;
     const cart = (await response.json()) as ServerCart;
     localStorage.setItem(CART_ID_KEY, cart.cart_id);
+    localStorage.setItem(CART_SECRET_KEY, cart.cart_secret);
     return cart.cart_id;
   } catch {
     return null;
   }
+}
+
+function cartHeaders(): HeadersInit {
+  const secret = currentCartSecret();
+  const headers: HeadersInit = {};
+  if (secret) headers['X-Cart-Secret'] = secret;
+  return headers;
 }
 
 export async function syncCart(items: Pick<CartItem, 'id' | 'qty'>[]): Promise<void> {
@@ -36,7 +53,7 @@ export async function syncCart(items: Pick<CartItem, 'id' | 'qty'>[]): Promise<v
     // Keep syncing to the server when browser storage is unavailable.
   }
   const body = JSON.stringify({ items: items.map((item) => ({ product_id: item.id, qty: item.qty })) });
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = { 'Content-Type': 'application/json', ...cartHeaders() };
   try {
     let cartId = currentCartId() ?? (await createCartId());
     if (!cartId) return;
@@ -44,6 +61,7 @@ export async function syncCart(items: Pick<CartItem, 'id' | 'qty'>[]): Promise<v
     if (response.status === 404) {
       // The server no longer knows this cart (for example a reset database): start a new one.
       localStorage.removeItem(CART_ID_KEY);
+      localStorage.removeItem(CART_SECRET_KEY);
       cartId = await createCartId();
       if (!cartId) return;
       await fetch(`/api/carts/${cartId}`, { method: 'PUT', headers, body });
@@ -58,7 +76,7 @@ export async function restoreCart(): Promise<CartItem[]> {
   const cartId = currentCartId();
   if (!cartId) return [];
   try {
-    const response = await fetch(`/api/carts/${cartId}`);
+    const response = await fetch(`/api/carts/${cartId}`, { headers: cartHeaders() });
     if (!response.ok) return [];
     const cart = (await response.json()) as ServerCart;
     const updatedAt = Date.parse(cart.updated_at);

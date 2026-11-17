@@ -75,6 +75,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS orders_customer_idempotency_key
 -- Server-side carts. The cart ID is an unguessable UUID kept by the browser.
 CREATE TABLE IF NOT EXISTS carts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  cart_secret TEXT NOT NULL DEFAULT gen_random_uuid()::text,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

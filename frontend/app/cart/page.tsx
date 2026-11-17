@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { currentCartId, LOCAL_CART_UPDATED_KEY, newIdempotencyKey, restoreCart, syncCart } from '../cart-sync';
+import { currentCartId, currentCartSecret, LOCAL_CART_UPDATED_KEY, newIdempotencyKey, restoreCart, syncCart } from '../cart-sync';
 import ProductArtwork from '../product-artwork';
 
 type CartItem = { id: number; name: string; sku: string; price_paise: number; qty: number; category?: string; image_url?: string | null };
@@ -77,9 +77,14 @@ export default function CartPage() {
     setBusy(true);
     try {
       idempotencyKey.current ??= newIdempotencyKey();
+      const cartSecret = currentCartSecret();
       const response = await fetch('/api/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey.current },
+        headers: {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey.current,
+          ...(cartSecret ? { 'X-Cart-Secret': cartSecret } : {}),
+        },
         body: JSON.stringify({
           customer_email: email,
           customer_name: name,

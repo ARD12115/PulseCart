@@ -1,0 +1,16 @@
+services:
+  postgres:
+    ports: !override
+      - "127.0.0.1:25432:5432"
+  kafka:
+    ports: !override
+      - "127.0.0.1:29093:9093"
+  opensearch:
+    ports: !override
+      - "127.0.0.1:29200:9200"
+  backend:
+    ports: !override
+      - "127.0.0.1:28000:8000"
+  frontend:
+    ports: !override
+      - "127.0.0.1:23000:3000"

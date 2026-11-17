@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 import asyncpg
+from fastapi import HTTPException
 
 
 class OutOfStock(Exception):
@@ -26,6 +27,7 @@ async def place_order(
     *,
     idempotency_key: str | None = None,
     cart_id: UUID | None = None,
+    cart_secret: str | None = None,
     access_token_expires_at: datetime,
 ) -> int:
     """Create an order and outbox events atomically; items are product ID/quantity pairs.
@@ -33,7 +35,8 @@ async def place_order(
     With an idempotency key, a second order for the same customer and key violates the
     unique index; the whole transaction (including the stock decrement) rolls back and
     asyncpg.UniqueViolationError propagates so the caller can return the original order.
-    A cart_id is emptied in the same transaction as the order.
+    A cart_id is emptied in the same transaction as the order only when cart_secret
+    matches the stored secret for that cart.
     """
     quantities: dict[int, int] = {}
     for product_id, qty in items:
@@ -118,6 +121,15 @@ async def place_order(
                     {"product_id": product_id, "city": city, "stock": stock},
                 )
             if cart_id is not None:
+                if cart_secret is None:
+                    raise HTTPException(401, "Cart secret required to check out this cart")
+                verified = await conn.fetchval(
+                    "SELECT 1 FROM carts WHERE id = $1 AND cart_secret = $2",
+                    cart_id,
+                    cart_secret,
+                )
+                if not verified:
+                    raise HTTPException(401, "Invalid cart secret for this cart")
                 await conn.execute("DELETE FROM cart_items WHERE cart_id = $1", cart_id)
             return order_id
 

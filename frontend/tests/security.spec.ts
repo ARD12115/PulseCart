@@ -47,7 +47,7 @@ test.describe('Security / Vulnerability Tests', () => {
     await page.goto('/cart');
     await page.fill('input[type="email"]', '<script>alert("xss")</script>@test.com');
     await page.fill('#checkout-name', 'Test');
-    await page.selectOption('#city-filter', 'Bengaluru');
+    await page.selectOption('#checkout-city', 'Bengaluru');
     await page.click('button:has-text("Place order")');
     await page.waitForTimeout(1000);
     const content = await page.content();
@@ -60,7 +60,7 @@ test.describe('Security / Vulnerability Tests', () => {
     await page.goto('/cart');
     await page.fill('input[type="email"]', 'test@example.com');
     await page.fill('#checkout-name', '<img src=x onerror=alert(1)>');
-    await page.selectOption('#city-filter', 'Bengaluru');
+    await page.selectOption('#checkout-city', 'Bengaluru');
     await page.click('button:has-text("Place order")');
     await page.waitForTimeout(1000);
     const content = await page.content();
@@ -72,7 +72,7 @@ test.describe('Security / Vulnerability Tests', () => {
     await page.click('button:has-text("Add to cart")');
     await page.goto('/cart');
     await page.fill('#checkout-name', 'Test');
-    await page.selectOption('#city-filter', 'Bengaluru');
+    await page.selectOption('#checkout-city', 'Bengaluru');
     await page.click('button:has-text("Place order")');
     await expect(page.locator('text=Add items and fill in your email')).toBeVisible();
   });
@@ -82,7 +82,7 @@ test.describe('Security / Vulnerability Tests', () => {
     await page.click('button:has-text("Add to cart")');
     await page.goto('/cart');
     await page.fill('input[type="email"]', 'test@example.com');
-    await page.selectOption('#city-filter', 'Bengaluru');
+    await page.selectOption('#checkout-city', 'Bengaluru');
     await page.click('button:has-text("Place order")');
     await expect(page.locator('text=Add items and fill in your email')).toBeVisible();
   });
