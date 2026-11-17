@@ -16,8 +16,12 @@ jobs:
   validate:
     name: Validate and build
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       POSTGRES_PASSWORD: ci-only-password
+      APP_ENV: development
+      ADMIN_KEY: dev-admin-key-change-in-production
+      CHECKOUT_RATE_LIMIT: 100/minute
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -69,28 +73,41 @@ jobs:
           TEST_PG_DSN: postgresql://postgres:ci-only-password@localhost:5432/pulsecart
         run: python -m unittest tests.test_postgres_integration -v
 
-      - name: Install Playwright browsers
+      - name: Install Playwright Chromium
         working-directory: frontend
-        run: npx playwright install --with-deps chromium webkit
+        run: npx playwright install --with-deps chromium
 
-      - name: Start frontend server
-        working-directory: frontend
-        run: |
-          node .next/standalone/server.js &
-          echo $! > /tmp/frontend.pid
-          for i in $(seq 1 30); do
-            curl -sf http://localhost:3000/ && exit 0
-            sleep 2
-          done
-          exit 1
-        env:
-          PORT: 3000
       - name: Run Playwright tests
         working-directory: frontend
-        run: npx playwright test
-      - name: Stop frontend server
-        if: always()
-        run: kill $(cat /tmp/frontend.pid) 2>/dev/null || true
+        env:
+          CI: true
+          APP_ENV: development
+          ADMIN_KEY: dev-admin-key-change-in-production
+        run: npx playwright test --project=chromium --max-failures=5 --grep-invert "Rate limiting enforced on checkout"
+
+      - name: Reset backend rate limiter for isolated test
+        run: docker compose up -d --force-recreate --wait --wait-timeout 180 backend
+        env:
+          CHECKOUT_RATE_LIMIT: 5/minute
+
+      - name: Verify checkout rate limit in isolation
+        working-directory: frontend
+        env:
+          CI: true
+          APP_ENV: development
+          ADMIN_KEY: dev-admin-key-change-in-production
+        run: npx playwright test --project=chromium --grep "Rate limiting enforced on checkout" --max-failures=1
+
+      - name: Upload Playwright diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-diagnostics-${{ github.run_id }}
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Stop services
         if: always()
@@ -99,5 +116,25 @@ jobs:
       - name: Validate Compose configuration
         run: docker compose config --quiet
 
-      - name: Build Compose images
-        run: docker compose build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image with GitHub Actions cache
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: false
+          load: true
+          tags: pulsecart-backend:ci
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Build frontend image with GitHub Actions cache
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: false
+          load: true
+          tags: pulsecart-frontend:ci
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
