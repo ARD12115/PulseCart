@@ -74,14 +74,18 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://pulsecart_app@postgres:5432/pulsecart
+      # Local dev defaults; override with Aiven connection strings in root .env
+      PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
       PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
-      KAFKA_BOOTSTRAP: kafka:9092
-      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
-      OPENSEARCH_URL: https://opensearch:9200
-      OPENSEARCH_USERNAME: admin
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
+      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
+      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
+      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
+      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
+      OPENSEARCH_URL: ${OPENSEARCH_URL:-http://opensearch:9200}
+      OPENSEARCH_USERNAME: ${OPENSEARCH_USERNAME:-admin}
       OPENSEARCH_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD:?Set OPENSEARCH_ADMIN_PASSWORD in the root .env}
-      OPENSEARCH_VERIFY_CERTS: "false"
+      OPENSEARCH_VERIFY_CERTS: ${OPENSEARCH_VERIFY_CERTS:-false}
       API_CORS_ORIGINS: http://localhost:3000
       API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
       TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:-}
@@ -110,10 +114,13 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://pulsecart_app@postgres:5432/pulsecart
+      PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
       PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
-      KAFKA_BOOTSTRAP: kafka:9092
-      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
+      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
+      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
+      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
+      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
     depends_on:
       backend:
         condition: service_healthy
@@ -124,14 +131,17 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://pulsecart_app@postgres:5432/pulsecart
+      PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
       PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
-      KAFKA_BOOTSTRAP: kafka:9092
-      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
-      OPENSEARCH_URL: https://opensearch:9200
-      OPENSEARCH_USERNAME: admin
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
+      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
+      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
+      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
+      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
+      OPENSEARCH_URL: ${OPENSEARCH_URL:-http://opensearch:9200}
+      OPENSEARCH_USERNAME: ${OPENSEARCH_USERNAME:-admin}
       OPENSEARCH_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD:?Set OPENSEARCH_ADMIN_PASSWORD in the root .env}
-      OPENSEARCH_VERIFY_CERTS: "false"
+      OPENSEARCH_VERIFY_CERTS: ${OPENSEARCH_VERIFY_CERTS:-false}
     depends_on:
       backend:
         condition: service_healthy
@@ -148,10 +158,13 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
       SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
-      PG_DSN: postgresql://pulsecart_app@postgres:5432/pulsecart
+      PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
       PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
-      KAFKA_BOOTSTRAP: kafka:9092
-      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
+      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
+      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
+      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
+      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
     depends_on:
       backend:
         condition: service_healthy

@@ -68,20 +68,39 @@ def kafka_client_options() -> dict:
             "bootstrap_servers": bootstrap_servers,
             "security_protocol": protocol,
         }
-    if protocol != "SSL":
-        raise ValueError(f"Unsupported KAFKA_SECURITY_PROTOCOL: {protocol}")
+    if protocol == "SSL":
+        ca_path = project_path(os.getenv("KAFKA_CA", "certs/ca.pem"))
+        cert_path = project_path(os.getenv("KAFKA_CERT", "certs/service.cert"))
+        key_path = project_path(os.getenv("KAFKA_KEY", "certs/service.key"))
+        for path in (ca_path, cert_path, key_path):
+            if not path.is_file():
+                raise FileNotFoundError(f"Kafka TLS file not found: {path}")
 
-    ca_path = project_path(os.getenv("KAFKA_CA", "certs/ca.pem"))
-    cert_path = project_path(os.getenv("KAFKA_CERT", "certs/service.cert"))
-    key_path = project_path(os.getenv("KAFKA_KEY", "certs/service.key"))
-    for path in (ca_path, cert_path, key_path):
-        if not path.is_file():
-            raise FileNotFoundError(f"Kafka TLS file not found: {path}")
-
-    context = ssl.create_default_context(cafile=str(ca_path))
-    context.load_cert_chain(str(cert_path), str(key_path))
-    return {
-        "bootstrap_servers": bootstrap_servers,
-        "security_protocol": protocol,
-        "ssl_context": context,
-    }
+        context = ssl.create_default_context(cafile=str(ca_path))
+        context.load_cert_chain(str(cert_path), str(key_path))
+        return {
+            "bootstrap_servers": bootstrap_servers,
+            "security_protocol": protocol,
+            "ssl_context": context,
+        }
+    if protocol == "SASL_SSL":
+        ca_path = project_path(os.getenv("KAFKA_CA", "certs/ca.pem"))
+        if not ca_path.is_file():
+            raise FileNotFoundError(f"Kafka CA file not found: {ca_path}")
+        context = ssl.create_default_context(cafile=str(ca_path))
+        sasl_mechanism = os.getenv("KAFKA_SASL_MECHANISM", "SCRAM-SHA-256")
+        sasl_username = os.getenv("KAFKA_SASL_USERNAME")
+        sasl_password = os.getenv("KAFKA_SASL_PASSWORD")
+        if not sasl_username or not sasl_password:
+            raise RuntimeError(
+                "KAFKA_SASL_USERNAME and KAFKA_SASL_PASSWORD required for SASL_SSL"
+            )
+        return {
+            "bootstrap_servers": bootstrap_servers,
+            "security_protocol": protocol,
+            "ssl_context": context,
+            "sasl_mechanism": sasl_mechanism,
+            "sasl_plain_username": sasl_username,
+            "sasl_plain_password": sasl_password,
+        }
+    raise ValueError(f"Unsupported KAFKA_SECURITY_PROTOCOL: {protocol}")
