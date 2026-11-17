@@ -1,9 +1,11 @@
--- Phase 1: Least-privilege database role (run as postgres superuser)
--- Create an application role that owns only the data it needs.
+-- NOTE: The role is created without a password here because shell variable
+-- interpolation (e.g. ${PULSECART_APP_PASSWORD}) is not performed by psql when
+-- this file runs from docker-entrypoint-initdb.d. Set the password separately,
+-- for example with: ALTER ROLE pulsecart_app WITH PASSWORD '<your-password>';
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'pulsecart_app') THEN
-    CREATE ROLE pulsecart_app LOGIN PASSWORD '${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD}';
+    CREATE ROLE pulsecart_app LOGIN;
   END IF;
 END $$;
 
@@ -17,7 +19,8 @@ GRANT USAGE ON SCHEMA public TO pulsecart_app;
 GRANT SELECT ON products, store_inventory TO pulsecart_app;
 
 -- Full access to order/cart/checkout tables the app manages.
-GRANT SELECT, INSERT, UPDATE ON orders, order_items, carts, cart_items, customers, outbox_events, notifications TO pulsecart_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON carts, cart_items TO pulsecart_app;
+GRANT SELECT, INSERT, UPDATE ON orders, order_items, customers, outbox_events, notifications TO pulsecart_app;
 
 -- Sequence usage for serial/identity columns.
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO pulsecart_app;

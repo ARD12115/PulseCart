@@ -246,6 +246,10 @@ class CartOut(BaseModel):
     items: list[CartLineOut]
 
 
+class CartCreated(CartOut):
+    cart_secret: str
+
+
 @app.get("/health")
 async def health() -> JSONResponse:
     checks: dict[str, str] = {}
@@ -439,6 +443,19 @@ async def checkout(
         if replay is not None:
             response.headers["Idempotent-Replay"] = "true"
             return replay
+
+    # Validate cart secret before any order creation or cart modification.
+    if data.cart_id is not None:
+        if x_cart_secret is None:
+            raise HTTPException(401, "Cart secret required")
+        verified = await db.fetchval(
+            "SELECT 1 FROM carts WHERE id = $1 AND cart_secret = $2",
+            data.cart_id,
+            x_cart_secret,
+        )
+        if not verified:
+            raise HTTPException(401, "Invalid cart secret for this cart")
+
     order_access_token = secrets.token_urlsafe(32)
     access_token_hash = hash_order_access_token(order_access_token)
     access_token_expires_at = datetime.now(timezone.utc) + ORDER_ACCESS_TOKEN_TTL
@@ -548,7 +565,7 @@ async def _load_cart(conn: asyncpg.Connection, cart_id: UUID) -> dict | None:
     return {"cart_id": cart_id, "updated_at": cart["updated_at"], "items": [dict(row) for row in rows]}
 
 
-@app.post("/carts", response_model=CartOut, status_code=201)
+@app.post("/carts", response_model=CartCreated, status_code=201)
 @limiter.limit(cart_rate_limit)
 async def create_cart(request: Request, response: Response) -> dict:
     cart = await db_pool().fetchrow(
@@ -560,6 +577,24 @@ async def create_cart(request: Request, response: Response) -> dict:
         "updated_at": cart["updated_at"],
         "items": [],
     }
+
+
+async def require_cart_secret(
+    cart_id: UUID,
+    x_cart_secret: Annotated[str | None, Header()] = None,
+    db: asyncpg.Pool = Depends(db_pool),
+) -> None:
+    if x_cart_secret is None:
+        raise HTTPException(401, "Cart secret required")
+    row = await db.fetchrow(
+        "SELECT cart_secret FROM carts WHERE id = $1", cart_id
+    )
+    if row is None:
+        raise HTTPException(404, "Cart not found")
+    if not hmac.compare_digest(
+        x_cart_secret.encode("utf-8"), str(row["cart_secret"]).encode("utf-8")
+    ):
+        raise HTTPException(401, "Invalid cart secret")
 
 
 @app.get("/carts/{cart_id}", response_model=CartOut)
@@ -629,24 +664,6 @@ def require_admin_key(x_admin_key: Annotated[str | None, Header()] = None) -> No
         x_admin_key.encode("utf-8"), expected.encode("utf-8")
     ):
         raise HTTPException(401, "Invalid admin key")
-
-
-async def require_cart_secret(
-    cart_id: UUID,
-    x_cart_secret: Annotated[str | None, Header()] = None,
-    db: asyncpg.Pool = Depends(db_pool),
-) -> None:
-    if x_cart_secret is None:
-        raise HTTPException(401, "Cart secret required")
-    row = await db.fetchrow(
-        "SELECT cart_secret FROM carts WHERE id = $1", cart_id
-    )
-    if row is None:
-        raise HTTPException(404, "Cart not found")
-    if not hmac.compare_digest(
-        x_cart_secret.encode("utf-8"), str(row["cart_secret"]).encode("utf-8")
-    ):
-        raise HTTPException(401, "Invalid cart secret")
 
 
 @app.get("/admin/orders")

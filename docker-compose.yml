@@ -98,7 +98,7 @@ services:
         condition: service_healthy
       opensearch:
         condition: service_healthy
-    command: ["sh", "-c", "python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers"]
+    command: ["sh", "-c", "python -c \"import asyncpg, asyncio, os; asyncio.run(asyncpg.connect(user='postgres', password=os.environ['POSTGRES_PASSWORD'], database='pulsecart', host='postgres').execute('ALTER ROLE pulsecart_app WITH PASSWORD ' + repr(os.environ['PULSECART_APP_PASSWORD']))) && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers\""]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
       interval: 10s

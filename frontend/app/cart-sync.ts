@@ -53,10 +53,10 @@ export async function syncCart(items: Pick<CartItem, 'id' | 'qty'>[]): Promise<v
     // Keep syncing to the server when browser storage is unavailable.
   }
   const body = JSON.stringify({ items: items.map((item) => ({ product_id: item.id, qty: item.qty })) });
-  const headers = { 'Content-Type': 'application/json', ...cartHeaders() };
   try {
     let cartId = currentCartId() ?? (await createCartId());
     if (!cartId) return;
+    const headers = { 'Content-Type': 'application/json', ...cartHeaders() };
     const response = await fetch(`/api/carts/${cartId}`, { method: 'PUT', headers, body });
     if (response.status === 404) {
       // The server no longer knows this cart (for example a reset database): start a new one.
@@ -64,7 +64,9 @@ export async function syncCart(items: Pick<CartItem, 'id' | 'qty'>[]): Promise<v
       localStorage.removeItem(CART_SECRET_KEY);
       cartId = await createCartId();
       if (!cartId) return;
-      await fetch(`/api/carts/${cartId}`, { method: 'PUT', headers, body });
+      // Rebuild headers with the new cart's secret before retrying.
+      const retryHeaders = { 'Content-Type': 'application/json', ...cartHeaders() };
+      await fetch(`/api/carts/${cartId}`, { method: 'PUT', headers: retryHeaders, body });
     }
   } catch {
     // Offline or API down: the local cart keeps working.
