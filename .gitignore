@@ -7,7 +7,17 @@ backups/
 *.pem
 *.key
 *.cert
+*.cer
+*.p12
+*.jks
+*.keystore
+*.truststore
 *.dump
+
+# Local compose overrides and sandbox files
+docker-compose.override.yml
+.ci-sandbox.compose.yml
+*-sandbox.yml
 
 # Python
 __pycache__/
