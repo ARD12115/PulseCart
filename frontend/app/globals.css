@@ -901,10 +901,6 @@ body {
 .price-filter summary span { transition: transform .2s ease; }
 
 .price-fields {
-  position: absolute;
-  top: calc(100% + .55rem);
-  right: 0;
-  z-index: 15;
   display: flex;
   align-items: center;
   gap: .4rem;

@@ -206,14 +206,13 @@ export default function HomePage() {
                 {cities.map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
             </label>
-            <details className="price-filter">
-              <summary>Price <span aria-hidden="true">＋</span></summary>
+            <div className="price-filter">
               <div className="price-fields">
                 <label htmlFor="min-price"><span className="sr-only">Minimum price in rupees</span><input id="min-price" type="number" min="0" step="0.01" placeholder="Min ₹" value={minPrice} onChange={(event) => setMinPrice(event.target.value)} /></label>
                 <span aria-hidden="true">—</span>
                 <label htmlFor="max-price"><span className="sr-only">Maximum price in rupees</span><input id="max-price" type="number" min="0" step="0.01" placeholder="Max ₹" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} /></label>
               </div>
-            </details>
+            </div>
             {hasFilters && <button className="clear-filter-button" type="button" onClick={clearFilters}>Clear</button>}
           </form>
           <button className="run-query-button" type="submit" form="catalog-search">Run fuzzy query <span aria-hidden="true">→</span></button>
