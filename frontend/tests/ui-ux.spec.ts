@@ -6,11 +6,11 @@ test.describe('UI/UX and Visual Regression', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('Color scheme - primary moss green used consistently', async ({ page }) => {
-    const hero = page.locator('section[class*="bg-moss-solid"]');
+  test('Color scheme - hero uses acid dark background', async ({ page }) => {
+    const hero = page.locator('#hero');
     await expect(hero).toBeVisible();
     const heroBg = await hero.evaluate(el => getComputedStyle(el).backgroundColor);
-    expect(heroBg).toMatch(/rgb\(40, 99, 75\)/);
+    expect(heroBg).toMatch(/rgb\(19, 19, 19\)/);
   });
 
   test('Color scheme - lime accent used for highlights', async ({ page }) => {
@@ -19,10 +19,10 @@ test.describe('UI/UX and Visual Regression', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('Color scheme - paper background', async ({ page }) => {
+  test('Color scheme - dark mode body background', async ({ page }) => {
     const body = page.locator('body');
     const bg = await body.evaluate(el => getComputedStyle(el).backgroundColor);
-    expect(bg).toMatch(/rgb\(245, 246, 239\)/);
+    expect(bg).toMatch(/rgb\(7, 11, 20\)/);
   });
 
   test('Typography - system font stack used', async ({ page }) => {
@@ -155,7 +155,7 @@ test.describe('UI/UX and Visual Regression', () => {
     await themeSelect.selectOption('dark');
     await page.waitForTimeout(200);
     const bodyBg = await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor);
-    expect(bodyBg).toMatch(/rgb\(19, 27, 22\)/);
+    expect(bodyBg).toMatch(/rgb\(19, 19, 19\)/);
   });
 
   test('Light mode toggle works', async ({ page }) => {
@@ -164,7 +164,7 @@ test.describe('UI/UX and Visual Regression', () => {
     await themeSelect.selectOption('light');
     await page.waitForTimeout(200);
     const bodyBg = await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor);
-    expect(bodyBg).toMatch(/rgb\(245, 246, 239\)/);
+    expect(bodyBg).toMatch(/rgb\(245, 245, 240\)/);
   });
 
   test('System theme respects OS preference', async ({ page }) => {

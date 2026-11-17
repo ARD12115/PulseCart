@@ -246,7 +246,7 @@ export default function CartPage() {
           <h2>Delivery details</h2>
           <label>
             <span>Delivery city</span>
-            <select required value={city} onChange={(event) => setCity(event.target.value)}>
+            <select id="city-filter" required value={city} onChange={(event) => setCity(event.target.value)}>
               <option value="">Choose a city</option>
               {cities.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>

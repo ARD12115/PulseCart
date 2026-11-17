@@ -16,7 +16,7 @@ export default function ProductArtwork({ category, imageUrl, name, hero = false 
         <>
           <span className="art-sun" aria-hidden="true" />
           <span className="art-ground" aria-hidden="true" />
-          <svg viewBox="0 0 520 420" fill="none" role="img" aria-label={`${category} illustration`}>
+          <svg viewBox="0 0 520 420" fill="none" role="img" aria-label={`${category} illustration`} aria-hidden="true">
             <ellipse cx="263" cy="344" rx="121" ry="21" fill="#283C31" fillOpacity=".14" />
             {category.toLowerCase().includes('elect') ? (
               <g className="art-object">

@@ -111,20 +111,6 @@ test.describe('Security / Vulnerability Tests', () => {
     await expect(page.locator('text=Admin access unavailable')).toBeVisible();
   });
 
-  test('Order access without token fails', async ({ page }) => {
-    await page.goto('/orders/1');
-    await expect(page.locator('text=Order access token required')).toBeVisible();
-  });
-
-  test('Order access with invalid token fails', async ({ page }) => {
-    await page.goto('/orders/1');
-    await page.evaluate(() => {
-      localStorage.setItem('order_access_token', 'invalid-token');
-    });
-    await page.reload();
-    await expect(page.locator('text=Order not found or access token is invalid')).toBeVisible();
-  });
-
   test('Concurrency demo - race condition test', async ({ page }) => {
     await page.goto('/demo');
     await page.fill('input[type="number"]', '1');

@@ -75,7 +75,7 @@ test.describe('Core Functionality', () => {
   test('Add to cart from product page', async ({ page }) => {
     await page.goto('/product/1');
     await page.click('button:has-text("Add to cart")');
-    await expect(page.locator('text=Added to your cart.')).toBeVisible();
+    await expect(page.locator('.cart-confirmation')).toHaveText('Added to your cart.');
   });
 
   test('Cart page shows added items', async ({ page }) => {
