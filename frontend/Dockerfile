@@ -5,8 +5,8 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 
 FROM node:20-alpine AS builder
 WORKDIR /app
-ARG API_INTERNAL_URL=http://localhost:8000
-ENV API_INTERNAL_URL=$API_INTERNAL_URL
+ARG BACKEND_URL=http://localhost:8000
+ENV BACKEND_URL=$BACKEND_URL
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
