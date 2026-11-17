@@ -193,7 +193,10 @@ export default function CartPage() {
         <p className="eyebrow">Your bag</p>
         <h1 id="cart-title">Nothing here yet.</h1>
         <p>Find something useful or lovely from a shop nearby.</p>
-        <Link href="/#shop" className="button-dark">Browse products <span aria-hidden="true">↗</span></Link>
+        <div className="empty-cart-actions">
+          <Link href="/#shop" className="button-dark">Browse products <span aria-hidden="true">↗</span></Link>
+          <Link href="/demo" className="button-outline">Try the concurrency lab <span aria-hidden="true">↗</span></Link>
+        </div>
         {notice && <p role="status" className="cart-notice">{notice}</p>}
       </section>
     );
@@ -211,54 +214,68 @@ export default function CartPage() {
         <section className="cart-items" aria-label="Items in your cart">
           {cart.map((item) => (
             <article key={item.id} className="cart-item">
-              <span className="cart-item-sku">SKU / {item.sku}</span>
-              <div className="cart-thumb"><ProductArtwork category={item.category ?? 'home'} imageUrl={item.image_url} name={item.name} /></div>
+              <div className="cart-thumb">
+                <ProductArtwork category={item.category ?? 'home'} imageUrl={item.image_url} name={item.name} />
+              </div>
               <div className="cart-item-copy">
-                <h2>{item.name}</h2>
+                <div className="cart-item-topline">
+                  <span className="cart-item-sku">SKU / {item.sku}</span>
+                  <h2>{item.name}</h2>
+                </div>
                 <p>{formatPrice(item.price_paise)} each</p>
               </div>
-              <label className="quantity-control">
-                <span>Qty</span>
-                <input
-                  aria-label={`Quantity for ${item.name}`}
-                  type="number"
-                  min="1"
-                  max="50"
-                  value={item.qty}
-                  onChange={(event) => {
-                    const quantity = Number(event.target.value);
-                    updateCart(cart.map((line) => line.id === item.id
-                      ? { ...line, qty: Math.max(1, Math.min(50, quantity || 1)) }
-                      : line));
-                  }}
-                />
-              </label>
-              <strong className="cart-line-total">{formatPrice(item.price_paise * item.qty)}</strong>
-              <button type="button" className="remove-item" onClick={() => updateCart(cart.filter((line) => line.id !== item.id))}>
-                Remove <span className="sr-only">{item.name}</span>
-              </button>
+              <div className="cart-item-controls">
+                <label className="quantity-control">
+                  <span>Qty</span>
+                  <input
+                    aria-label={`Quantity for ${item.name}`}
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={item.qty}
+                    onChange={(event) => {
+                      const quantity = Number(event.target.value);
+                      updateCart(cart.map((line) => line.id === item.id
+                        ? { ...line, qty: Math.max(1, Math.min(50, quantity || 1)) }
+                        : line));
+                    }}
+                  />
+                </label>
+                <strong className="cart-line-total">{formatPrice(item.price_paise * item.qty)}</strong>
+                <button type="button" className="remove-item" onClick={() => {
+                  if (window.confirm(`Remove ${item.name} from your cart?`)) {
+                    updateCart(cart.filter((line) => line.id !== item.id));
+                  }
+                }}>
+                  Remove <span className="sr-only">{item.name}</span>
+                </button>
+              </div>
             </article>
           ))}
           <Link href="/#shop" className="continue-shopping">← Continue shopping</Link>
         </section>
 
         <form className="checkout-card" onSubmit={checkout}>
-          <h2>Delivery details</h2>
-          <label>
-            <span>Delivery city</span>
-            <select id="city-filter" required value={city} onChange={(event) => setCity(event.target.value)}>
-              <option value="">Choose a city</option>
-              {cities.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
-          </label>
-          <label htmlFor="checkout-name">
-            <span>Your name</span>
-            <input id="checkout-name" required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
-          </label>
-          <label htmlFor="checkout-email">
-            <span>Email for your receipt</span>
-            <input id="checkout-email" required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-          </label>
+          <fieldset className="checkout-fieldset">
+            <legend>Delivery details</legend>
+            <div className="checkout-field-group">
+              <label htmlFor="checkout-city">
+                <span>Delivery city</span>
+                <select id="checkout-city" required value={city} onChange={(event) => setCity(event.target.value)}>
+                  <option value="">Choose a city</option>
+                  {cities.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
+              </label>
+              <label htmlFor="checkout-name">
+                <span>Your name</span>
+                <input id="checkout-name" required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
+              </label>
+              <label htmlFor="checkout-email">
+                <span>Email for your receipt</span>
+                <input id="checkout-email" required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+              </label>
+            </div>
+          </fieldset>
           <div className="checkout-total"><span>Total</span><strong>{formatPrice(total)}</strong></div>
           <button type="submit" className="place-order-button" disabled={busy || cities.length === 0}>
             {busy ? 'Placing order…' : 'Place order'} <span aria-hidden="true">↗</span>
