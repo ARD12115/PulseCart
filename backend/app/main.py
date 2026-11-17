@@ -572,8 +572,8 @@ async def create_cart(request: Request, response: Response) -> dict:
         "INSERT INTO carts DEFAULT VALUES RETURNING id, updated_at, cart_secret"
     )
     return {
-        "cart_id": cart["id"],
-        "cart_secret": cart["cart_secret"],
+        "cart_id": str(cart["id"]),
+        "cart_secret": str(cart["cart_secret"]),
         "updated_at": cart["updated_at"],
         "items": [],
     }
