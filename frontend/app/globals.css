@@ -65,6 +65,52 @@
   --color-acid-on-background: 19 19 19;
 }
 
+/* Light theme overrides for hardcoded dark elements */
+:root[data-theme='light'] .button-dark,
+:root[data-theme='light'] .button-light {
+  background: rgb(var(--color-acid-primary-container));
+  color: rgb(var(--color-acid-on-primary-container));
+  border-color: rgb(var(--color-acid-outline));
+}
+:root[data-theme='light'] .button-dark:hover,
+:root[data-theme='light'] .button-light:hover {
+  background: rgb(var(--color-acid-primary-container) / 0.9);
+}
+:root[data-theme='light'] .operations-page button,
+:root[data-theme='light'] .concurrency-page button {
+  background: rgb(var(--color-acid-primary-container));
+  color: rgb(var(--color-acid-on-primary-container));
+}
+:root[data-theme='light'] .operations-page input,
+:root[data-theme='light'] .operations-page select,
+:root[data-theme='light'] .concurrency-page input,
+:root[data-theme='light'] .concurrency-page select {
+  background: rgb(var(--color-surface));
+  color: rgb(var(--color-ink));
+  border-color: rgb(var(--color-acid-outline));
+}
+:root[data-theme='light'] .hero-product-card {
+  background: rgb(var(--color-acid-surface-bright));
+  box-shadow: 0 28px 70px rgb(var(--color-ink) / 0.1);
+}
+:root[data-theme='light'] .hero-product-caption {
+  color: rgb(var(--color-acid-on-background));
+}
+:root[data-theme='light'] .card-arrow {
+  background: rgb(var(--color-acid-surface-bright));
+  color: rgb(var(--color-acid-on-background));
+}
+:root[data-theme='light'] .card-index {
+  background: rgb(var(--color-acid-surface-bright) / 0.8);
+  color: rgb(var(--color-acid-on-background));
+}
+:root[data-theme='light'] .place-order-button,
+:root[data-theme='light'] .acid-button-primary {
+  background: rgb(var(--color-acid-primary-container));
+  color: rgb(var(--color-acid-on-primary-container));
+  border-color: rgb(var(--color-acid-outline));
+}
+
 @media (prefers-color-scheme: dark) {
   :root[data-theme='system'] { color-scheme: dark; }
 }

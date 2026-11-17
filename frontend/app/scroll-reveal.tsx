@@ -16,10 +16,9 @@ export default function ScrollReveal({ children, className = '', delay = 0 }: Sc
     if (!element) return;
 
     const preference = document.documentElement.dataset.motion ?? 'system';
-    const reduceMotion = preference === 'reduce' || (
-      preference === 'system' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    );
-    if (reduceMotion || !('IntersectionObserver' in window)) {
+    const reduceMotion = preference === 'reduce' || (preference === 'system' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const fullMotion = preference === 'full';
+    if (reduceMotion && !fullMotion || !('IntersectionObserver' in window)) {
       element.classList.add('is-visible');
       return;
     }

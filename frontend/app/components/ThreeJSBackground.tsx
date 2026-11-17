@@ -225,40 +225,48 @@ export default function ThreeJSBackground() {
       camera.position.z = scrollZoomZ;
       camera.lookAt(scrollPosX * 0.5, scrollPosY * 0.5, 0);
 
-      masterGroup.rotation.y = elapsedTime * 0.18 + scrollProgress * Math.PI * 3 + currentMouseX * 0.4;
-      masterGroup.rotation.x = scrollProgress * 1.8 + currentMouseY * 0.3;
-      masterGroup.rotation.z = Math.sin(scrollProgress * Math.PI * 2) * 0.4;
+      // Scroll affects camera position, not rotation speed (keeps animation consistent across page lengths)
+      masterGroup.rotation.y = elapsedTime * 0.18 + currentMouseX * 0.4;
+      masterGroup.rotation.x = currentMouseY * 0.3;
+      masterGroup.rotation.z = Math.sin(elapsedTime * 0.5) * 0.4;
 
-      innerCore.rotation.x = elapsedTime * 0.35 + scrollProgress * 4.0;
-      innerCore.rotation.y = elapsedTime * 0.5 + scrollProgress * 5.0;
+      innerCore.rotation.x = elapsedTime * 0.35;
+      innerCore.rotation.y = elapsedTime * 0.5;
       innerWire.rotation.x = innerCore.rotation.x;
       innerWire.rotation.y = innerCore.rotation.y;
 
-      const armorScale = 1.0 + scrollProgress * 0.85 + Math.sin(elapsedTime * 2) * 0.05;
+      const armorScale = 1.0 + Math.sin(elapsedTime * 2) * 0.05;
       armorMesh.scale.set(armorScale, armorScale, armorScale);
-      armorMesh.rotation.y = -elapsedTime * 0.4 - scrollProgress * 3.0;
+      armorMesh.rotation.y = -elapsedTime * 0.4;
 
-      ring1.rotation.z = elapsedTime * 0.45 + scrollProgress * 6.0;
-      ring2.rotation.x = elapsedTime * -0.55 - scrollProgress * 5.0;
-      ring3.rotation.y = elapsedTime * 0.3 + scrollProgress * 4.0;
+      ring1.rotation.z = elapsedTime * 0.45;
+      ring2.rotation.x = elapsedTime * -0.55;
+      ring3.rotation.y = elapsedTime * 0.3;
 
-      const orbitExpansion = 1.0 + scrollProgress * 0.9;
+      const orbitExpansion = 1.0 + Math.sin(elapsedTime * 0.5) * 0.3;
       for (let i = 0; i < satellites.length; i++) {
         const s = satellites[i];
-        s.angle += s.speed * (1.0 + scrollProgress * 2.5);
+        s.angle += s.speed;
         const r = s.radius * orbitExpansion;
         s.mesh.position.x = Math.cos(s.angle) * r;
         s.mesh.position.z = Math.sin(s.angle) * r;
         s.mesh.position.y = s.y + Math.sin(elapsedTime * 2 + i) * 0.2;
-        s.mesh.rotation.x += 0.02 + scrollProgress * 0.05;
-        s.mesh.rotation.y += 0.03 + scrollProgress * 0.05;
+        s.mesh.rotation.x += 0.02;
+        s.mesh.rotation.y += 0.03;
       }
 
-      particles.rotation.y = elapsedTime * 0.03 + scrollProgress * 1.2;
-      particles.position.y = -scrollProgress * 2.0;
+      particles.rotation.y = elapsedTime * 0.03;
+      particles.position.y = Math.sin(elapsedTime * 0.5) * 1.0;
 
-      gridHelper.position.z = ((elapsedTime * 0.6 + scrollProgress * 8.0) % 2) - 1;
-      gridHelper.position.y = -2.6 + scrollProgress * 1.4;
+      gridHelper.position.z = ((elapsedTime * 0.6) % 2) - 1;
+      gridHelper.position.y = -2.6 + Math.sin(elapsedTime * 0.5) * 1.4;
+
+      // Subtle scroll-driven camera drift (gentle, not speed-based)
+      const camDrift = scrollProgress * 0.5;
+      camera.position.x = scrollPosX + currentMouseX * 0.5 + Math.sin(scrollProgress * Math.PI) * camDrift;
+      camera.position.y = scrollPosY + currentMouseY * 0.4;
+      camera.position.z = scrollZoomZ;
+      camera.lookAt(scrollPosX * 0.5, scrollPosY * 0.5, 0);
 
       renderer.render(scene, camera);
     }
