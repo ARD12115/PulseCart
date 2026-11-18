@@ -123,12 +123,12 @@ export default function HomePage() {
         <div className="hero-coordinate hero-coordinate-left">// PULSECART / LOCAL COMMERCE</div>
         <div className="hero-coordinate hero-coordinate-right">INVENTORY / ORDERS / EVENTS</div>
         <ScrollReveal className="hero-copy">
-          <p className="eyebrow acid-label"><span>01</span> High-tensile event-driven retail</p>
+          <p className="eyebrow acid-label">High-tensile event-driven retail</p>
           <h1 id="hero-title">Kinetic 3D<br /><em>local hardware.</em></h1>
           <p className="hero-description">Browse products from nearby shops, search with typo tolerance, and place orders against current inventory.</p>
           <div className="hero-actions">
             <a className="acid-button-primary" href="#shop">Explore the collection <span aria-hidden="true">↘</span></a>
-            <a className="acid-button-secondary" href="#architecture">Inspect the architecture <span aria-hidden="true">↗</span></a>
+            <a className="acid-button-secondary" href="#architecture">See how it works <span aria-hidden="true">↗</span></a>
           </div>
         </ScrollReveal>
 
@@ -168,23 +168,20 @@ export default function HomePage() {
         <span>POSTGRESQL / INVENTORY + ORDERS</span><b aria-hidden="true">◆</b><span>APACHE KAFKA / EVENT STREAM</span><b aria-hidden="true">◆</b><span>OPENSEARCH / FUZZY SEARCH</span>
       </div>
 
-      <ScrollReveal className="architecture-section-reveal">
       <section className="architecture-section" id="architecture" aria-labelledby="architecture-heading">
         <div className="section-heading-row">
-          <div><p className="eyebrow"><span>02</span> System architecture / overview</p><h2 id="architecture-heading">One storefront.<br /><em>Three engines.</em></h2></div>
+          <div><p className="eyebrow">System architecture / overview</p><h2 id="architecture-heading">One storefront.<br /><em>Three engines.</em></h2></div>
           <p>Each service has a focused role in the shopping flow. These are architecture notes, not live cluster metrics.</p>
         </div>
         <div className="architecture-grid">
-          <article className="architecture-card"><span className="architecture-index">SYS / 01</span><span className="architecture-glyph" aria-hidden="true">▦</span><h3>PostgreSQL</h3><p>Products, inventory, carts, and checkout transactions live in the relational store.</p><span className="architecture-role">SOURCE OF TRUTH / INVENTORY</span></article>
-          <article className="architecture-card"><span className="architecture-index">SYS / 02</span><span className="architecture-glyph" aria-hidden="true">⟿</span><h3>Apache Kafka</h3><p>Committed checkout events move through the outbox relay to asynchronous consumers.</p><span className="architecture-role">EVENT DELIVERY / ASYNC WORKERS</span></article>
-          <article className="architecture-card"><span className="architecture-index">SYS / 03</span><span className="architecture-glyph" aria-hidden="true">⌕</span><h3>OpenSearch</h3><p>Catalog queries use fuzzy matching so shoppers can find products despite small typos.</p><span className="architecture-role">PRODUCT DISCOVERY / SEARCH</span></article>
+          <article className="architecture-card"><span className="architecture-glyph" aria-hidden="true">▦</span><h3>PostgreSQL</h3><p>Products, inventory, carts, and checkout transactions live in the relational store.</p><span className="architecture-role">SOURCE OF TRUTH / INVENTORY</span></article>
+          <article className="architecture-card"><span className="architecture-glyph" aria-hidden="true">⟿</span><h3>Apache Kafka</h3><p>Committed checkout events move through the outbox relay to asynchronous consumers.</p><span className="architecture-role">EVENT DELIVERY / ASYNC WORKERS</span></article>
+          <article className="architecture-card"><span className="architecture-glyph" aria-hidden="true">⌕</span><h3>OpenSearch</h3><p>Catalog queries use fuzzy matching so shoppers can find products despite small typos.</p><span className="architecture-role">PRODUCT DISCOVERY / SEARCH</span></article>
         </div>
       </section>
-      </ScrollReveal>
-      <ScrollReveal className="console-reveal">
+
       <section className="search-console" id="search-console" aria-labelledby="search-heading">
-        <div className="console-topline"><span>OPENSEARCH / CATALOG QUERY</span><span>FUZZY MATCH ENABLED ON SEARCH</span></div>
-        <div className="console-heading"><div><p className="eyebrow"><span>03</span> Product discovery</p><h2 id="search-heading">Search the <em>catalog.</em></h2></div><p>Try a product name or a close spelling. Results update as you type.</p></div>
+        <div className="console-heading"><div><p className="eyebrow">Product discovery</p><h2 id="search-heading">Search the <em>catalog.</em></h2></div><p>Try a product name or a close spelling. Results update as you type.</p></div>
         <div className="filter-panel">
           <form id="catalog-search" onSubmit={onSearch} className="filter-form" aria-label="Find products">
             <label className="search-field" htmlFor="search-products">
@@ -215,19 +212,18 @@ export default function HomePage() {
             </div>
             {hasFilters && <button className="clear-filter-button" type="button" onClick={clearFilters}>Clear</button>}
           </form>
-          <button className="run-query-button" type="submit" form="catalog-search">Run fuzzy query <span aria-hidden="true">→</span></button>
+          <button className="run-query-button" type="submit" form="catalog-search">Search</button>
           <div className="results-count" aria-live="polite">{loading ? 'Loading…' : `${products.length} ${products.length === 1 ? 'product' : 'products'}`}</div>
         </div>
 
       </section>
-      </ScrollReveal>
 
       <section className="shop-section" id="shop" aria-labelledby="shop-heading">
         <div className="shop-heading-row">
-          <ScrollReveal className="shop-title-block">
-            <p className="eyebrow"><span>04</span> Hardware drops / local catalog</p>
-            <h2 id="shop-heading">Browse the <em>hardware.</em></h2>
-          </ScrollReveal>
+          <div>
+            <p className="eyebrow">Browse the shop</p>
+            <h2 id="shop-heading">Browse the shop</h2>
+          </div>
           <p className="shop-intro">Filter above to narrow products by name, price, category, and delivery city.</p>
         </div>
         {error && <p role="alert" className="store-error">{error}</p>}
@@ -239,9 +235,8 @@ export default function HomePage() {
         )}
 
         <div className="product-grid" aria-busy={loading}>
-          {products.map((product, index) => (
-            <ScrollReveal key={`${product.id}-${product.city || ''}`} className="product-reveal" delay={(index % 4) * 55}>
-              <Link href={`/product/${product.id}`} className="product-card">
+          {products.map((product) => (
+            <Link href={`/product/${product.id}`} key={product.id} className="product-card">
                 <div className="product-card-art">
                   <ProductArtwork category={product.category} imageUrl={product.image_url} name={product.name} />
                   <span className="card-arrow" aria-hidden="true">↗</span>
@@ -253,14 +248,13 @@ export default function HomePage() {
                   <div className="product-card-bottom"><strong>{formatPrice(product.price_paise)}</strong><span>View details <span aria-hidden="true">↗</span></span></div>
                 </div>
               </Link>
-            </ScrollReveal>
           ))}
         </div>
       </section>
 
-      <ScrollReveal className="system-callout">
+      <section className="system-callout">
         <div className="system-callout-copy">
-          <p className="eyebrow"><span>05</span> Architecture / concurrency / operations</p>
+          <p className="eyebrow">Architecture / concurrency / operations</p>
           <h2>Built for the<br /><em>last item.</em></h2>
           <p>Explore the concurrency demo or review real outbox events and order confirmations in the operations console.</p>
         </div>
@@ -268,7 +262,7 @@ export default function HomePage() {
           <a className="button-dark" href="/demo">Run concurrency lab <span aria-hidden="true">→</span></a>
           <a className="button-outline" href="/admin">Open operations <span aria-hidden="true">↗</span></a>
         </div>
-      </ScrollReveal>
+      </section>
     </div>
   );
 }
