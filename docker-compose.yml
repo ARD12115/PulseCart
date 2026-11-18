@@ -123,6 +123,7 @@ services:
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
       KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
       KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
+      KAFKA_CA: "/app/certs/ca opensearch.pem"
     volumes:
       - ./certs:/app/certs:ro
     depends_on:
