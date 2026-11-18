@@ -48,7 +48,7 @@ async def ensure_index(client: AsyncOpenSearch) -> None:
 async def delete_product(client: AsyncOpenSearch, product_id: int, city: str) -> None:
     try:
         await client.delete(
-            index=INDEX_NAME, id=f"{product_id}:{city}", refresh=True
+            index=INDEX_NAME, id=f"{product_id}:{city}"
         )
     except NotFoundError:
         return
@@ -74,7 +74,6 @@ async def upsert_product(
     await client.index(
         index=INDEX_NAME,
         id=f"{product_id}:{city}",
-        refresh=True,
         body={
             "product_id": product["id"],
             "sku": product["sku"],
@@ -98,6 +97,7 @@ async def sync_existing_inventory(client: AsyncOpenSearch, pool: asyncpg.Pool) -
             client, pool, row["product_id"], row["city"]
         )
     print(f"Indexed inventory rows: {len(rows)}")
+    await client.indices.refresh(index=INDEX_NAME)
 
 
 async def is_processed(pool: asyncpg.Pool, event_id: int) -> bool:
@@ -152,7 +152,6 @@ async def index_product(
     await client.index(
         index=INDEX_NAME,
         id=f"{product['id']}:{city}",
-        refresh=True,
         body={
             "product_id": product["id"],
             "sku": product["sku"],

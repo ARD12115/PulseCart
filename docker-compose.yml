@@ -95,6 +95,8 @@ services:
       CART_RATE_LIMIT: ${CART_RATE_LIMIT:-20/minute}
     ports:
       - "127.0.0.1:8000:8000"
+    volumes:
+      - ./certs:/app/certs:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -121,6 +123,8 @@ services:
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
       KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
       KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
+    volumes:
+      - ./certs:/app/certs:ro
     depends_on:
       backend:
         condition: service_healthy
@@ -142,6 +146,8 @@ services:
       OPENSEARCH_USERNAME: ${OPENSEARCH_USERNAME:-admin}
       OPENSEARCH_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD:?Set OPENSEARCH_ADMIN_PASSWORD in the root .env}
       OPENSEARCH_VERIFY_CERTS: ${OPENSEARCH_VERIFY_CERTS:-false}
+    volumes:
+      - ./certs:/app/certs:ro
     depends_on:
       backend:
         condition: service_healthy
@@ -165,6 +171,8 @@ services:
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
       KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
       KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
+    volumes:
+      - ./certs:/app/certs:ro
     depends_on:
       backend:
         condition: service_healthy

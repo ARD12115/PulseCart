@@ -167,39 +167,50 @@ async def deliver(row) -> str:
 
 
 async def send_pending(pool: asyncpg.Pool, send=deliver) -> int:
-    """Deliver pending notifications; rows that keep failing end up 'failed'."""
+    """Deliver pending notifications; SMTP runs outside the DB transaction.
+
+    Rows are claimed in a short transaction (FOR UPDATE SKIP LOCKED), then locks
+    are released before the slow SMTP call. Outcomes are persisted in a second
+    short transaction that only touches rows still pending, so a concurrent sender
+    can never clobber an in-flight delivery.
+    """
+    claimed: list[dict] = []
     async with pool.acquire() as conn:
         async with conn.transaction():
-            rows = await conn.fetch(
+            claimed = await conn.fetch(
                 """SELECT id, recipient_email, subject, body, attempts
                    FROM notifications WHERE status = 'pending'
                    ORDER BY id LIMIT $1 FOR UPDATE SKIP LOCKED""",
                 SEND_BATCH,
             )
-            for row in rows:
-                try:
-                    status = await send(row)
-                    await conn.execute(
-                        """UPDATE notifications
-                           SET status = $2, attempts = attempts + 1,
-                               last_error = NULL, sent_at = now()
-                           WHERE id = $1""",
-                        row["id"],
-                        status,
-                    )
-                except Exception as exc:
-                    attempts = row["attempts"] + 1
-                    await conn.execute(
-                        """UPDATE notifications
-                           SET status = $2, attempts = $3, last_error = $4
-                           WHERE id = $1""",
-                        row["id"],
-                        "failed" if attempts >= MAX_SEND_ATTEMPTS else "pending",
-                        attempts,
-                        f"{type(exc).__name__}: {exc}"[:500],
-                    )
-                    log.warning("Notification %s failed (attempt %d): %s", row["id"], attempts, exc)
-            return len(rows)
+
+    if not claimed:
+        return 0
+
+    updates: list[tuple] = []
+    for row in claimed:
+        attempts = row["attempts"] + 1
+        try:
+            status = await send(row)
+            updates.append((row["id"], status, None, attempts))
+        except Exception as exc:
+            final_status = "failed" if attempts >= MAX_SEND_ATTEMPTS else "pending"
+            updates.append(
+                (row["id"], final_status, f"{type(exc).__name__}: {exc}"[:500], attempts)
+            )
+            log.warning("Notification %s failed (attempt %d): %s", row["id"], attempts, exc)
+
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            for row_id, status, last_error, attempts in updates:
+                await conn.execute(
+                    """UPDATE notifications
+                       SET status = $2, attempts = $3, last_error = $4,
+                           sent_at = CASE WHEN $2 = 'sent' THEN now() ELSE sent_at END
+                       WHERE id = $1 AND status = 'pending'""",
+                    row_id, status, attempts, last_error,
+                )
+    return len(claimed)
 
 
 async def sender_loop(pool: asyncpg.Pool) -> None:
