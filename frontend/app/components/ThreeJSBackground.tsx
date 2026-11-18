@@ -1,22 +1,40 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 export default function ThreeJSBackground() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || !containerRef.current) return;
+    if (!containerRef.current) return;
 
     const container = containerRef.current;
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
+
+    // Reduced motion + low-end device guard: skip 3D entirely
+    const reduce =
+      document.documentElement.dataset.motion === 'reduce' ||
+      (document.documentElement.dataset.motion !== 'full' &&
+        matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const isCart = location.pathname.startsWith('/cart');
+    const isMobile = matchMedia('(max-width: 650px)').matches;
+    if (reduce || isMobile || isCart) return;
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: false,
+        powerPreference: 'low-power',
+      });
+    } catch {
+      return;
+    }
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x0a0a0c, 0.02);
@@ -24,12 +42,6 @@ export default function ThreeJSBackground() {
     const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
     camera.position.set(0, 0, 6.2);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    container.appendChild(renderer.domElement);
-
-    // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     scene.add(ambientLight);
 
@@ -206,10 +218,22 @@ export default function ThreeJSBackground() {
 
     // Animation Loop
     const clock = new THREE.Clock();
+    let running = true;
+    let raf = 0;
+
+    // Visibility handling — pause when tab is hidden
+    const onVis = () => {
+      running = !document.hidden;
+      if (running) {
+        clock.getDelta();
+        raf = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
 
     function animate() {
-      if (!mounted) return;
-      requestAnimationFrame(animate);
+      if (!running) return;
+      raf = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
       scrollProgress += (targetScrollProgress - scrollProgress) * 0.07;
@@ -261,29 +285,30 @@ export default function ThreeJSBackground() {
       gridHelper.position.z = ((elapsedTime * 0.6) % 2) - 1;
       gridHelper.position.y = -2.6 + Math.sin(elapsedTime * 0.5) * 1.4;
 
-      // Subtle scroll-driven camera drift (gentle, not speed-based)
-      const camDrift = scrollProgress * 0.5;
-      camera.position.x = scrollPosX + currentMouseX * 0.5 + Math.sin(scrollProgress * Math.PI) * camDrift;
-      camera.position.y = scrollPosY + currentMouseY * 0.4;
-      camera.position.z = scrollZoomZ;
-      camera.lookAt(scrollPosX * 0.5, scrollPosY * 0.5, 0);
-
       renderer.render(scene, camera);
     }
     animate();
 
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener('scroll', updateScroll);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVis);
       if (renderer.domElement.parentNode) {
         renderer.domElement.parentNode.removeChild(renderer.domElement);
       }
+      scene.traverse((object: any) => {
+        if (object.geometry) object.geometry.dispose();
+        const material = object.material;
+        if (material) {
+          const materials = Array.isArray(material) ? material : [material];
+          materials.forEach((m: any) => m.dispose());
+        }
+      });
       renderer.dispose();
     };
-  }, [mounted]);
-
-  if (!mounted) return null;
+  }, []);
 
   return (
     <div

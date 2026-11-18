@@ -22,6 +22,7 @@
   --radius-lg: 0.75rem;    /* 12px - sections, modals */
   --radius-xl: 1rem;       /* 16px - hero, featured */
   --focus-ring: rgb(var(--color-moss));
+  --text-meta: max(.75rem, 12px);
   background: rgb(var(--color-paper));
   --color-acid-surface: 19 19 19;
   --color-acid-surface-bright: 58 57 57;
@@ -1216,6 +1217,22 @@ body {
   transform: translateY(0);
   opacity: 1;
   transition: opacity .7s ease, transform .8s cubic-bezier(.2,.7,.2,1);
+}
+
+/* Tiny type floor — no text smaller than 12px/0.75rem */
+.eyebrow,
+.product-card-topline,
+.product-card-bottom span,
+.results-count,
+.availability-card li,
+.quantity-control,
+.checkout-note,
+.remove-item,
+.architecture-role,
+.console-topline,
+.hero-baseline,
+.consumer-nav a {
+  font-size: var(--text-meta);
 }
 
 @keyframes hero-float {

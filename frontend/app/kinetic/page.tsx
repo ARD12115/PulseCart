@@ -490,12 +490,12 @@ export default function KineticStorefrontPage() {
 
       {/* 3D OBJECT INSPECTOR MODAL */}
       {modalOpen && modalProduct && (
-        <div id="product-3d-modal" className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6" onClick={closeInspector}>
+        <div id="product-3d-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6" onClick={closeInspector} onKeyDown={(e) => { if (e.key === 'Escape') closeInspector(); }}>
           <div
             className="bg-paper border-2 border-lime shadow-[8px_8px_0px_rgb(var(--color-ink))] w-full max-w-7xl h-[92vh] max-h-[900px] flex flex-col overflow-hidden relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="h-12 bg-surface border-b-2 border-black px-4 flex items-center justify-between flex-shrink-0 select-none font-mono">
+            <div id="modal-title" className="h-12 bg-surface border-b-2 border-black px-4 flex items-center justify-between flex-shrink-0 select-none font-mono">
               <div className="flex items-center gap-3">
                 <span className="w-2.5 h-2.5 bg-lime animate-ping" />
                 <span className="text-[11px] sm:text-[12px] font-black tracking-wider text-ink uppercase">
@@ -633,11 +633,11 @@ export default function KineticStorefrontPage() {
 
       {/* UPI MODAL */}
       {upiModal && (
-        <div id="upi-modal" className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setUpiModal(null)}>
+        <div id="upi-modal" role="dialog" aria-modal="true" aria-labelledby="upi-modal-title" className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setUpiModal(null)} onKeyDown={(e) => { if (e.key === 'Escape') setUpiModal(null); }}>
           <div className="bg-surface border-4 border-lime shadow-[8px_8px_0px_rgb(var(--color-ink))] w-full max-w-md p-6 relative font-mono" onClick={(e) => e.stopPropagation()}>
             <button onClick={() => setUpiModal(null)} className="absolute top-4 right-4 text-ink hover:text-lime text-sm uppercase">[CLOSE ✕]</button>
             <div className="text-lime text-xs font-bold mb-1">ATOMIC UPI SETTLEMENT ENGINE</div>
-            <h3 className="text-xl font-black text-ink uppercase font-sans mb-2">INSTANT QR PAYMENT</h3>
+            <h3 id="upi-modal-title" className="text-xl font-black text-ink uppercase font-sans mb-2">INSTANT QR PAYMENT</h3>
             <p className="text-xs text-ink/60 mb-4">Locked under Row Lease Token: <code className="text-lime">0x{Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0')}</code></p>
 
             <div className="bg-white p-4 border-2 border-black w-48 h-48 mx-auto flex items-center justify-center relative mb-4">

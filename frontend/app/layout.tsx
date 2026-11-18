@@ -12,8 +12,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-theme="dark" data-motion="system">
+    <html lang="en" data-theme="dark" data-motion="system" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{const t=localStorage.getItem('pulsecart_theme');const m=localStorage.getItem('pulsecart_motion');const d=document.documentElement;if(t==='system'||t==='dark'||t==='light')d.dataset.theme=t;if(m==='system'||m==='reduce'||m==='full')d.dataset.motion=m;}catch(e){}})()`,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
