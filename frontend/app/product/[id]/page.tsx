@@ -95,11 +95,11 @@ export default function ProductPage() {
           </div>
 
           <button className="add-to-cart-button" onClick={addToCart} disabled={!available}>
-            {available ? 'Add to cart' : 'Currently unavailable'} <span aria-hidden="true">↗</span>
+            {available ? 'Add to cart' : 'Currently unavailable'}
           </button>
           {message && (
             <p role="status" className="cart-confirmation">
-              {message} {message.startsWith('Added') && <Link href="/cart">Go to cart →</Link>}
+              {message} {message.startsWith('Added') && <Link href="/cart">Go to cart</Link>}
             </p>
           )}
         </section>

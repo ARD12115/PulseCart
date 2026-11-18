@@ -54,7 +54,7 @@ export default function ConcurrencyDemoPage() {
         <div className="mt-7 grid gap-4 rounded-lg border border-ink/10 bg-surface p-5 sm:grid-cols-3">
           <label className="text-sm font-semibold">Product ID<input className="mt-1 w-full rounded-md border p-2" type="number" min="1" value={productId} onChange={(event) => setProductId(event.target.value)} /></label>
           <label className="text-sm font-semibold">City<select id="city-filter" className="mt-1 w-full rounded-md border p-2" value={city} onChange={(event) => setCity(event.target.value)}><option>Bengaluru</option><option>Mangaluru</option><option>Mysuru</option><option>Hubballi</option></select></label>
-          <label className="text-sm font-semibold">Email domain<input className="mt-1 w-full rounded-md border p-2" type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+          <label className="text-sm font-semibold">Email domain<input className="mt-1 w-full rounded-md border p-2" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
           <button disabled={busy} onClick={runRace} className="rounded-md bg-moss-solid px-5 py-3 font-bold text-white disabled:opacity-50 sm:col-span-3">{busy ? 'Racing...' : 'Run two simultaneous checkouts'}</button>
         </div>
         {error && <p role="alert" className="mt-4 text-danger">{error}</p>}

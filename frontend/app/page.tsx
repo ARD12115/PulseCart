@@ -127,8 +127,8 @@ export default function HomePage() {
           <h1 id="hero-title">Kinetic 3D<br /><em>local hardware.</em></h1>
           <p className="hero-description">Browse products from nearby shops, search with typo tolerance, and place orders against current inventory.</p>
           <div className="hero-actions">
-            <a className="acid-button-primary" href="#shop">Explore the collection <span aria-hidden="true">↘</span></a>
-            <a className="acid-button-secondary" href="#architecture">See how it works <span aria-hidden="true">↗</span></a>
+            <a className="acid-button-primary" href="#shop">Explore the collection</a>
+            <a className="acid-button-secondary" href="#architecture">See how it works</a>
           </div>
         </ScrollReveal>
 
@@ -239,13 +239,12 @@ export default function HomePage() {
             <Link href={`/product/${product.id}`} key={product.id} className="product-card">
                 <div className="product-card-art">
                   <ProductArtwork category={product.category} imageUrl={product.image_url} name={product.name} />
-                  <span className="card-arrow" aria-hidden="true">↗</span>
                 </div>
                 <div className="product-card-copy">
                   <div className="product-card-topline"><span>{product.sku}</span><span>{product.city || product.category}</span></div>
                   <h3>{product.name}</h3>
                   <p>{product.description}</p>
-                  <div className="product-card-bottom"><strong>{formatPrice(product.price_paise)}</strong><span>View details <span aria-hidden="true">↗</span></span></div>
+                  <div className="product-card-bottom"><strong>{formatPrice(product.price_paise)}</strong><span>View details</span></div>
                 </div>
               </Link>
           ))}
@@ -259,8 +258,8 @@ export default function HomePage() {
           <p>Explore the concurrency demo or review real outbox events and order confirmations in the operations console.</p>
         </div>
         <div className="system-callout-actions">
-          <a className="button-dark" href="/demo">Run concurrency lab <span aria-hidden="true">→</span></a>
-          <a className="button-outline" href="/admin">Open operations <span aria-hidden="true">↗</span></a>
+          <a className="button-dark" href="/demo">Run concurrency lab</a>
+          <a className="button-outline" href="/admin">Open operations</a>
         </div>
       </section>
     </div>

@@ -12,6 +12,7 @@ const formatPrice = (paise: number) => new Intl.NumberFormat('en-IN', {
   currency: 'INR',
 }).format(paise / 100);
 const LOCAL_CART_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const CART_CITY_KEY = 'pulsecart_cart_city';
 
 export default function CartPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -187,7 +188,7 @@ export default function CartPage() {
             Contact the store if you need help with this order.
           </p>
         )}
-        <Link href="/#shop" className="button-dark">Continue shopping <span aria-hidden="true">↗</span></Link>
+        <Link href="/#shop" className="button-dark">Continue shopping</Link>
       </section>
     );
   }
@@ -199,8 +200,8 @@ export default function CartPage() {
         <h1 id="cart-title">Nothing here yet.</h1>
         <p>Find something useful or lovely from a shop nearby.</p>
         <div className="empty-cart-actions">
-          <Link href="/#shop" className="button-dark">Browse products <span aria-hidden="true">↗</span></Link>
-          <Link href="/demo" className="button-outline">Try the concurrency lab <span aria-hidden="true">↗</span></Link>
+          <Link href="/#shop" className="button-dark">Browse products</Link>
+          <Link href="/demo" className="button-outline">Try the concurrency lab</Link>
         </div>
         {notice && <p role="status" className="cart-notice">{notice}</p>}
       </section>
@@ -283,7 +284,7 @@ export default function CartPage() {
           </fieldset>
           <div className="checkout-total"><span>Total</span><strong>{formatPrice(total)}</strong></div>
           <button type="submit" className="place-order-button" disabled={busy || cities.length === 0}>
-            {busy ? 'Placing order…' : 'Place order'} <span aria-hidden="true">↗</span>
+            {busy ? 'Placing order…' : 'Place order'}
           </button>
           <p className="checkout-note">Your order is placed with the shop after you confirm.</p>
           <div className="checkout-flow" aria-label="Order processing information">

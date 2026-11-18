@@ -159,7 +159,7 @@ export default async function AnalyticsPage() {
             <p className="text-ink/50 text-sm mb-4">Interactive 3D hardware catalog with WebGL background.</p>
             <div className="rounded-lg border border-ink/10 overflow-hidden h-64">
             <a href="/kinetic" className="block w-full h-full bg-surface rounded-lg flex items-center justify-center p-4">
-              <span>View kinetic 3D storefront →</span>
+              <span>View kinetic 3D storefront</span>
             </a>
           </div>
           </section>
@@ -169,7 +169,7 @@ export default async function AnalyticsPage() {
             <h2 className="text-xl font-bold">Concurrency lab</h2>
             <p className="text-ink/50 text-sm mb-4">Test atomic stock reservation under concurrent checkout load.</p>
             <Link href="/demo" className="rounded-md bg-moss-solid px-4 py-2 font-semibold text-white">
-              Run concurrency lab <span aria-hidden="true">↗</span>
+              Run concurrency lab
             </Link>
           </section>
       </div>

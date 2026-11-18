@@ -114,7 +114,7 @@ export default function KineticStorefrontPage() {
   };
 
   const simulateUpiSuccess = () => {
-    showToast('✅ UPI TRANSACTION VERIFIED // KAFKA ORDER STREAMED');
+    showToast('UPI TRANSACTION VERIFIED // KAFKA ORDER STREAMED');
     setUpiModal(null);
   };
 
@@ -323,7 +323,7 @@ export default function KineticStorefrontPage() {
                 <button className="clear-filter-button" type="button" onClick={clearFilters}>Clear</button>
               )}
             </form>
-            <button className="run-query-button" type="submit" form="catalog-search">Run fuzzy query <span aria-hidden="true">→</span></button>
+            <button className="run-query-button" type="submit" form="catalog-search">Run fuzzy query</button>
             <div className="results-count" aria-live="polite">{loading ? 'Loading…' : `${products.length} ${products.length === 1 ? 'product' : 'products'}`}</div>
           </div>
 
@@ -603,7 +603,7 @@ export default function KineticStorefrontPage() {
 
                 <div className="mt-6 flex flex-col gap-2.5 pt-4 border-t border-lime/20 font-mono">
                   <button onClick={commitLock} className="w-full py-3.5 bg-lime hover:bg-white text-black text-[13px] font-black uppercase tracking-wider transition-all border-2 border-black shadow-[4px_4px_0px_rgb(var(--color-ink))] flex items-center justify-center gap-2">
-                    <span>PESSIMISTIC LOCK & RESERVE SKU →</span>
+                    <span>PESSIMISTIC LOCK & RESERVE SKU</span>
                     <span className="material-symbols-outlined text-[18px]">lock</span>
                   </button>
                   <div className="flex gap-2 text-[11px]">
