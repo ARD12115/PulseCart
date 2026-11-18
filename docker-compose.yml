@@ -76,7 +76,7 @@ services:
     environment:
       # Local dev defaults; override with Aiven connection strings in root .env
       PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
-      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
+      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
       KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
@@ -117,7 +117,7 @@ services:
       context: ./backend
     environment:
       PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
-      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
+      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
       KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
@@ -136,7 +136,7 @@ services:
       context: ./backend
     environment:
       PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
-      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
+      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
       KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
@@ -165,7 +165,7 @@ services:
       SMTP_FROM: ${SMTP_FROM:-}
       SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
       PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
-      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
+      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
       KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
