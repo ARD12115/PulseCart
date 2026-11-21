@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+cp "$root/db/schema.sql" "$tmp/001-schema.sql"
+for migration in "$root"/db/migrations/*.sql; do
+  [ -f "$migration" ] || continue
+  cp "$migration" "$tmp/$(basename "$migration")"
+done
+cp "$root/k8s/postgres-app-role.sh" "$tmp/999-app-role.sh"
+kubectl create configmap pulsecart-db-init -n "${NAMESPACE:-pulsecart}" --from-file="$tmp" --dry-run=client -o yaml | kubectl apply -f -
