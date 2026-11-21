@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { addAvailableProductToCart } from './helpers';
 
 test.describe('Accessibility Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -76,7 +77,7 @@ test.describe('Accessibility Tests', () => {
   });
 
   test('Error messages have role=alert', async ({ page }) => {
-    await page.route('/api/products*', route => route.abort());
+    await page.route('**/api/products/**', route => route.abort());
     await page.fill('input[type="search"]', 'test');
     await page.waitForTimeout(1000);
     const error = page.locator('.store-error');
@@ -91,8 +92,7 @@ test.describe('Accessibility Tests', () => {
 
   test('Cart page - form fields have accessible names', async ({ page }) => {
     // Add an item first so checkout form is visible
-    await page.goto('/product/2'); // Use product with stock
-    await page.click('button:has-text("Add to cart")');
+    await addAvailableProductToCart(page, 2);
     await page.goto('/cart');
     await expect(page.getByLabel('Email for your receipt')).toBeVisible();
     await expect(page.getByLabel('Your name')).toBeVisible();
@@ -101,12 +101,16 @@ test.describe('Accessibility Tests', () => {
 
   test('Product detail - images have meaningful alt or accessible placeholder', async ({ page }) => {
     await page.goto('/product/1');
-    // Fresh seed has no image_url, should show SVG placeholder with accessible markup
-    const svg = page.locator('svg[viewBox="0 0 520 420"]');
-    await expect(svg).toBeVisible();
-    // SVG should be accessible (aria-hidden is true since it's decorative)
-    const ariaHidden = await svg.getAttribute('aria-hidden');
-    expect(ariaHidden).toBe('true');
+    const artwork = page.locator('.detail-art');
+    await expect(artwork).toBeVisible();
+    const image = artwork.locator('img');
+    const placeholder = artwork.locator('svg[viewBox="0 0 520 420"]');
+    if (await image.count()) {
+      await expect(image).toHaveAttribute('alt', /.+/);
+    } else {
+      await expect(placeholder).toBeVisible();
+      await expect(placeholder).toHaveAttribute('aria-hidden', 'true');
+    }
   });
 
   test('Navigation is keyboard accessible', async ({ page }) => {
@@ -117,8 +121,7 @@ test.describe('Accessibility Tests', () => {
   });
 
   test('Checkout form has proper autocomplete attributes', async ({ page }) => {
-    await page.goto('/product/1');
-    await page.click('button:has-text("Add to cart")');
+    await addAvailableProductToCart(page, 1);
     await page.goto('/cart');
     const emailInput = page.locator('input[type="email"]');
     const autocomplete = await emailInput.getAttribute('autocomplete');

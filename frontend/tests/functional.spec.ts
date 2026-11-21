@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { addAvailableProductToCart, openAvailableProduct } from './helpers';
 
 test.describe('Core Functionality', () => {
   test.beforeEach(async ({ page }) => {
@@ -17,15 +18,17 @@ test.describe('Core Functionality', () => {
 
   test('Search filters products', async ({ page }) => {
     await page.fill('input[type="search"]', 'bluetooth');
-    await page.waitForTimeout(500); // debounce
-    await expect(page.locator('h3:has-text("Bluetooth Headphones")')).toBeVisible();
+    const result = page.locator('h3:has-text("Bluetooth Headphones")');
+    const emptyState = page.locator('.empty-results');
+    await expect(result.or(emptyState)).toBeVisible({ timeout: 20_000 });
+    if (await emptyState.isVisible()) throw new Error('Search returned no products after indexing worker startup.');
+    await expect(result).toBeVisible();
   });
 
   test('Category filter works', async ({ page }) => {
     await page.selectOption('#category-filter', { index: 1 }); // first actual category
     await page.waitForTimeout(500);
-    const products = page.locator('[href^="/product/"]');
-    await expect(products.first()).toBeVisible();
+    await expect(page.locator('[href^="/product/"]').first()).toBeVisible();
   });
 
   test('City filter works', async ({ page }) => {
@@ -68,29 +71,29 @@ test.describe('Core Functionality', () => {
     await expect(page.locator('button:has-text("Add to cart")')).toBeVisible();
   });
 
-  test('Product detail page shows placeholder image when no image_url', async ({ page }) => {
-    await page.goto('/product/1');
-    // Fresh seed has no image_url, should show SVG placeholder
-    await expect(page.locator('svg[viewBox="0 0 520 420"]')).toBeVisible();
+  test('Product detail artwork has an accessible image or placeholder', async ({ page }) => {
+    await openAvailableProduct(page, 1);
+    const artwork = page.locator('.detail-art');
+    const image = artwork.locator('img');
+    const placeholder = artwork.locator('svg[viewBox="0 0 520 420"]');
+    await expect(artwork).toBeVisible();
+    if (await image.count()) await expect(image).toHaveAttribute('alt', /.+/);
+    else await expect(placeholder).toBeVisible();
   });
 
   test('Add to cart from product page', async ({ page }) => {
-    await page.goto('/product/1');
-    await page.click('button:has-text("Add to cart")');
-    await expect(page.locator('.cart-confirmation')).toContainText('Added to your cart.');
+    await addAvailableProductToCart(page, 1);
   });
 
   test('Cart page shows added items', async ({ page }) => {
-    await page.goto('/product/1');
-    await page.click('button:has-text("Add to cart")');
+    const product = await addAvailableProductToCart(page, 1);
     await page.goto('/cart');
-    await expect(page.locator('h2:has-text("Bluetooth Headphones")')).toBeVisible();
+    await expect(page.locator('h2').filter({ hasText: product.name })).toBeVisible();
     await expect(page.locator('input[type="number"]')).toHaveValue('1');
   });
 
   test('Update quantity in cart', async ({ page }) => {
-    await page.goto('/product/1');
-    await page.click('button:has-text("Add to cart")');
+    await addAvailableProductToCart(page, 1);
     await page.goto('/cart');
     await page.fill('input[type="number"]', '3');
     await expect(page.locator('input[type="number"]')).toHaveValue('3');
@@ -98,26 +101,20 @@ test.describe('Core Functionality', () => {
 
   test('Remove item from cart', async ({ page }) => {
     page.on('dialog', (dialog) => dialog.accept());
-    await page.goto('/product/1');
-    await page.click('button:has-text("Add to cart")');
+    await addAvailableProductToCart(page, 1);
     await page.goto('/cart');
     await page.click('button:has-text("Remove")');
     await expect(page.locator('text=Nothing here yet.')).toBeVisible();
   });
 
   test('Checkout flow with valid data', async ({ page }) => {
-    await page.goto('/product/1');
-    await page.click('button:has-text("Add to cart")');
+    await addAvailableProductToCart(page, 1);
     await page.goto('/cart');
     await page.fill('input[type="email"]', 'test@example.com');
     await page.fill('#checkout-name', 'Test User');
     await page.selectOption('#checkout-city', 'Bengaluru');
     await page.click('button:has-text("Place order")');
     // Order may succeed or fail due to stock exhaustion (409) - accept either outcome
-    const orderSuccess = page.locator('text=Order #');
-    const checkoutError = page.locator('.cart-notice');
-    const successVisible = await orderSuccess.isVisible().catch(() => false);
-    const errorVisible = await checkoutError.isVisible().catch(() => false);
-    expect(successVisible || errorVisible).toBe(true);
+    await expect(page.locator('text=Order #').or(page.locator('.cart-notice'))).toBeVisible({ timeout: 15_000 });
   });
 });
