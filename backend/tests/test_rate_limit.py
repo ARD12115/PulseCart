@@ -59,7 +59,7 @@ class RateLimitTests(unittest.TestCase):
             statuses = []
             for _ in range(6):
                 r = self.client.post(
-                    "/api/checkout",
+                    "/checkout",
                     json={
                         "customer_email": "rate-limit@example.com",
                         "customer_name": "Rate Limit Tester",
@@ -90,7 +90,7 @@ class RateLimitTests(unittest.TestCase):
         ):
             for _ in range(6):
                 self.client.post(
-                    "/api/checkout",
+                    "/checkout",
                     json={
                         "customer_email": "retry-after@example.com",
                         "customer_name": "Retry After Tester",
@@ -101,7 +101,7 @@ class RateLimitTests(unittest.TestCase):
                 )
 
         r = self.client.post(
-            "/api/checkout",
+            "/checkout",
             json={
                 "customer_email": "retry-after@example.com",
                 "customer_name": "Retry After Tester",
