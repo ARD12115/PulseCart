@@ -11,7 +11,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
-      - ./db/migrations:/docker-entrypoint-initdb.d/migrations:ro
+      - ./db/migrations/001_order_access_token.sql:/docker-entrypoint-initdb.d/002_order_access_token.sql:ro
+      - ./db/migrations/002_carts_idempotency_notifications.sql:/docker-entrypoint-initdb.d/003_carts_idempotency_notifications.sql:ro
+      - ./db/migrations/003_order_token_expiry.sql:/docker-entrypoint-initdb.d/004_order_token_expiry.sql:ro
+      - ./db/migrations/004_cart_secret_and_least_privilege.sql:/docker-entrypoint-initdb.d/005_cart_secret_and_least_privilege.sql:ro
+      - ./db/migrations/005_product_excel_details.sql:/docker-entrypoint-initdb.d/006_product_excel_details.sql:ro
+      - ./scripts/set_pulsecart_app_password.sh:/docker-entrypoint-initdb.d/007_set_pulsecart_app_password.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d pulsecart"]
       interval: 5s
@@ -69,6 +74,17 @@ services:
       timeout: 10s
       retries: 30
 
+  seed:
+    build:
+      context: ./backend
+    environment:
+      PG_DSN: postgresql://postgres@postgres:5432/pulsecart
+      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["python", "-m", "app.seed"]
+
   backend:
     restart: unless-stopped
     build:
@@ -76,7 +92,7 @@ services:
     environment:
       # Local dev defaults; override with Aiven connection strings in root .env
       PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
-      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
+      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
       KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
@@ -98,13 +114,12 @@ services:
     volumes:
       - ./certs:/app/certs:ro
     depends_on:
-      postgres:
-        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
       kafka:
         condition: service_healthy
       opensearch:
         condition: service_healthy
-    command: ["sh", "-c", "python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
       interval: 10s
@@ -117,7 +132,7 @@ services:
       context: ./backend
     environment:
       PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
-      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
+      PG_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
       KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
