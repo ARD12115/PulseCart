@@ -88,7 +88,7 @@ export default async function AnalyticsPage() {
                     </div>
                     <div className="h-3 bg-surface rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-d4ff00"
+                        className="h-full bg-lime"
                         style={{ width: cityBarWidth(count) }}
                       ></div>
                     </div>

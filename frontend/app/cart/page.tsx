@@ -265,21 +265,13 @@ export default function CartPage() {
           <fieldset className="checkout-fieldset">
             <legend>Delivery details</legend>
             <div className="checkout-field-group">
-              <label htmlFor="checkout-city">
-                <span>Delivery city</span>
-                <select id="checkout-city" required value={city} onChange={(event) => setCity(event.target.value)}>
-                  <option value="">Choose a city</option>
-                  {cities.map((item) => <option key={item} value={item}>{item}</option>)}
-                </select>
-              </label>
-              <label htmlFor="checkout-name">
-                <span>Your name</span>
-                <input id="checkout-name" required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} />
-              </label>
-              <label htmlFor="checkout-email">
-                <span>Email for your receipt</span>
-                <input id="checkout-email" required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-              </label>
+              <label htmlFor="checkout-city"><span className="sr-only">Delivery city</span><select id="checkout-city" required value={city} onChange={(event) => setCity(event.target.value)}>
+                <option value="">Choose a city</option>
+                {cities.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select></label>
+              <label htmlFor="checkout-name"><span className="sr-only">Your name</span><input id="checkout-name" required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} /></label>
+              <label htmlFor="checkout-email"><span className="sr-only">Email for your receipt</span><input id="checkout-email" required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+
             </div>
           </fieldset>
           <div className="checkout-total"><span>Total</span><strong>{formatPrice(total)}</strong></div>

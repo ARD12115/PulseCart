@@ -195,7 +195,7 @@ export default function HomePage() {
             <label className="search-field" htmlFor="search-products">
               <span aria-hidden="true" className="search-icon">⌕</span>
               <span className="sr-only">Search products</span>
-              <input id="search-products" type="search" placeholder="Search products" value={query} onChange={(event) => setQuery(event.target.value)} />
+              <input id="search-products" type="search" autoComplete="off" placeholder="Search products" value={query} onChange={(event) => setQuery(event.target.value)} />
             </label>
             <label className="filter-select" htmlFor="category-filter">
               <span className="sr-only">Category</span>
@@ -213,9 +213,9 @@ export default function HomePage() {
             </label>
             <div className="price-filter">
               <div className="price-fields">
-                <label htmlFor="min-price"><span className="sr-only">Minimum price in rupees</span><input id="min-price" type="number" min="0" step="0.01" placeholder="Min ₹" value={minPrice} onChange={(event) => setMinPrice(event.target.value)} /></label>
+                <label htmlFor="min-price"><span className="sr-only">Minimum price in rupees</span><input id="min-price" type="number" autoComplete="off" min="0" step="0.01" placeholder="Min ₹" value={minPrice} onChange={(event) => setMinPrice(event.target.value)} /></label>
                 <span aria-hidden="true">—</span>
-                <label htmlFor="max-price"><span className="sr-only">Maximum price in rupees</span><input id="max-price" type="number" min="0" step="0.01" placeholder="Max ₹" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} /></label>
+                <label htmlFor="max-price"><span className="sr-only">Maximum price in rupees</span><input id="max-price" type="number" autoComplete="off" min="0" step="0.01" placeholder="Max ₹" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} /></label>
               </div>
             </div>
             {hasFilters && <button className="clear-filter-button" type="button" onClick={clearFilters}>Clear</button>}

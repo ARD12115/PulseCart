@@ -155,7 +155,7 @@ export default function KineticStorefrontPage() {
   }, []);
 
   return (
-    <div className="kinetic-storefront min-h-screen bg-paper">
+    <div className="kinetic-storefront min-h-dvh bg-paper">
       {/* Scroll-driven Three.js Background */}
       <div className="fixed inset-0 w-full h-full pointer-events-none z-0" aria-hidden="true">
         <div id="threejs-bg-canvas" className="w-full h-full" />
@@ -268,7 +268,7 @@ export default function KineticStorefrontPage() {
         {/* TICKER RIBBON */}
         <div className="w-full bg-lime text-black py-2.5 border-y-2 border-black font-mono text-[12px] font-black uppercase overflow-hidden whitespace-nowrap">
           <div className="flex gap-6 animate-pulse">
-            <span>POWER 3D MESH ARCHITECTURE</span> • <span>NO-OVERSELL RECOVERY ENGINE</span> • <span>LEVENSHTEIN FUZZY OPENSEARCH</span> • <span>15-MIN PESSIMISTIC LOCKS</span> • <span>DISPATCHING TO BLR (15m), MUM (45m), DEL (1h), HYD (35m)</span> • <span>KAFKA REPLICATION FACTOR 3</span> • <span>ATOMIC POSTGRES ROW-LOCKING</span>
+            <span>POWER 3D MESH ARCHITECTURE</span> - <span>NO-OVERSELL RECOVERY ENGINE</span> - <span>LEVENSHTEIN FUZZY OPENSEARCH</span> - <span>15-MIN PESSIMISTIC LOCKS</span> - <span>DISPATCHING TO BLR (15m), MUM (45m), DEL (1h), HYD (35m)</span> - <span>KAFKA REPLICATION FACTOR 3</span> - <span>ATOMIC POSTGRES ROW-LOCKING</span>
           </div>
         </div>
 
