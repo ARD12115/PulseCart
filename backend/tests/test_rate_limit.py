@@ -13,6 +13,33 @@ from fastapi.testclient import TestClient
 from app.main import create_app
 
 
+class FakeConn:
+    """Fake asyncpg connection that returns a customer id on fetchval."""
+
+    def __init__(self):
+        self._first = True
+
+    async def fetchval(self, query, *args):
+        if self._first:
+            self._first = False
+            return 9  # new customer id
+        return 9  # existing customer id on conflict path
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        return False
+
+
+class FakePool:
+    def acquire(self):
+        return FakeConn()
+
+    async def fetchrow(self, query, *args):
+        return {"total_paise": 1250, "status": "placed"}
+
+
 class RateLimitTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -21,13 +48,14 @@ class RateLimitTests(unittest.TestCase):
 
     def test_checkout_rate_limit_returns_429(self):
         """6 requests to /checkout within the window; the 6th gets 429."""
-        # Mock place_order so the first 5 requests succeed (return an order),
-        # isolating rate limiting from database failures.
-        with patch(
-            "app.checkout.place_order",
-            new_callable=AsyncMock,
-            return_value=42,
-        ) as mock_place_order:
+        with (
+            patch("app.main.db_pool", return_value=FakePool()),
+            patch(
+                "app.checkout.place_order",
+                new_callable=AsyncMock,
+                return_value=42,
+            ) as mock_place_order,
+        ):
             statuses = []
             for _ in range(6):
                 r = self.client.post(
@@ -52,11 +80,13 @@ class RateLimitTests(unittest.TestCase):
 
     def test_429_includes_retry_after(self):
         """The 429 response must include a Retry-After header."""
-        # Exhaust the limit first
-        with patch(
-            "app.checkout.place_order",
-            new_callable=AsyncMock,
-            return_value=42,
+        with (
+            patch("app.main.db_pool", return_value=FakePool()),
+            patch(
+                "app.checkout.place_order",
+                new_callable=AsyncMock,
+                return_value=42,
+            ),
         ):
             for _ in range(6):
                 self.client.post(

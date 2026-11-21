@@ -348,7 +348,6 @@ async def search_products(
     min_price: Annotated[int | None, Query(ge=0)] = None,
     max_price: Annotated[int | None, Query(ge=0)] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
-    http_response: Response | None = None,
 ) -> list[dict]:
     if min_price is not None and max_price is not None and min_price > max_price:
         raise HTTPException(422, "min_price cannot exceed max_price")
@@ -405,8 +404,6 @@ async def search_products(
     SEARCH_LATENCIES.append(latency_ms)
     if len(SEARCH_LATENCIES) > SEARCH_LATENCY_MAX:
         del SEARCH_LATENCIES[: len(SEARCH_LATENCIES) - SEARCH_LATENCY_MAX]
-    if http_response is not None:
-        http_response.headers["X-Search-Latency-Ms"] = f"{latency_ms:.2f}"
     return results
 
 

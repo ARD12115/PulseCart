@@ -23,9 +23,7 @@ jobs:
       PULSECART_APP_PASSWORD: ci-only-password
       APP_ENV: development
       ADMIN_KEY: dev-admin-key-change-in-production
-      CHECKOUT_RATE_LIMIT: 100/minute
-      SEED_PG_DSN: postgresql://pulsecart_app:ci-only-password@localhost:5432/pulsecart
-      SEED_PG_PASSWORD: ci-only-password
+      CHECKOUT_RATE_LIMIT: 5/minute
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -91,6 +89,30 @@ jobs:
         working-directory: frontend
         run: npx playwright install --with-deps chromium
 
+      - name: Start backend server for Playwright tests
+        working-directory: backend
+        env:
+          PG_DSN: postgresql://pulsecart_app:ci-only-password@localhost:5432/pulsecart
+          PG_PASSWORD: ci-only-password
+          KAFKA_BOOTSTRAP: localhost:9093
+          KAFKA_SECURITY_PROTOCOL: PLAINTEXT
+          OPENSEARCH_URL: http://localhost:9200
+          OPENSEARCH_USERNAME: ""
+          OPENSEARCH_PASSWORD: ""
+          ADMIN_KEY: dev-admin-key-change-in-production
+          APP_ENV: development
+          CHECKOUT_RATE_LIMIT: 100/minute
+        run: |
+          python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          # Wait for backend to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
+              echo "Backend is ready"
+              break
+            fi
+            sleep 1
+          done
+
       - name: Run Playwright tests
         working-directory: frontend
         env:
@@ -112,7 +134,10 @@ jobs:
 
       - name: Stop services
         if: always()
-        run: docker compose down || true
+        run: |
+          docker stop pulsecart-pg-test || true
+          docker rm pulsecart-pg-test || true
+          pkill -f uvicorn || true
 
       - name: Validate Compose configuration
         run: docker compose config --quiet
