@@ -11,9 +11,12 @@ from app.connections import postgres_connection_kwargs
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(PROJECT_ROOT / ".env")
 
-PRICE_MAP = json.loads(
-    (Path(__file__).resolve().parent / "product_prices.json").read_text()
-)
+try:
+    PRICE_MAP = json.loads(
+        (Path(__file__).resolve().parent / "product_prices.json").read_text()
+    )
+except FileNotFoundError:
+    PRICE_MAP = {}
 
 CITIES = ["Bengaluru", "Mangaluru", "Mysuru", "Hubballi"]
 CATEGORIES = {
@@ -153,6 +156,9 @@ async def main() -> None:
     try:
         async with pool.acquire() as conn:
             async with conn.transaction():
+                await conn.execute(
+                    "ALTER TABLE products ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'"
+                )
                 products: list[tuple[int, str]] = []
                 for category, entries in CATEGORIES.items():
                     for name, description in entries:
