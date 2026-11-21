@@ -325,7 +325,7 @@ async def list_products(
     return [dict(row) for row in rows]
 
 
-@app.get("/products/search")
+@app.get("/products/search", response_model=None)
 async def search_products(
     q: Annotated[str, Query(min_length=1, max_length=120)],
     category: str | None = None,
