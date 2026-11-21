@@ -36,6 +36,7 @@ export default function SiteControls() {
       if (savedTheme === 'system' || savedTheme === 'dark' || savedTheme === 'light') {
         setTheme(savedTheme);
         document.documentElement.dataset.theme = savedTheme;
+        syncDarkClass(savedTheme);
       }
       if (savedMotion === 'system' || savedMotion === 'reduce' || savedMotion === 'full') {
         setMotion(savedMotion);
@@ -45,16 +46,36 @@ export default function SiteControls() {
       // Keep system preferences when browser storage is unavailable.
     }
 
+    // Track system preference changes for theme='system'
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemChange = () => {
+      if (theme === 'system') syncDarkClass('system');
+    };
+    mediaQuery.addEventListener('change', handleSystemChange);
+
     return () => {
       window.removeEventListener('storage', updateCount);
       window.removeEventListener('pulsecart:cart-updated', updateCount);
+      mediaQuery.removeEventListener('change', handleSystemChange);
     };
-  }, []);
+  }, [theme]);
+
+  function syncDarkClass(effective: Theme) {
+    const isDark =
+      effective === 'dark' ||
+      (effective === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }
 
   function changeTheme(event: ChangeEvent<HTMLSelectElement>) {
     const next = event.currentTarget.value as Theme;
     setTheme(next);
     document.documentElement.dataset.theme = next;
+    syncDarkClass(next);
     try { window.localStorage.setItem(themeKey, next); } catch { /* Applies until this tab closes. */ }
   }
 
