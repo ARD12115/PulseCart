@@ -26,18 +26,18 @@ class FakeConnection:
         self.executed_queries.append(("fetchrow", query, args))
         if "UPDATE store_inventory" in query:
             if self.stock >= args[2]:
-                    return {"stock": self.stock - args[2]}
+                return {"stock": self.stock - args[2]}
             return None
         if "SELECT 1 FROM products" in query:
-                return {"1": 1} if self.product_exists else None
+            return {"1": 1} if self.product_exists else None
         if "INSERT INTO orders" in query:
-                return {"id": 42}
+            return {"id": 42}
         return None
 
     async def fetchval(self, query: str, *args):
         self.executed_queries.append(("fetchval", query, args))
-                if "INSERT INTO orders" in query:
-                    return 42
+        if "INSERT INTO orders" in query:
+            return 42
         if "SELECT price_paise FROM products" in query:
             return self.price_paise if self.product_exists else None
         if "SELECT 1 FROM products" in query:
@@ -194,7 +194,7 @@ class PlaceOrderTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(order_id, 42)
         # Check that idempotency_key was passed to INSERT
-        insert_queries = [q for q in conn.executed_queries if q[0] == "fetchrow" and "INSERT INTO orders" in q[1]]
+        insert_queries = [q for q in conn.executed_queries if q[0] == "fetchval" and "INSERT INTO orders" in q[1]]
         self.assertEqual(len(insert_queries), 1)
         self.assertIn("idem-key-123", str(insert_queries[0][2]))
 

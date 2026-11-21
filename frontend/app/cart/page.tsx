@@ -140,9 +140,9 @@ export default function CartPage() {
   if (orderId !== null) {
     return (
       <section className="order-success" aria-labelledby="order-success-title">
-        <span className="success-mark" aria-hidden="true">✓</span>
+        <span className="success-mark" aria-hidden="true">Check</span>
         <p className="eyebrow">Order confirmed</p>
-        <h1 id="order-success-title">Thanks for shopping nearby.</h1>
+        <h1 id="order-success-title" className="text-balance">Thanks for shopping nearby.</h1>
         <p>Your order number is <strong>Order #{orderId}</strong>.</p>
         {orderAccessToken ? (
           <div className="order-access-code" aria-labelledby="order-access-code-title">

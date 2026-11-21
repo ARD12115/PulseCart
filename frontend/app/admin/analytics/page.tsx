@@ -38,8 +38,8 @@ export default async function AnalyticsPage() {
     <div className="analytics-page">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">Analytics dashboard</p>
-          <h1 className="mt-2 text-4xl font-black">Store analytics</h1>
+          <p className="text-xs font-bold uppercase text-moss">Analytics dashboard</p>
+          <h1 className="mt-2 text-4xl font-black text-balance">Store analytics</h1>
         </div>
         <p className="text-sm text-ink/50">Admin only · Live data from PostgreSQL</p>
       </div>

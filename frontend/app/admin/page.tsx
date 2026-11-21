@@ -72,7 +72,7 @@ export default function AdminPage() {
   return (
     <div className="operations-page">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">System pulse</p><h1 className="mt-2 text-4xl font-black">Order & event room</h1></div>
+        <div><p className="text-xs font-bold uppercase text-moss">System pulse</p><h1 className="mt-2 text-4xl font-black text-balance">Order & event room</h1></div>
         <p className="text-sm text-ink/50">Refreshes every 5 seconds{updated ? ` · Updated ${updated}` : ''}</p>
       </div>
       <div className="operations-overview" aria-label="Operational record counts">

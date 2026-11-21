@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 60
     env:
       POSTGRES_PASSWORD: ci-only-password
+      PULSECART_APP_PASSWORD: ci-only-app-password
+      PG_PASSWORD: ci-only-password
       APP_ENV: development
       ADMIN_KEY: dev-admin-key-change-in-production
       CHECKOUT_RATE_LIMIT: 100/minute

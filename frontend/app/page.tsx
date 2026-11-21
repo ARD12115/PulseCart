@@ -132,7 +132,7 @@ export default function HomePage() {
         <div className="hero-coordinate hero-coordinate-right">INVENTORY / ORDERS / EVENTS</div>
         <ScrollReveal className="hero-copy">
           <p className="eyebrow acid-label">High-tensile event-driven retail</p>
-          <h1 id="hero-title">Kinetic 3D<br /><em>local hardware.</em></h1>
+          <h1 id="hero-title" className="text-balance">Kinetic 3D<br /><em>local hardware.</em></h1>
           <p className="hero-description">Browse products from nearby shops, search with typo tolerance, and place orders against current inventory.</p>
           <div className="hero-actions">
             <a className="acid-button-primary" href="#shop">Explore the collection</a>
@@ -169,7 +169,7 @@ export default function HomePage() {
           </div>
           <div className="hero-stamp" aria-hidden="true"><span>FOUND</span><b>NEARBY</b></div>
         </ScrollReveal>
-        <div className="hero-baseline"><span>01 / STOREFRONT</span><span>INVENTORY-AWARE CHECKOUT</span><a href="#architecture">SCROLL TO EXPLORE ↓</a></div>
+        <div className="hero-baseline"><span>01 / STOREFRONT</span><span>INVENTORY-AWARE CHECKOUT</span><a href="#architecture">SCROLL TO EXPLORE</a></div>
       </section>
 
       <div className="signal-ribbon" role="note" aria-label="Store architecture services">

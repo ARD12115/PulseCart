@@ -127,7 +127,7 @@ export default function KineticStorefrontPage() {
       localStorage.setItem('pulsecart_cart', JSON.stringify(saved));
       window.dispatchEvent(new Event('pulsecart:cart-updated'));
       void syncCart(saved);
-      showToast(`⚡ ADDED TO CART: ${product.sku}`);
+      showToast(`POWER ADDED TO CART: ${product.sku}`);
     } catch {
       showToast('Could not add to cart.');
     }
@@ -135,7 +135,7 @@ export default function KineticStorefrontPage() {
 
   const commitLock = () => {
     if (modalProduct) {
-      showToast(`⚡ ROW LEASE ACQUIRED: ${modalProduct.sku} LOCKED IN POSTGRES FOR 15m!`);
+      showToast(`POWER ROW LEASE ACQUIRED: ${modalProduct.sku} LOCKED IN POSTGRES FOR 15m!`);
       closeInspector();
     }
   };
@@ -166,14 +166,14 @@ export default function KineticStorefrontPage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-lime text-black font-black flex items-center justify-center text-xl border-2 border-black shadow-[3px_3px_0px_rgb(var(--color-ink))]">
-              ⚡
+              PC
             </div>
             <div>
-              <div className="flex items-center gap-1.5 font-bold tracking-tighter text-lg">
+              <div className="flex items-center gap-1.5 font-bold text-lg">
                 <span className="text-lime">KINETIC //</span>
                 <span className="text-ink">ACID BRUTALIST</span>
               </div>
-              <div className="text-[10px] font-mono text-lime/80 flex items-center gap-1 uppercase tracking-widest">
+              <div className="text-[10px] font-mono text-lime/80 flex items-center gap-1 uppercase">
                 <span className="w-1.5 h-1.5 bg-lime rounded-full animate-ping" />
                 AIVEN CQRS ENGINE // ZERO-OVERSELL 3D STOREFRONT
               </div>
@@ -190,6 +190,7 @@ export default function KineticStorefrontPage() {
 
           <div className="flex items-center gap-2">
             <button
+              aria-label="Cart"
               onClick={() => setUpiModal({ sku: 'CART', amount: 0 })}
               className="flex items-center gap-2 px-3.5 py-1.5 bg-lime text-black font-mono text-[12px] font-black border-2 border-black shadow-[3px_3px_0px_rgb(var(--color-ink))] hover:translate-x-0.5 hover:translate-y-0.5 transition-transform"
             >
@@ -207,7 +208,7 @@ export default function KineticStorefrontPage() {
           <span className="hidden md:inline">COORDS: <strong className="text-ink" id="live-coords">[X:0.00 // Y:0.00 // Z:6.20]</strong></span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 bg-surface border border-lime/20 text-lime" id="live-scroll">SCROLL DEPTH // [░░░░░░░░░░] 0%</span>
+          <span className="px-2 py-0.5 bg-surface border border-lime/20 text-lime" id="live-scroll">SCROLL DEPTH // [----------] 0%</span>
           <span className="px-2 py-0.5 bg-surface border border-lime/20 text-ink">60 FPS</span>
           <span className="hidden sm:inline px-2 py-0.5 bg-lime text-black font-bold">[SCROLL TO ENGAGE // CLICK CARDS TO INSPECT 3D]</span>
         </div>
@@ -232,7 +233,7 @@ export default function KineticStorefrontPage() {
               <span>// ULTRA-LOW LATENCY E-COMMERCE CORE</span>
               <span className="h-0.5 w-12 bg-lime" />
             </div>
-            <h1 className="text-[44px] sm:text-[64px] lg:text-[84px] font-black leading-[0.92] uppercase tracking-tighter drop-shadow-[4px_4px_0px_rgb(var(--color-ink))]">
+            <h1 className="text-balance text-[44px] sm:text-[64px] lg:text-[84px] font-black leading-[0.92] uppercase drop-shadow-[4px_4px_0px_rgb(var(--color-ink))]">
               KINETIC 3D<br />
               <span className="text-lime underline decoration-cyan decoration-4">ZERO-OVERSELL</span><br />
               HARDWARE
@@ -265,9 +266,9 @@ export default function KineticStorefrontPage() {
         </section>
 
         {/* TICKER RIBBON */}
-        <div className="w-full bg-lime text-black py-2.5 border-y-2 border-black font-mono text-[12px] font-black uppercase tracking-widest overflow-hidden whitespace-nowrap">
+        <div className="w-full bg-lime text-black py-2.5 border-y-2 border-black font-mono text-[12px] font-black uppercase overflow-hidden whitespace-nowrap">
           <div className="flex gap-6 animate-pulse">
-            <span>⚡ 3D MESH ARCHITECTURE</span> • <span>NO-OVERSELL RECOVERY ENGINE</span> • <span>LEVENSHTEIN FUZZY OPENSEARCH</span> • <span>15-MIN PESSIMISTIC LOCKS</span> • <span>DISPATCHING TO BLR (15m), MUM (45m), DEL (1h), HYD (35m)</span> • <span>KAFKA REPLICATION FACTOR 3</span> • <span>ATOMIC POSTGRES ROW-LOCKING</span>
+            <span>POWER 3D MESH ARCHITECTURE</span> • <span>NO-OVERSELL RECOVERY ENGINE</span> • <span>LEVENSHTEIN FUZZY OPENSEARCH</span> • <span>15-MIN PESSIMISTIC LOCKS</span> • <span>DISPATCHING TO BLR (15m), MUM (45m), DEL (1h), HYD (35m)</span> • <span>KAFKA REPLICATION FACTOR 3</span> • <span>ATOMIC POSTGRES ROW-LOCKING</span>
           </div>
         </div>
 
@@ -275,8 +276,8 @@ export default function KineticStorefrontPage() {
         <section id="catalog" className="py-16 px-4 lg:px-8 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <div className="text-lime font-mono text-[11px] uppercase font-bold tracking-widest mb-1">
-                // PHYSICAL SPECIMENS & DROPS ● AVAILABLE FOR PESSIMISTIC ALLOCATION
+              <div className="text-lime font-mono text-[11px] uppercase font-bold mb-1">
+                // PHYSICAL SPECIMENS & DROPS - AVAILABLE FOR PESSIMISTIC ALLOCATION
               </div>
               <h2 className="text-[32px] lg:text-[42px] font-black uppercase tracking-tight text-ink">
                 HIGH-TENSILE HARDWARE DROPS
@@ -392,7 +393,7 @@ export default function KineticStorefrontPage() {
         <section id="architecture" className="py-16 px-4 lg:px-8 bg-paper/90 border-t-2 border-b-2 border-black">
           <div className="max-w-7xl mx-auto">
             <div className="mb-8">
-              <div className="text-lime font-mono text-[11px] uppercase font-bold tracking-widest mb-1">// ARCHITECTURAL BENCHMARKS</div>
+              <div className="text-lime font-mono text-[11px] uppercase font-bold mb-1">// ARCHITECTURAL BENCHMARKS</div>
               <h2 className="text-[30px] font-black uppercase text-ink">HIGH-CONCURRENCY MESH ENGINE</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono">
@@ -505,8 +506,8 @@ export default function KineticStorefrontPage() {
                   ACTIVE SESSION: <span id="modal-token-disp">0x{Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0')}</span>
                 </span>
               </div>
-              <button onClick={closeInspector} className="px-3 py-1 bg-paper hover:bg-lime text-ink hover:text-black border border-lime/20 hover:border-black text-[11px] font-bold uppercase transition-colors">
-                [ESC / CLOSE ✕]
+              <button onClick={closeInspector} className="px-3 py-1 bg-paper hover:bg-lime text-ink hover:text-black border border-lime/20 text-[11px] font-bold uppercase transition-colors">
+                [ESC / CLOSE X]
               </button>
             </div>
 
@@ -635,7 +636,7 @@ export default function KineticStorefrontPage() {
       {upiModal && (
         <div id="upi-modal" role="dialog" aria-modal="true" aria-labelledby="upi-modal-title" className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setUpiModal(null)} onKeyDown={(e) => { if (e.key === 'Escape') setUpiModal(null); }}>
           <div className="bg-surface border-4 border-lime shadow-[8px_8px_0px_rgb(var(--color-ink))] w-full max-w-md p-6 relative font-mono" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setUpiModal(null)} className="absolute top-4 right-4 text-ink hover:text-lime text-sm uppercase">[CLOSE ✕]</button>
+            <button onClick={() => setUpiModal(null)} className="absolute top-4 right-4 text-ink hover:text-lime text-sm uppercase">[CLOSE X]</button>
             <div className="text-lime text-xs font-bold mb-1">ATOMIC UPI SETTLEMENT ENGINE</div>
             <h3 id="upi-modal-title" className="text-xl font-black text-ink uppercase font-sans mb-2">INSTANT QR PAYMENT</h3>
             <p className="text-xs text-ink/60 mb-4">Locked under Row Lease Token: <code className="text-lime">0x{Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0')}</code></p>
@@ -768,7 +769,7 @@ function initScene(THREE: any) {
     scrollProgress = Math.min(Math.max(top / max, 0), 1);
     const pct = Math.round(scrollProgress * 100);
     const barElem = document.getElementById('live-scroll');
-    if (barElem) barElem.innerText = `SCROLL DEPTH // [${'█'.repeat(Math.floor(pct / 10))}${'░'.repeat(10 - Math.floor(pct / 10))}] ${pct}%`;
+    if (barElem) barElem.innerText = `SCROLL DEPTH // [${'#'.repeat(Math.floor(pct / 10))}${' '.repeat(10 - Math.floor(pct / 10))}] ${pct}%`;
     const coordsElem = document.getElementById('live-coords');
     if (coordsElem) coordsElem.innerText = `[X:${(scrollProgress * 100).toFixed(2)} // Y:${(-scrollProgress * 50).toFixed(2)} // Z:${(6.2 - scrollProgress * 3.5).toFixed(2)}]`;
   }

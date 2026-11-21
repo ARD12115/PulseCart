@@ -75,7 +75,7 @@ export default function ProductPage() {
         </div>
         <section className="detail-copy" aria-labelledby="product-title">
           <p className="eyebrow">{product.category}</p>
-          <h1 id="product-title">{product.name}</h1>
+          <h1 id="product-title" className="text-balance">{product.name}</h1>
           <p className="detail-description">{product.description}</p>
           <p className="detail-price">{formatPrice(product.price_paise)}</p>
 
