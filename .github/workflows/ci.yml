@@ -20,7 +20,13 @@ jobs:
     env:
       POSTGRES_PASSWORD: ci-only-password
       PULSECART_APP_PASSWORD: ci-only-app-password
-      PG_PASSWORD: ci-only-password
+      PG_PASSWORD: ci-only-app-password
+      PG_DSN: postgresql://pulsecart_app@postgres:5432/pulsecart
+      OPENSEARCH_URL: http://opensearch:9200
+      OPENSEARCH_USERNAME: ""
+      OPENSEARCH_PASSWORD: ""
+      KAFKA_BOOTSTRAP: kafka:9092
+      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
       APP_ENV: production
       ADMIN_KEY: dev-admin-key-change-in-production
       CHECKOUT_RATE_LIMIT: 100/minute
