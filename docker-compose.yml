@@ -1,146 +1,196 @@
 services:
-  ###############################################################################
-  # Backend API — FastAPI on port 8000
-  ###############################################################################
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+      POSTGRES_DB: pulsecart
+      PULSECART_APP_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+      - ./db/migrations:/docker-entrypoint-initdb.d/migrations:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pulsecart"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: ["CMD-SHELL", "cub zk-ready localhost:2181 10"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "127.0.0.1:9093:9093"
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+
+  opensearch:
+    image: opensearchproject/opensearch:2.17.1
+    environment:
+      discovery.type: single-node
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+    ports:
+      - "127.0.0.1:9200:9200"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health >/dev/null"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+
   backend:
+    restart: unless-stopped
     build:
       context: ./backend
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
-      PG_DSN: ${PG_DSN:?Set PG_DSN in the root .env}
+      # Local dev defaults; override with Aiven connection strings in root .env
+      PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
       PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
-      PULSECART_APP_PASSWORD: ${PULSECART_APP_PASSWORD:?Set PULSECART_APP_PASSWORD in the root .env}
-      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:?Set KAFKA_BOOTSTRAP in the root .env}
-      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:?Set KAFKA_SECURITY_PROTOCOL in the root .env}
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
+      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
       KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
-      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:?Set KAFKA_SASL_USERNAME in the root .env}
-      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:?Set KAFKA_SASL_PASSWORD in the root .env}
-      KAFKA_CA: "/app/certs/ca_kafka.pem"
-      OPENSEARCH_URL: ${OPENSEARCH_URL:?Set OPENSEARCH_URL in the root .env}
-      OPENSEARCH_USERNAME: ${OPENSEARCH_USERNAME:?Set OPENSEARCH_USERNAME in the root .env}
-      OPENSEARCH_PASSWORD: ${OPENSEARCH_PASSWORD:?Set OPENSEARCH_PASSWORD in the root .env}
-      OPENSEARCH_VERIFY_CERTS: ${OPENSEARCH_VERIFY_CERTS:-true}
-      ADMIN_KEY: ${ADMIN_KEY:?Set ADMIN_KEY in the root .env}
+      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
+      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
+      OPENSEARCH_URL: ${OPENSEARCH_URL:-http://opensearch:9200}
+      OPENSEARCH_USERNAME: ${OPENSEARCH_USERNAME:-admin}
+      OPENSEARCH_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD:?Set OPENSEARCH_ADMIN_PASSWORD in the root .env}
+      OPENSEARCH_VERIFY_CERTS: ${OPENSEARCH_VERIFY_CERTS:-false}
+      API_CORS_ORIGINS: http://localhost:3000
+      API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
+      TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:-}
       APP_ENV: ${APP_ENV:-production}
-      API_CORS_ORIGINS: ${API_CORS_ORIGINS:-http://localhost:3000}
+      ADMIN_KEY: ${ADMIN_KEY:-}
       CHECKOUT_RATE_LIMIT: ${CHECKOUT_RATE_LIMIT:-5/minute}
       CART_RATE_LIMIT: ${CART_RATE_LIMIT:-20/minute}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./certs:/app/certs:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    command: ["sh", "-c", "python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  relay:
+    restart: unless-stopped
+    build:
+      context: ./backend
+    environment:
+      PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
+      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
+      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
+      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
+      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
+      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
+      KAFKA_CA: "/app/certs/ca opensearch.pem"
+    volumes:
+      - ./certs:/app/certs:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    command: ["python", "-m", "app.outbox_relay"]
+
+  search-sync:
+    restart: unless-stopped
+    build:
+      context: ./backend
+    environment:
+      PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
+      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
+      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
+      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
+      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
+      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
+      OPENSEARCH_URL: ${OPENSEARCH_URL:-http://opensearch:9200}
+      OPENSEARCH_USERNAME: ${OPENSEARCH_USERNAME:-admin}
+      OPENSEARCH_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD:?Set OPENSEARCH_ADMIN_PASSWORD in the root .env}
+      OPENSEARCH_VERIFY_CERTS: ${OPENSEARCH_VERIFY_CERTS:-false}
+    volumes:
+      - ./certs:/app/certs:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    command: ["python", "-m", "app.search_sync"]
+
+  notification:
+    restart: unless-stopped
+    build:
+      context: ./backend
+    environment:
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
       SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+      PG_DSN: ${PG_DSN:-postgresql://pulsecart_app@postgres:5432/pulsecart}
+      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:-kafka:9092}
+      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}
+      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
+      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:-}
+      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:-}
     volumes:
       - ./certs:/app/certs:ro
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    depends_on:
+      backend:
+        condition: service_healthy
+    command: ["python", "-m", "app.notification"]
 
-  ###############################################################################
-  # Frontend — Next.js on port 3000
-  ###############################################################################
   frontend:
+    restart: unless-stopped
     build:
       context: ./frontend
       args:
         BACKEND_URL: http://backend:8000
-    restart: unless-stopped
     ports:
-      - "3000:3000"
-    environment:
-      BACKEND_URL: http://backend:8000
-      NODE_ENV: production
+      - "127.0.0.1:3000:3000"
     depends_on:
       backend:
         condition: service_healthy
 
-  ###############################################################################
-  # Outbox Relay — publishes outbox_events to Kafka
-  ###############################################################################
-  relay:
-    build:
-      context: ./backend
-    restart: unless-stopped
-    environment:
-      PG_DSN: ${PG_DSN:?Set PG_DSN in the root .env}
-      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
-      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:?Set KAFKA_BOOTSTRAP in the root .env}
-      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:?Set KAFKA_SECURITY_PROTOCOL in the root .env}
-      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
-      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:?Set KAFKA_SASL_USERNAME in the root .env}
-      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:?Set KAFKA_SASL_PASSWORD in the root .env}
-      KAFKA_CA: "/app/certs/ca_kafka.pem"
-    volumes:
-      - ./certs:/app/certs:ro
-    command: ["python", "-m", "app.outbox_relay"]
-    mem_limit: 512m
-    memswap_limit: 512m
-    depends_on:
-      backend:
-        condition: service_healthy
-
-  ###############################################################################
-  # Search Sync — consumes Kafka events, indexes to OpenSearch
-  ###############################################################################
-  search-sync:
-    build:
-      context: ./backend
-    restart: unless-stopped
-    environment:
-      PG_DSN: ${PG_DSN:?Set PG_DSN in the root .env}
-      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
-      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:?Set KAFKA_BOOTSTRAP in the root .env}
-      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:?Set KAFKA_SECURITY_PROTOCOL in the root .env}
-      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
-      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:?Set KAFKA_SASL_USERNAME in the root .env}
-      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:?Set KAFKA_SASL_PASSWORD in the root .env}
-      OPENSEARCH_URL: ${OPENSEARCH_URL:?Set OPENSEARCH_URL in the root .env}
-      OPENSEARCH_USERNAME: ${OPENSEARCH_USERNAME:?Set OPENSEARCH_USERNAME in the root .env}
-      OPENSEARCH_PASSWORD: ${OPENSEARCH_PASSWORD:?Set OPENSEARCH_PASSWORD in the root .env}
-      OPENSEARCH_VERIFY_CERTS: ${OPENSEARCH_VERIFY_CERTS:-true}
-      KAFKA_CA: "/app/certs/ca_kafka.pem"
-    volumes:
-      - ./certs:/app/certs:ro
-    command: ["python", "-m", "app.search_sync"]
-    mem_limit: 512m
-    memswap_limit: 512m
-    depends_on:
-      backend:
-        condition: service_healthy
-
-  ###############################################################################
-  # Notification — consumes order.placed events, sends confirmations
-  ###############################################################################
-  notification:
-    build:
-      context: ./backend
-    restart: unless-stopped
-    environment:
-      SMTP_HOST: ${SMTP_HOST:-}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USER: ${SMTP_USER:-}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      SMTP_FROM: ${SMTP_FROM:-}
-      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
-      PG_DSN: ${PG_DSN:?Set PG_DSN in the root .env}
-      PG_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in the root .env}
-      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:?Set KAFKA_BOOTSTRAP in the root .env}
-      KAFKA_SECURITY_PROTOCOL: ${KAFKA_SECURITY_PROTOCOL:?Set KAFKA_SECURITY_PROTOCOL in the root .env}
-      KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-SCRAM-SHA-256}
-      KAFKA_SASL_USERNAME: ${KAFKA_SASL_USERNAME:?Set KAFKA_SASL_USERNAME in the root .env}
-      KAFKA_SASL_PASSWORD: ${KAFKA_SASL_PASSWORD:?Set KAFKA_SASL_PASSWORD in the root .env}
-      KAFKA_CA: "/app/certs/ca_kafka.pem"
-    volumes:
-      - ./certs:/app/certs:ro
-    command: ["python", "-m", "app.notification"]
-    mem_limit: 512m
-    memswap_limit: 512m
-    depends_on:
-      backend:
-        condition: service_healthy
+volumes:
+  postgres_data:
+  opensearch_data:

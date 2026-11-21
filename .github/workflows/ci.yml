@@ -19,11 +19,9 @@ jobs:
     timeout-minutes: 60
     env:
       POSTGRES_PASSWORD: ci-only-password
-      PG_PASSWORD: ci-only-password
-      PULSECART_APP_PASSWORD: ci-only-password
       APP_ENV: development
       ADMIN_KEY: dev-admin-key-change-in-production
-      CHECKOUT_RATE_LIMIT: 5/minute
+      CHECKOUT_RATE_LIMIT: 100/minute
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -48,7 +46,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "20"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -60,58 +58,24 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Start local PostgreSQL for integration tests
-        run: |
-          docker run -d --name pulsecart-pg-test \
-            -e POSTGRES_PASSWORD=ci-only-password \
-            -e POSTGRES_USER=pulsecart_app \
-            -e POSTGRES_DB=pulsecart \
-            -p 5432:5432 \
-            postgres:16
-          # Wait for postgres to be ready
-          for i in $(seq 1 30); do
-            if docker exec pulsecart-pg-test pg_isready -U pulsecart_app -d pulsecart; then
-              break
-            fi
-            sleep 1
-          done
-          # Apply schema
-          docker cp db/schema.sql pulsecart-pg-test:/schema.sql
-          docker exec pulsecart-pg-test psql -U pulsecart_app -d pulsecart -f /schema.sql
+      - name: Start services
+        run: docker compose up -d --wait --wait-timeout 180 postgres zookeeper kafka opensearch
+
+      - name: Start backend
+        run: docker compose up -d --wait --wait-timeout 180 backend
+
+      - name: Verify seeded product is available
+        run: curl --fail http://localhost:8000/products/1
 
       - name: Run PostgreSQL integration tests
         working-directory: backend
         env:
-          TEST_PG_DSN: postgresql://pulsecart_app:ci-only-password@localhost:5432/pulsecart
+          TEST_PG_DSN: postgresql://postgres:ci-only-password@localhost:5432/pulsecart
         run: python -m unittest tests.test_postgres_integration -v
 
       - name: Install Playwright Chromium
         working-directory: frontend
         run: npx playwright install --with-deps chromium
-
-      - name: Start backend server for Playwright tests
-        working-directory: backend
-        env:
-          PG_DSN: postgresql://pulsecart_app:ci-only-password@localhost:5432/pulsecart
-          PG_PASSWORD: ci-only-password
-          KAFKA_BOOTSTRAP: localhost:9093
-          KAFKA_SECURITY_PROTOCOL: PLAINTEXT
-          OPENSEARCH_URL: http://localhost:9200
-          OPENSEARCH_USERNAME: ""
-          OPENSEARCH_PASSWORD: ""
-          ADMIN_KEY: dev-admin-key-change-in-production
-          APP_ENV: development
-          CHECKOUT_RATE_LIMIT: 100/minute
-        run: |
-          python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 &
-          # Wait for backend to be ready
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
-              echo "Backend is ready"
-              break
-            fi
-            sleep 1
-          done
 
       - name: Run Playwright tests
         working-directory: frontend
@@ -120,6 +84,19 @@ jobs:
           APP_ENV: development
           ADMIN_KEY: dev-admin-key-change-in-production
         run: npx playwright test --project=chromium --max-failures=5 --grep-invert "Rate limiting enforced on checkout"
+
+      - name: Reset backend rate limiter for isolated test
+        run: docker compose up -d --force-recreate --wait --wait-timeout 180 backend
+        env:
+          CHECKOUT_RATE_LIMIT: 5/minute
+
+      - name: Verify checkout rate limit in isolation
+        working-directory: frontend
+        env:
+          CI: true
+          APP_ENV: development
+          ADMIN_KEY: dev-admin-key-change-in-production
+        run: npx playwright test --project=chromium --grep "Rate limiting enforced on checkout" --max-failures=1
 
       - name: Upload Playwright diagnostics
         if: failure()
@@ -134,10 +111,7 @@ jobs:
 
       - name: Stop services
         if: always()
-        run: |
-          docker stop pulsecart-pg-test || true
-          docker rm pulsecart-pg-test || true
-          pkill -f uvicorn || true
+        run: docker compose down
 
       - name: Validate Compose configuration
         run: docker compose config --quiet

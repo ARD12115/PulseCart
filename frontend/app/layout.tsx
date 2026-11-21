@@ -1,5 +1,4 @@
 import './globals.css';
-import './ap-tokens.css';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import SiteControls from './site-controls';

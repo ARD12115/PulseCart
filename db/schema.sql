@@ -1,23 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- Least-privilege app role for backend and workers.
--- Password must match PULSECART_APP_PASSWORD env var.
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'pulsecart_app') THEN
-    CREATE ROLE pulsecart_app LOGIN;
-  END IF;
-END
-$$;
-ALTER ROLE pulsecart_app WITH PASSWORD 'ci-only-password';
-
-GRANT CONNECT ON DATABASE pulsecart TO pulsecart_app;
-GRANT USAGE ON SCHEMA public TO pulsecart_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO pulsecart_app;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO pulsecart_app;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO pulsecart_app;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO pulsecart_app;
-
 CREATE TABLE IF NOT EXISTS products (
   id BIGSERIAL PRIMARY KEY,
   sku TEXT UNIQUE NOT NULL,
@@ -70,13 +52,10 @@ CREATE TABLE IF NOT EXISTS outbox_events (
   key TEXT NOT NULL,
   payload JSONB NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  published_at TIMESTAMPTZ,
-  consumer_status TEXT NOT NULL DEFAULT 'pending' CHECK (consumer_status IN ('pending', 'synced', 'failed'))
+  published_at TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS outbox_unpublished
   ON outbox_events (id) WHERE published_at IS NULL;
-CREATE INDEX IF NOT EXISTS outbox_consumer_status
-  ON outbox_events (consumer_status);
 
 CREATE TABLE IF NOT EXISTS processed_events (
   consumer TEXT NOT NULL,

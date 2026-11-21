@@ -98,33 +98,28 @@ async def place_order(
                     price,
                 )
 
-            order_placed_payload = {
-                "outbox_event_id": 0,
-                "order_id": order_id,
-                "customer_id": customer_id,
-                "city": city,
-                "total_paise": total,
-                "items": [
-                    {"product_id": product_id, "qty": qty}
-                    for product_id, qty, _, _ in lines
-                ],
-            }
-            outbox_id = await _write_outbox(
-                conn, "order.placed", str(order_id), order_placed_payload
-            )
-            order_placed_payload["outbox_event_id"] = outbox_id
-
-            for product_id, _, _, stock in lines:
-                inventory_payload = {
-                    "outbox_event_id": 0,
-                    "product_id": product_id,
+            await _write_outbox(
+                conn,
+                "order.placed",
+                str(order_id),
+                {
+                    "order_id": order_id,
+                    "customer_id": customer_id,
                     "city": city,
-                    "stock": stock,
-                }
-                outbox_id = await _write_outbox(
-                    conn, "inventory.changed", f"{product_id}:{city}", inventory_payload
+                    "total_paise": total,
+                    "items": [
+                        {"product_id": product_id, "qty": qty}
+                        for product_id, qty, _, _ in lines
+                    ],
+                },
+            )
+            for product_id, _, _, stock in lines:
+                await _write_outbox(
+                    conn,
+                    "inventory.changed",
+                    f"{product_id}:{city}",
+                    {"product_id": product_id, "city": city, "stock": stock},
                 )
-                inventory_payload["outbox_event_id"] = outbox_id
             if cart_id is not None:
                 if cart_secret is None:
                     raise HTTPException(401, "Cart secret required to check out this cart")
@@ -141,12 +136,10 @@ async def place_order(
 
 async def _write_outbox(
     conn: asyncpg.Connection, topic: str, key: str, payload: dict
-) -> int:
-    row = await conn.fetchrow(
-        """INSERT INTO outbox_events (topic, key, payload, consumer_status)
-           VALUES ($1, $2, $3::jsonb, 'pending') RETURNING id""",
+) -> None:
+    await conn.execute(
+        "INSERT INTO outbox_events (topic, key, payload) VALUES ($1, $2, $3::jsonb)",
         topic,
         key,
         json.dumps(payload),
     )
-    return row["id"]

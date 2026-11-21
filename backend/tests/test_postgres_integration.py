@@ -90,19 +90,13 @@ class PostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_cart_is_emptied_in_the_same_transaction_as_the_order(self):
         cart_id = await self.pool.fetchval("INSERT INTO carts DEFAULT VALUES RETURNING id")
-        cart_secret = await self.pool.fetchval(
-            "SELECT cart_secret FROM carts WHERE id = $1", cart_id
-        )
         await self.pool.execute(
             "INSERT INTO cart_items (cart_id, product_id, qty) VALUES ($1, $2, 1)",
             cart_id,
             self.product_id,
         )
 
-        await self.order(
-            cart_id=cart_id,
-            cart_secret=cart_secret,
-        )
+        await self.order(cart_id=cart_id)
 
         remaining = await self.pool.fetchval(
             "SELECT count(*) FROM cart_items WHERE cart_id = $1", cart_id
@@ -111,9 +105,6 @@ class PostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_failed_order_does_not_empty_the_cart(self):
         cart_id = await self.pool.fetchval("INSERT INTO carts DEFAULT VALUES RETURNING id")
-        cart_secret = await self.pool.fetchval(
-            "SELECT cart_secret FROM carts WHERE id = $1", cart_id
-        )
         await self.pool.execute(
             "INSERT INTO cart_items (cart_id, product_id, qty) VALUES ($1, $2, 1)",
             cart_id,
@@ -122,15 +113,9 @@ class PostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
 
         with self.assertRaises(Exception):
             await place_order(
-                self.pool,
-                self.customer_id,
-                self.city,
-                [(self.product_id, 99)],
-                "hash",
+                self.pool, self.customer_id, self.city, [(self.product_id, 99)], "hash",
                 cart_id=cart_id,
-                cart_secret=cart_secret,
-                access_token_expires_at=datetime.now(timezone.utc)
-                + timedelta(days=90),
+                access_token_expires_at=datetime.now(timezone.utc) + timedelta(days=90),
             )
 
         remaining = await self.pool.fetchval(

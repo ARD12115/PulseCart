@@ -5,8 +5,6 @@ import ipaddress
 import logging
 import os
 import re
-import time
-import statistics
 import secrets
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
@@ -37,9 +35,6 @@ IDEMPOTENCY_KEY_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{8,100}$")
 ORDER_ACCESS_TOKEN_TTL = timedelta(days=90)
 CART_CLEANUP_INTERVAL_SECONDS = 24 * 60 * 60
 CART_RETENTION_DAYS = 30
-
-SEARCH_LATENCIES: list[float] = []
-SEARCH_LATENCY_MAX = 2000
 
 
 def checkout_rate_limit() -> str:
@@ -270,28 +265,13 @@ async def health() -> JSONResponse:
     except Exception as exc:
         log.warning("health: opensearch check failed: %s", type(exc).__name__)
         checks["opensearch"] = "unavailable"
-
-    try:
-        bootstrap = os.getenv("KAFKA_BOOTSTRAP", "localhost:9093")
-        reader, writer = await asyncio.wait_for(
-            asyncio.open_connection(
-                bootstrap.split(":")[0], int(bootstrap.split(":")[1])
-            ),
-            timeout=3.0,
-        )
-        writer.close()
-        await writer.wait_closed()
-        checks["kafka"] = "ok"
-    except Exception as exc:
-        log.warning("health: kafka check failed: %s", type(exc).__name__)
-        checks["kafka"] = "unavailable"
-
     healthy = all(value == "ok" for value in checks.values())
     # 503 when degraded so Docker and load balancers see the failure.
     return JSONResponse(
         {"status": "ok" if healthy else "degraded", "checks": checks},
         status_code=200 if healthy else 503,
     )
+
 
 @app.get("/products", response_model=list[ProductOut])
 async def list_products(
@@ -324,23 +304,16 @@ async def list_products(
     params.extend([limit, offset])
     where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
     rows = await db_pool().fetch(
-        f"""SELECT p.id, p.sku, p.name, p.description, p.category, p.price_paise, p.image_url,
-                   COALESCE(si.stock, 0) AS stock
-              FROM products p
-              LEFT JOIN LATERAL (
-                SELECT stock FROM store_inventory si
-                WHERE si.product_id = p.id AND si.city = p.city
-                LIMIT 1
-              ) si ON true
-             {where}
-             ORDER BY p.id
-             LIMIT ${len(params) - 1} OFFSET ${len(params)}""",
+        f"""SELECT p.id, p.sku, p.name, p.description, p.category, p.price_paise, p.image_url
+            FROM products p {where}
+            ORDER BY p.id
+            LIMIT ${len(params) - 1} OFFSET ${len(params)}""",
         *params,
     )
     return [dict(row) for row in rows]
 
 
-@app.get("/products/search", response_model=None)
+@app.get("/products/search")
 async def search_products(
     q: Annotated[str, Query(min_length=1, max_length=120)],
     category: str | None = None,
@@ -363,34 +336,29 @@ async def search_products(
         price_range["lte"] = max_price
     if price_range:
         filters.append({"range": {"price_paise": price_range}})
-    _search_start = time.perf_counter()
-    try:
-        response = await os_client().search(
-            index=INDEX_NAME,
-            body={
-                "query": {
-                    "bool": {
-                        "must": [
-                            {
-                                "multi_match": {
-                                    "query": expand_query(q),
-                                    "fields": ["name^3", "description", "sku"],
-                                    "fuzziness": "AUTO",
-                                }
+    response = await os_client().search(
+        index=INDEX_NAME,
+        body={
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": expand_query(q),
+                                "fields": ["name^3", "description", "sku"],
+                                "fuzziness": "AUTO",
                             }
-                        ],
-                        "filter": filters,
-                    }
-                },
-                "collapse": {"field": "product_id"},
-                "size": limit,
-                "highlight": {"fields": {"name": {}, "description": {}}},
+                        }
+                    ],
+                    "filter": filters,
+                }
             },
-        )
-    except Exception as exc:
-        log.warning("OpenSearch search failed: %s", type(exc).__name__)
-        return []
-    results = [
+            "collapse": {"field": "product_id"},
+            "size": limit,
+            "highlight": {"fields": {"name": {}, "description": {}}},
+        },
+    )
+    return [
         {
             **hit["_source"],
             "id": hit["_source"]["product_id"],
@@ -399,12 +367,6 @@ async def search_products(
         }
         for hit in response["hits"]["hits"]
     ]
-    # Record search latency for admin metrics dashboard.
-    latency_ms = (time.perf_counter() - _search_start) * 1000
-    SEARCH_LATENCIES.append(latency_ms)
-    if len(SEARCH_LATENCIES) > SEARCH_LATENCY_MAX:
-        del SEARCH_LATENCIES[: len(SEARCH_LATENCIES) - SEARCH_LATENCY_MAX]
-    return results
 
 
 @app.get("/products/{product_id}/inventory", response_model=list[InventoryOut])
@@ -738,40 +700,12 @@ async def admin_outbox(
     _: None = Depends(require_admin_key),
 ) -> list[dict]:
     rows = await db_pool().fetch(
-        """SELECT id, topic, key, payload, created_at, published_at, consumer_status
+        """SELECT id, topic, key, payload, created_at, published_at
            FROM outbox_events ORDER BY id DESC LIMIT $1""",
         limit,
     )
     response.headers["X-Total-Count"] = str(await db_pool().fetchval("SELECT count(*) FROM outbox_events"))
     return [dict(row) for row in rows]
-
-
-@app.get("/admin/search-metrics")
-async def admin_search_metrics(
-    _: None = Depends(require_admin_key),
-) -> dict:
-    latencies = sorted(SEARCH_LATENCIES)
-    count = len(latencies)
-    if count == 0:
-        return {"query_count": 0, "p50_ms": 0, "p95_ms": 0, "p99_ms": 0}
-
-    def percentile(sorted_vals: list[float], p: float) -> float:
-        if not sorted_vals:
-            return 0.0
-        k = (p / 100) * (len(sorted_vals) - 1)
-        f = int(k)
-        c = min(f + 1, len(sorted_vals) - 1)
-        if f == c:
-            return round(sorted_vals[f], 2)
-        d = k - f
-        return round(sorted_vals[f] * (1 - d) + sorted_vals[c] * d, 2)
-
-    return {
-        "query_count": count,
-        "p50_ms": percentile(latencies, 50),
-        "p95_ms": percentile(latencies, 95),
-        "p99_ms": percentile(latencies, 99),
-    }
 
 
 @app.get("/admin/inventory")
