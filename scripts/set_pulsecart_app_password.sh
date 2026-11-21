@@ -8,4 +8,6 @@ psql \
   --dbname "$POSTGRES_DB" \
   --set=ON_ERROR_STOP=1 \
   --set=app_password="$PULSECART_APP_PASSWORD" \
-  --command="ALTER ROLE pulsecart_app WITH PASSWORD :'app_password';"
+  --file=- <<'SQL'
+ALTER ROLE pulsecart_app WITH PASSWORD :'app_password';
+SQL
