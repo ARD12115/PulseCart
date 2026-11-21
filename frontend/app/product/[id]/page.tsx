@@ -87,7 +87,7 @@ export default function ProductPage() {
                 <li key={item.city}>
                   <span>{item.city}</span>
                   <span className={item.stock > 0 ? 'stock-available' : 'stock-unavailable'}>
-                    {item.stock > 0 ? 'In stock' : 'Unavailable'}
+                    {item.stock > 0 ? 'in stock' : 'Out of stock'}
                   </span>
                 </li>
               ))}

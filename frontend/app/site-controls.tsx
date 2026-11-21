@@ -77,7 +77,7 @@ export default function SiteControls() {
         </Link>
       </nav>
       <details className="display-settings">
-        <summary><span aria-hidden="true">◉</span><span className="settings-label">Display</span></summary>
+        <summary><span className="settings-label">Display</span></summary>
         <div className="settings-panel">
           <label htmlFor="color-theme">Color theme</label>
           <select id="color-theme" value={theme} onChange={changeTheme}>

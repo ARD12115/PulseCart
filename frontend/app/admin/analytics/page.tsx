@@ -9,15 +9,25 @@ async function fetchAdmin<T>(path: string): Promise<T[]> {
   return response.json();
 }
 
+async function fetchAdminSingle<T>(path: string): Promise<T> {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/admin/${path}`, {
+    cache: 'no-store',
+  });
+  if (!response.ok) return {} as T;
+  return response.json();
+}
+
 type Order = { id: number; city: string; status: string; total_paise: number; created_at: string };
-type Event = { id: number; topic: string; key: string; published_at: string | null; created_at: string };
+type Event = { id: number; topic: string; key: string; published_at: string | null; created_at: string; consumer_status: string };
 type Notification = { id: number; order_id: number; recipient_email: string; subject: string; status: string; attempts: number; last_error: string | null };
+type SearchMetrics = { query_count: number; p50_ms: number; p95_ms: number; p99_ms: number };
 
 export default async function AnalyticsPage() {
-  const [orders, events, notifications] = await Promise.all([
+  const [orders, events, notifications, searchMetrics] = await Promise.all([
     fetchAdmin<Order>('orders'),
     fetchAdmin<Event>('outbox'),
     fetchAdmin<Notification>('notifications'),
+    fetchAdminSingle<SearchMetrics>('search-metrics'),
   ]);
 
   // Analytics derivations
@@ -33,6 +43,17 @@ export default async function AnalyticsPage() {
     const max = Math.max(...Object.values(ordersByCity), 1);
     return Math.max(20, (count / max) * 100);
   };
+
+  // Engine metrics derivations
+  const publishedEvents = events.filter((e: { published_at: string | null }) => e.published_at !== null).length;
+  const syncedEvents = events.filter((e: { consumer_status: string }) => e.consumer_status === 'synced').length;
+  const pendingEvents = events.filter((e: { consumer_status: string }) => e.consumer_status === 'pending').length;
+  const firstOrder = orders.length > 0 ? new Date(orders[orders.length - 1].created_at) : null;
+  const now = new Date();
+  const hoursSinceFirst = firstOrder ? Math.max((now.getTime() - firstOrder.getTime()) / (1000 * 60 * 60), 0.01) : 1;
+  const ordersPerSec = (orders.length / hoursSinceFirst / 3600).toFixed(2);
+  const eventsPerSec = (events.length / hoursSinceFirst / 3600).toFixed(2);
+  const syncLag = publishedEvents - syncedEvents;
 
   return (
     <div className="analytics-page">
@@ -72,6 +93,26 @@ export default async function AnalyticsPage() {
             <div className="rounded-lg border border-ink/10 bg-surface p-5">
               <p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">Top city</p>
               <h2 className="text-3xl font-black">{topCity ? topCity[0] : '—'}</h2>
+            </div>
+          </div>
+
+          {/* Engine metrics */}
+          <div className="grid gap-4 lg:grid-cols-4 mb-8">
+            <div className="rounded-lg border border-ink/10 bg-surface p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">Search latency p95</p>
+              <h2 className="text-3xl font-black">{searchMetrics.p95_ms || 0} ms</h2>
+            </div>
+            <div className="rounded-lg border border-ink/10 bg-surface p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">Kafka events/sec</p>
+              <h2 className="text-3xl font-black">{eventsPerSec}</h2>
+            </div>
+            <div className="rounded-lg border border-ink/10 bg-surface p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">OpenSearch sync lag</p>
+              <h2 className="text-3xl font-black">{syncLag}</h2>
+            </div>
+            <div className="rounded-lg border border-ink/10 bg-surface p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-moss">Orders/sec</p>
+              <h2 className="text-3xl font-black">{ordersPerSec}</h2>
             </div>
           </div>
 

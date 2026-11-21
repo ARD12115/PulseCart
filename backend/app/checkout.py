@@ -138,7 +138,7 @@ async def _write_outbox(
     conn: asyncpg.Connection, topic: str, key: str, payload: dict
 ) -> None:
     await conn.execute(
-        "INSERT INTO outbox_events (topic, key, payload) VALUES ($1, $2, $3::jsonb)",
+        "INSERT INTO outbox_events (topic, key, payload, consumer_status) VALUES ($1, $2, $3::jsonb, 'pending')",
         topic,
         key,
         json.dumps(payload),

@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"secondary-container":"#00a572","secondary-fixed":"#6ffbbe","error-container":"#93000a","tertiary-container":"#8083ff","outline":"#8c909f","on-tertiary":"#1000a9","on-tertiary-fixed":"#07006c","surface-dim":"#0f131c","on-secondary-container":"#00311f","on-secondary-fixed":"#002113","surface-container":"#1c1f29","error":"#ffb4ab","on-primary":"#002e6a","primary-container":"#4d8eff","inverse-primary":"#005ac2","tertiary-fixed":"#e1e0ff","on-error-container":"#ffdad6","on-tertiary-container":"#0d0096","on-surface-variant":"#c2c6d6","on-secondary-fixed-variant":"#005236","surface-variant":"#31353f","on-background":"#dfe2ef","surface-tint":"#adc6ff","surface-container-low":"#181b25","inverse-surface":"#dfe2ef","on-tertiary-fixed-variant":"#2f2ebe","primary-fixed-dim":"#adc6ff","on-primary-fixed":"#001a42","tertiary-fixed-dim":"#c0c1ff","secondary":"#4edea3","surface-bright":"#353943","on-error":"#690005","on-surface":"#dfe2ef","secondary-fixed-dim":"#4edea3","primary":"#adc6ff","surface":"#0f131c","tertiary":"#c0c1ff","on-primary-container":"#00285d","on-secondary":"#003824","background":"#0f131c","surface-container-lowest":"#0a0e17","surface-container-highest":"#31353f","inverse-on-surface":"#2c303a","outline-variant":"#424754","surface-container-high":"#262a34","on-primary-fixed-variant":"#004395","primary-fixed":"#d8e2ff"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-md":"1rem","space-lg":"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem",margin:"3rem","gutter-mobile":"1rem","space-xl":"2.5rem",gutter:"1.5rem","margin-mobile":"1.25rem"},fontFamily:{"headline-lg":["Plus Jakarta Sans"],"display-lg-mobile":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"label-sm":["JetBrains Mono"],"label-md":["JetBrains Mono"],"body-sm":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"display-lg":["Plus Jakarta Sans"]},fontSize:{"headline-lg":["2rem",{lineHeight:"2.5rem",letterSpacing:"-0.02em",fontWeight:"600"}],"display-lg-mobile":["2.25rem",{lineHeight:"2.75rem",letterSpacing:"-0.02em",fontWeight:"700"}],"body-lg":["1.125rem",{lineHeight:"1.75rem",letterSpacing:"-0.005em",fontWeight:"400"}],"body-md":["0.9375rem",{lineHeight:"1.5rem",letterSpacing:"0",fontWeight:"400"}],"label-sm":["0.6875rem",{lineHeight:"1rem",letterSpacing:"0.06em",fontWeight:"500"}],"label-md":["0.8125rem",{lineHeight:"1.125rem",letterSpacing:"0.04em",fontWeight:"500"}],"body-sm":["0.8125rem",{lineHeight:"1.25rem",letterSpacing:"0.01em",fontWeight:"400"}],"headline-md":["1.25rem",{lineHeight:"1.75rem",letterSpacing:"-0.01em",fontWeight:"600"}],"headline-lg-mobile":["1.5rem",{lineHeight:"2rem",letterSpacing:"-0.01em",fontWeight:"600"}],"display-lg":["3.5rem",{lineHeight:"4rem",letterSpacing:"-0.03em",fontWeight:"700"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 w-full h-16 z-50 bg-surface/85 backdrop-blur-xl border-b border-outline-variant/30"><div class="w-full h-full px-6 flex items-center justify-between"><div class="flex items-center gap-6"><div class="flex items-center gap-3"><span class="font-headline-md text-headline-md font-bold tracking-tight text-on-surface">Pulse<span class="text-primary">Cart</span></span><div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-container-high border border-outline-variant/40"><span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span><span class="font-label-sm text-label-sm text-secondary uppercase">Cluster Active</span></div></div><nav class="hidden lg:flex items-center gap-1" data-active-classes="bg-surface-container-high text-on-surface font-semibold rounded-lg"><a class="px-3 py-1.5 rounded text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-colors" data-path="shop" href="#">Shop</a><a class="px-3 py-1.5 rounded text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-colors" data-path="cart" href="#">Cart</a><a class="px-3 py-1.5 rounded text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-colors" data-path="lab" href="#">Lab</a><a aria-current="page" class="px-3 py-1.5 transition-colors bg-surface-container-high text-on-surface font-semibold rounded-lg" data-path="overview" href="#">Admin</a></nav></div><div class="flex items-center gap-3"><div class="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded bg-surface-container border border-outline-variant/30 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">search</span><span class="font-body-sm text-body-sm text-outline">Quick probe...</span><kbd class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant/40">⌘K</kbd></div><div class="flex items-center gap-1.5 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/30 font-label-sm text-label-sm text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-secondary"></span><span>4.2ms p99</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><aside class="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-surface-container-lowest border-r border-outline-variant/30 z-40 flex flex-col justify-between py-4"><div class="flex flex-col gap-1 px-3"><div class="px-3 py-2 font-label-sm text-label-sm uppercase tracking-wider text-outline">Core Subsystems</div><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container text-primary font-semibold border-l-2 border-primary rounded-r"><a aria-current="page" class="flex items-center gap-3 px-3 py-2 transition-all bg-surface-container text-primary font-semibold border-l-2 border-primary rounded-r" data-path="overview" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span>Overview</a><a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded transition-all font-body-sm text-body-sm" data-path="mutex-locks" href="#"><span class="material-symbols-outlined text-[18px]">lock</span>Mutex Locks</a><a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded transition-all font-body-sm text-body-sm" data-path="stress-test" href="#"><span class="material-symbols-outlined text-[18px]">speed</span>Stress Test</a><a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded transition-all font-body-sm text-body-sm" data-path="event-stream" href="#"><span class="material-symbols-outlined text-[18px]">stream</span>Event Stream</a><a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded transition-all font-body-sm text-body-sm" data-path="database-wal" href="#"><span class="material-symbols-outlined text-[18px]">storage</span>Database WAL</a><a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded transition-all font-body-sm text-body-sm" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">tune</span>Settings</a></nav></div><div class="px-4 py-3 mx-3 rounded bg-surface-container-low border border-outline-variant/30 flex flex-col gap-1"><div class="flex items-center justify-between font-label-sm text-label-sm"><span class="text-outline">IOPS Load</span><span class="text-on-surface font-semibold">48.2k/s</span></div><div class="w-full bg-surface-container-highest h-1 rounded-full overflow-hidden"><div class="bg-secondary h-full w-[68%]"></div></div></div></aside><div class="pl-64"><main class="relative pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-header Breadcrumb & Operational Strip -->
+<div class="w-full bg-surface-container-lowest px-6 lg:px-8 py-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-label-sm text-label-sm tracking-wider uppercase text-outline">Experimental Lab</span>
+<span class="text-outline-variant font-label-sm text-label-sm">/</span>
+<span class="font-headline-sm text-headline-sm text-primary tracking-tight">Concurrency &amp; Mutex Simulation</span>
+<div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm ml-2">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Deterministic 2PL Engine</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-1 rounded bg-surface-container-low text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">schedule</span>
+<span class="font-tabular-data-md text-tabular-data-md" id="cluster-timestamp">2025-05-18T14:42:08.914Z</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded bg-surface-container text-on-surface">
+<span class="material-symbols-outlined text-[16px]">device_hub</span>
+<span class="font-label-sm text-label-sm">Node: i-us-east-4a</span>
+</div>
+</div>
+</div>
+<div class="w-full px-6 lg:px-8 py-6 space-y-6">
+<!-- Simulation Controller Panel -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-md p-6">
+<div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full xl:w-4/5">
+<!-- Concurrency Slider -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-sm text-label-sm uppercase text-outline" for="shoppers-input">Virtual Shoppers</label>
+<span class="font-tabular-price-lg text-tabular-price-lg text-primary" id="shoppers-val">12,500</span>
+</div>
+<input class="w-full accent-primary cursor-pointer h-1.5 bg-surface-container-highest rounded-lg appearance-none" id="shoppers-input" max="50000" min="100" step="100" type="range" value="12500"/>
+<div class="flex justify-between font-label-sm text-label-sm text-outline">
+<span>100</span>
+<span>25,000</span>
+<span>50,000</span>
+</div>
+</div>
+<!-- Target SKU Selector -->
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-label-sm uppercase text-outline">Target Inventory Unit</label>
+<div class="relative bg-surface-container-low rounded p-2.5 flex items-center justify-between">
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-semibold text-primary truncate">boAt Rockerz 450 Pro</span>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-label-sm text-label-sm text-outline">SKU-AUDIO-9482</span>
+<span class="w-1 h-1 rounded-full bg-outline"></span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Stock: 42 Units</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">expand_more</span>
+</div>
+</div>
+<!-- Concurrency Strategy Selector -->
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-label-sm uppercase text-outline">Concurrency Strategy</label>
+<div class="grid grid-cols-3 gap-1 bg-surface-container-low p-1 rounded">
+<button class="py-1.5 px-2 rounded bg-surface-container-lowest shadow-sm font-label-sm text-label-sm text-primary font-bold text-center" id="strat-2pl">
+                Row-Lock [2PL]
+              </button>
+<button class="py-1.5 px-2 rounded hover:bg-surface-container-lowest/50 font-label-sm text-label-sm text-on-surface-variant text-center" id="strat-cas">
+                Optimistic CAS
+              </button>
+<button class="py-1.5 px-2 rounded hover:bg-surface-container-lowest/50 font-label-sm text-label-sm text-on-surface-variant text-center text-error" id="strat-raw">
+                Unchecked Raw
+              </button>
+</div>
+</div>
+</div>
+<!-- Run Simulation CTA -->
+<div class="w-full xl:w-1/5 flex flex-col justify-end">
+<button class="w-full py-3.5 px-6 rounded-xl bg-primary text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-2.5 shadow-md hover:bg-primary-container hover:text-surface-container-lowest transition-all" id="run-btn">
+<span class="material-symbols-outlined text-[20px]" id="run-icon">play_arrow</span>
+<span id="run-label">Run Stress Test</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 4 Key Metric Tiles -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Metric 1: Contention Latency -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Contention Latency</span>
+<span class="material-symbols-outlined text-secondary text-[18px]">bolt</span>
+</div>
+<div class="my-3 flex items-baseline justify-between">
+<span class="font-tabular-price-lg text-tabular-price-lg text-primary tracking-tight" id="metric-latency">1.42ms</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">p99: <span class="font-bold text-primary">4.8ms</span></span>
+</div>
+<!-- Sleek Sparkline -->
+<div class="w-full h-8 pt-1">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 24">
+<path class="text-secondary" d="M0,18 L15,19 L30,12 L45,15 L60,8 L75,10 L90,4 L100,6" fill="none" stroke="currentColor" stroke-width="2"></path>
+<path class="text-secondary-fixed/30" d="M0,18 L15,19 L30,12 L45,15 L60,8 L75,10 L90,4 L100,6 L100,24 L0,24 Z" fill="currentColor"></path>
+</svg>
+</div>
+</div>
+<!-- Metric 2: Phantom Oversell -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Phantom Oversell</span>
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+</div>
+<div class="my-3 flex items-baseline justify-between">
+<span class="font-tabular-price-lg text-tabular-price-lg text-secondary" id="metric-oversell">0</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-primary">Zero Tolerance</span>
+</div>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>100% Deterministic Guarantee</span>
+</div>
+</div>
+<!-- Metric 3: Transaction Throughput -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Tx Throughput</span>
+<span class="material-symbols-outlined text-primary text-[18px]">speed</span>
+</div>
+<div class="my-3 flex items-baseline justify-between">
+<span class="font-tabular-price-lg text-tabular-price-lg text-primary tracking-tight" id="metric-tps">4,820</span>
+<span class="font-label-sm text-label-sm text-outline">tx/sec</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[82%]" id="bar-tps"></div>
+</div>
+</div>
+<!-- Metric 4: Inode Mutex Locks -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Active Inode Locks</span>
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-[18px]">lock</span>
+</div>
+<div class="my-3 flex items-baseline justify-between">
+<span class="font-tabular-price-lg text-tabular-price-lg text-primary tracking-tight">42 <span class="text-body-sm font-normal text-outline">/ 42</span></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant" id="metric-queue">3,842 Queued</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>Row Slots Locked: 100%</span>
+<span class="text-error font-medium">Contention High</span>
+</div>
+</div>
+</div>
+<!-- 2-Column Main Section -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+<!-- Left Column (Physical SKU Lock Matrix: 7 Cols) -->
+<div class="xl:col-span-7 flex flex-col gap-6">
+<div class="bg-surface-container-lowest rounded-xl shadow-md p-6">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 gap-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">grid_4x4</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Physical Stock Mutex Matrix</h3>
+</div>
+<p class="font-body-sm text-body-sm text-outline mt-0.5">Discrete allocation inodes for boAt Rockerz 450 Pro (42 Units Total)</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold">2PL Locked</span>
+<span class="px-2 py-0.5 rounded bg-secondary-fixed/50 text-secondary font-label-sm text-label-sm font-semibold">Committed</span>
+</div>
+</div>
+<!-- 42 Slot Matrix Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-2 pt-2" id="slot-matrix">
+<!-- Dynamically populated or rendered 42 inventory slots -->
+<!-- Sample Slots inline for crisp layout -->
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">#01</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_89a1</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>01:42s</span>
+<span class="text-secondary font-medium">BOM</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">#02</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_33c2</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>01:14s</span>
+<span class="text-secondary font-medium">DEL</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">#03</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_44d9</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>00:52s</span>
+<span class="text-secondary font-medium">BLR</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">#04</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_19f0</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>01:38s</span>
+<span class="text-secondary font-medium">MAA</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">#05</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_77b3</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>00:18s</span>
+<span class="text-secondary font-medium">HYD</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">#06</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_21aa</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>01:59s</span>
+<span class="text-secondary font-medium">BOM</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">#07</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_90cc</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>01:05s</span>
+<span class="text-secondary font-medium">CCU</span>
+</div>
+</div>
+<!-- Loop 35 more items smoothly -->
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#08</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_88ab</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:10s</span><span class="text-secondary font-medium">DEL</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#09</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_12fa</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:44s</span><span class="text-secondary font-medium">BLR</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#10</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_61ec</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:22s</span><span class="text-secondary font-medium">BOM</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#11</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_47db</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:35s</span><span class="text-secondary font-medium">MAA</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#12</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_93cb</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:39s</span><span class="text-secondary font-medium">PNQ</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#13</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_25df</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:02s</span><span class="text-secondary font-medium">HYD</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#14</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_71de</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:48s</span><span class="text-secondary font-medium">DEL</span></div>
+</div>
+<!-- Slots 15-28 -->
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#15</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_04ea</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:15s</span><span class="text-secondary font-medium">BLR</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#16</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_99bb</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:19s</span><span class="text-secondary font-medium">BOM</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#17</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_83ad</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:51s</span><span class="text-secondary font-medium">DEL</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#18</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_54ec</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:09s</span><span class="text-secondary font-medium">HYD</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#19</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_11ba</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:58s</span><span class="text-secondary font-medium">AMD</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#20</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_39ca</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:27s</span><span class="text-secondary font-medium">BOM</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#21</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_48fe</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:04s</span><span class="text-secondary font-medium">MAA</span></div>
+</div>
+<!-- Slots 22-28 -->
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#22</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_55ab</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:32s</span><span class="text-secondary font-medium">BLR</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#23</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_70ee</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:49s</span><span class="text-secondary font-medium">DEL</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#24</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_18cb</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:43s</span><span class="text-secondary font-medium">CCU</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#25</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_62aa</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:18s</span><span class="text-secondary font-medium">BOM</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#26</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_30ef</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:32s</span><span class="text-secondary font-medium">HYD</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#27</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_95db</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:54s</span><span class="text-secondary font-medium">PNQ</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#28</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_82ca</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:07s</span><span class="text-secondary font-medium">MAA</span></div>
+</div>
+<!-- Slots 29-35 -->
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#29</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_29df</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:27s</span><span class="text-secondary font-medium">DEL</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#30</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_41ea</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:39s</span><span class="text-secondary font-medium">BLR</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#31</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_66dc</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:12s</span><span class="text-secondary font-medium">BOM</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#32</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_15ba</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:46s</span><span class="text-secondary font-medium">HYD</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#33</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_87fa</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:21s</span><span class="text-secondary font-medium">DEL</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#34</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_38cb</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:45s</span><span class="text-secondary font-medium">CCU</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#35</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_92ec</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:15s</span><span class="text-secondary font-medium">MAA</span></div>
+</div>
+<!-- Slots 36-42 -->
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#36</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_43ea</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:50s</span><span class="text-secondary font-medium">BLR</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#37</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_78db</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:03s</span><span class="text-secondary font-medium">BOM</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#38</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_24fe</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:36s</span><span class="text-secondary font-medium">PNQ</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#39</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_51ba</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:31s</span><span class="text-secondary font-medium">DEL</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#40</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_69aa</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:16s</span><span class="text-secondary font-medium">HYD</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#41</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_08cd</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>00:55s</span><span class="text-secondary font-medium">BOM</span></div>
+</div>
+<div class="p-2 rounded bg-surface-container-low hover:bg-surface-container-high flex flex-col justify-between h-20 transition-all">
+<div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-outline">#42</span><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span></div>
+<div class="font-tabular-data-md text-tabular-data-md text-primary font-bold">usr_94ee</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span>01:29s</span><span class="text-secondary font-medium">BLR</span></div>
+</div>
+</div>
+</div>
+<!-- Latency Distribution & Quorum Consensus Graphs -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Latency Distribution Curve -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-4 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Lock Wait Latency Distribution</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">μ: 1.42ms</span>
+</div>
+<div class="w-full h-28 my-3">
+<svg class="w-full h-full overflow-visible" viewbox="0 0 200 80">
+<!-- Grid guide lines -->
+<line class="text-surface-container-highest" stroke="currentColor" stroke-dasharray="2 2" stroke-width="1" x1="0" x2="200" y1="20" y2="20"></line>
+<line class="text-surface-container-highest" stroke="currentColor" stroke-dasharray="2 2" stroke-width="1" x1="0" x2="200" y1="50" y2="50"></line>
+<!-- Bell curve polygon -->
+<path class="text-primary" d="M0,75 Q40,75 70,60 T100,10 T130,60 T200,75" fill="none" stroke="currentColor" stroke-width="2.5"></path>
+<path class="text-surface-container-high/40" d="M0,75 Q40,75 70,60 T100,10 T130,60 T200,75 L200,80 L0,80 Z" fill="currentColor"></path>
+<!-- Marker for P99 -->
+<line class="text-error" stroke="currentColor" stroke-dasharray="2 2" stroke-width="1.5" x1="160" x2="160" y1="10" y2="78"></line>
+<text class="text-[9px] fill-current text-error font-mono" x="162" y="24">p99 (4.8ms)</text>
+</svg>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>0.1ms</span>
+<span>1.0ms</span>
+<span>3.0ms</span>
+<span>5.0ms+</span>
+</div>
+</div>
+<!-- Quorum Consensus Ring / Graph -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-4 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Raft Quorum Consensus</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-secondary font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                Syncd (3/3 Nodes)
+              </span>
+</div>
+<div class="flex items-center justify-center my-2 gap-6">
+<!-- Ring Chart -->
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-secondary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="100, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="font-tabular-price-lg text-tabular-price-lg text-primary leading-none">100%</span>
+<span class="font-label-sm text-label-sm text-outline text-[9px] mt-0.5">HEALTH</span>
+</div>
+</div>
+<!-- Node status list -->
+<div class="flex flex-col gap-1.5 font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-on-surface font-mono">leader-01 (us-east)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-on-surface font-mono">replica-02 (us-west)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-on-surface font-mono">replica-03 (eu-west)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>Term: 148,290</span>
+<span>Raft Heartbeat: 42ms</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column (ACID Engine Transaction Stream: 5 Cols) -->
+<div class="xl:col-span-5 flex flex-col gap-4">
+<div class="bg-surface-container-lowest rounded-xl shadow-md p-6 flex flex-col h-full">
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">terminal</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">ACID Telemetry Stream</h3>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high font-label-sm text-label-sm text-on-surface flex items-center gap-1 transition-colors" id="stream-toggle">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary" id="stream-dot"></span>
+<span id="stream-state">Streaming</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-on-surface" id="clear-stream">
+<span class="material-symbols-outlined text-[16px]">clear_all</span>
+</button>
+</div>
+</div>
+<!-- Ivory Terminal Container -->
+<div class="w-full bg-[#f8fafc] rounded-lg p-4 font-mono text-[12px] leading-relaxed flex flex-col h-[580px] overflow-hidden justify-between shadow-inner">
+<div class="flex flex-col gap-2.5 overflow-y-auto pr-1" id="log-feed">
+<div class="flex items-start gap-2 text-on-surface-variant">
+<span class="text-outline text-[10px] select-none">14:42:01.002</span>
+<span class="text-primary font-bold">TX#98411</span>
+<span>BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;</span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant pl-4">
+<span class="text-outline text-[10px] select-none">14:42:01.004</span>
+<span class="text-secondary font-semibold">MUTEX</span>
+<span>SELECT * FROM inventory WHERE sku='SKU-AUDIO-9482' FOR UPDATE; <span class="text-secondary">[Acquired slot #18]</span></span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant pl-4">
+<span class="text-outline text-[10px] select-none">14:42:01.005</span>
+<span class="text-primary font-semibold">WRITE</span>
+<span>UPDATE inventory SET stock = stock - 1 WHERE sku='SKU-AUDIO-9482';</span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant">
+<span class="text-outline text-[10px] select-none">14:42:01.006</span>
+<span class="text-primary font-bold">TX#98411</span>
+<span>COMMIT; <span class="text-secondary font-semibold font-sans font-bold">[RT: 1.12ms | 0 ERR]</span></span>
+</div>
+<!-- Next Transaction -->
+<div class="flex items-start gap-2 text-on-surface-variant">
+<span class="text-outline text-[10px] select-none">14:42:01.011</span>
+<span class="text-primary font-bold">TX#98412</span>
+<span>BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;</span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant pl-4">
+<span class="text-outline text-[10px] select-none">14:42:01.013</span>
+<span class="text-secondary font-semibold">MUTEX</span>
+<span>SELECT * FROM inventory WHERE sku='SKU-AUDIO-9482' FOR UPDATE; <span class="text-secondary">[Acquired slot #19]</span></span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant pl-4">
+<span class="text-outline text-[10px] select-none">14:42:01.014</span>
+<span class="text-primary font-semibold">WRITE</span>
+<span>UPDATE inventory SET stock = stock - 1 WHERE sku='SKU-AUDIO-9482';</span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant">
+<span class="text-outline text-[10px] select-none">14:42:01.015</span>
+<span class="text-primary font-bold">TX#98412</span>
+<span>COMMIT; <span class="text-secondary font-semibold font-sans font-bold">[RT: 1.34ms | 0 ERR]</span></span>
+</div>
+<!-- Queued contention log -->
+<div class="flex items-start gap-2 text-on-surface-variant">
+<span class="text-outline text-[10px] select-none">14:42:01.019</span>
+<span class="text-tertiary-fixed-dim font-bold">QUEUE</span>
+<span>3,842 requests holding mutex queue. Spin-lock active without deadlock.</span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant">
+<span class="text-outline text-[10px] select-none">14:42:01.022</span>
+<span class="text-primary font-bold">TX#98413</span>
+<span>BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;</span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant pl-4">
+<span class="text-outline text-[10px] select-none">14:42:01.024</span>
+<span class="text-secondary font-semibold">MUTEX</span>
+<span>SELECT * FROM inventory WHERE sku='SKU-AUDIO-9482' FOR UPDATE; <span class="text-secondary">[Acquired slot #20]</span></span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant pl-4">
+<span class="text-outline text-[10px] select-none">14:42:01.025</span>
+<span class="text-primary font-semibold">WRITE</span>
+<span>UPDATE inventory SET stock = stock - 1 WHERE sku='SKU-AUDIO-9482';</span>
+</div>
+<div class="flex items-start gap-2 text-on-surface-variant">
+<span class="text-outline text-[10px] select-none">14:42:01.026</span>
+<span class="text-primary font-bold">TX#98413</span>
+<span>COMMIT; <span class="text-secondary font-semibold font-sans font-bold">[RT: 0.98ms | 0 ERR]</span></span>
+</div>
+</div>
+<!-- Terminal Status Footer -->
+<div class="pt-3 flex items-center justify-between text-outline text-[11px] font-sans">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Postgres WAL: fsync=ON</span>
+</div>
+<span class="font-mono">PID: 88492 [2PL ENGINE]</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Architectural Footer & Benchmark Export -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-sm p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex flex-wrap items-center gap-6 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="text-outline">Engine Schema:</span>
+<span class="font-bold text-primary">v4.18.2-deterministic</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-outline">Lock Inode Pool:</span>
+<span class="font-bold text-primary">65,536 slots (0.06% active)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-outline">ACID Guarantee:</span>
+<span class="font-bold text-secondary">Serializability Enforced</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md flex items-center gap-1.5 transition-colors" id="export-json">
+<span class="material-symbols-outlined text-[16px]">download</span>
+<span>Export Benchmark (JSON)</span>
+</button>
+<button class="px-4 py-2 rounded bg-surface-container hover:bg-surface-container-high text-error font-label-md text-label-md flex items-center gap-1.5 transition-colors" id="reset-cluster">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+<span>Reset Cluster</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Concurrency Simulation Interactive Controller
+  const slider = document.getElementById('shoppers-input');
+  const shoppersVal = document.getElementById('shoppers-val');
+  const runBtn = document.getElementById('run-btn');
+  const runIcon = document.getElementById('run-icon');
+  const runLabel = document.getElementById('run-label');
+  const metricTps = document.getElementById('metric-tps');
+  const metricLatency = document.getElementById('metric-latency');
+  const metricQueue = document.getElementById('metric-queue');
+  const logFeed = document.getElementById('log-feed');
+  const timestampEl = document.getElementById('cluster-timestamp');
+
+  // Slider change
+  slider.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value);
+    shoppersVal.textContent = val.toLocaleString();
+    metricQueue.textContent = `${Math.floor(val * 0.31).toLocaleString()} Queued`;
+  });
+
+  // Strategy buttons toggle
+  const strats = ['strat-2pl', 'strat-cas', 'strat-raw'];
+  strats.forEach(id => {
+    const btn = document.getElementById(id);
+    btn.addEventListener('click', () => {
+      strats.forEach(otherId => {
+        const other = document.getElementById(otherId);
+        other.className = 'py-1.5 px-2 rounded hover:bg-surface-container-lowest/50 font-label-sm text-label-sm text-on-surface-variant text-center transition-colors';
+      });
+      btn.className = 'py-1.5 px-2 rounded bg-surface-container-lowest shadow-sm font-label-sm text-label-sm text-primary font-bold text-center transition-colors';
+    });
+  });
+
+  // Simulation Running State
+  let isRunning = false;
+  let interval = null;
+
+  runBtn.addEventListener('click', () => {
+    isRunning = !isRunning;
+    if (isRunning) {
+      runBtn.classList.replace('bg-primary', 'bg-secondary');
+      runIcon.textContent = 'pause';
+      runLabel.textContent = 'Active Testing...';
+
+      interval = setInterval(() => {
+        // Jiggle TPS & Latency
+        const tps = Math.floor(4600 + Math.random() * 500);
+        const lat = (1.2 + Math.random() * 0.5).toFixed(2);
+        metricTps.textContent = tps.toLocaleString();
+        metricLatency.textContent = `${lat}ms`;
+
+        // Append log line
+        const txId = Math.floor(98414 + Math.random() * 80000);
+        const slot = Math.floor(1 + Math.random() * 42);
+        const timeStr = new Date().toISOString().substring(11, 23);
+        
+        const logItem = document.createElement('div');
+        logItem.className = 'flex items-start gap-2 text-on-surface-variant';
+        logItem.innerHTML = `
+          <span class="text-outline text-[10px] select-none">${timeStr}</span>
+          <span class="text-primary font-bold">TX#${txId}</span>
+          <span>SELECT FOR UPDATE slot #${slot}; stock - 1; <span class="text-secondary font-bold font-sans">[RT: ${lat}ms | 0 ERR]</span></span>
+        `;
+        logFeed.appendChild(logItem);
+        if (logFeed.children.length > 25) {
+          logFeed.removeChild(logFeed.firstElementChild);
+        }
+        logFeed.scrollTop = logFeed.scrollHeight;
+
+        // update timestamp
+        timestampEl.textContent = new Date().toISOString();
+      }, 600);
+    } else {
+      clearInterval(interval);
+      runBtn.classList.replace('bg-secondary', 'bg-primary');
+      runIcon.textContent = 'play_arrow';
+      runLabel.textContent = 'Run Stress Test';
+    }
+  });
+
+  // Clean stream button
+  document.getElementById('clear-stream').addEventListener('click', () => {
+    logFeed.innerHTML = '<div class="text-outline text-center py-8">Buffer cleared. Awaiting live incoming WAL events...</div>';
+  });
+</script></main></div></body></html>

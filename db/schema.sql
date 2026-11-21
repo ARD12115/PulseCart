@@ -52,10 +52,13 @@ CREATE TABLE IF NOT EXISTS outbox_events (
   key TEXT NOT NULL,
   payload JSONB NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  published_at TIMESTAMPTZ
+  published_at TIMESTAMPTZ,
+  consumer_status TEXT NOT NULL DEFAULT 'pending' CHECK (consumer_status IN ('pending', 'synced', 'failed'))
 );
 CREATE INDEX IF NOT EXISTS outbox_unpublished
   ON outbox_events (id) WHERE published_at IS NULL;
+CREATE INDEX IF NOT EXISTS outbox_consumer_status
+  ON outbox_events (consumer_status);
 
 CREATE TABLE IF NOT EXISTS processed_events (
   consumer TEXT NOT NULL,

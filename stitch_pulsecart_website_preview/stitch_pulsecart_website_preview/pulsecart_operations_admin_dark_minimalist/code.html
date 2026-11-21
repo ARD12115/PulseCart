@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#68dba9","inverse-primary":"#bec6e0","tertiary":"#000000","surface":"#f8f9ff","primary-fixed":"#dae2fd","primary":"#000000","tertiary-container":"#001f28","on-error":"#ffffff","on-secondary-fixed":"#002114","on-primary":"#ffffff","secondary-fixed":"#85f8c4","error-container":"#ffdad6","surface-variant":"#d3e4fe","on-tertiary-fixed":"#001f28","on-secondary-fixed-variant":"#005137","inverse-surface":"#213145","surface-bright":"#f8f9ff","on-surface-variant":"#45464d","surface-tint":"#565e74","primary-container":"#131b2e","on-error-container":"#93000a","on-secondary-container":"#00714e","surface-container":"#e5eeff","on-primary-fixed":"#131b2e","surface-container-high":"#dce9ff","on-background":"#0b1c30","on-tertiary-fixed-variant":"#004e61","secondary":"#006c4a","secondary-container":"#82f5c1","on-primary-container":"#7c839b","on-surface":"#0b1c30","outline":"#76777d","tertiary-fixed-dim":"#6cd3f7","surface-container-highest":"#d3e4fe","surface-container-low":"#eff4ff","inverse-on-surface":"#eaf1ff","outline-variant":"#c6c6cd","on-primary-fixed-variant":"#3f465c","on-secondary":"#ffffff","primary-fixed-dim":"#bec6e0","background":"#f8f9ff","error":"#ba1a1a","surface-container-lowest":"#ffffff","surface-dim":"#cbdbf5","on-tertiary":"#ffffff","on-tertiary-container":"#028fb0","tertiary-fixed":"#b7eaff"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xs":"0.25rem","space-sm":"0.5rem","margin-sm":"1rem","gutter-lg":"2rem","space-lg":"1.5rem","space-md":"1rem","gutter":"1.5rem","margin":"2rem","space-xl":"2.5rem","gutter-sm":"1rem","margin-lg":"3rem"},"fontFamily":{"headline-xl-mobile":["Plus Jakarta Sans"],"tabular-price-lg":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"tabular-data-md":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"]},"fontSize":{"headline-xl-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"tabular-price-lg":["24px",{"lineHeight":"28px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"-0.005em","fontWeight":"400"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],"headline-md":["22px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-xl":["44px",{"lineHeight":"52px","letterSpacing":"-0.03em","fontWeight":"700"}],"body-sm":["12px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"400"}],"tabular-data-md":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface-container-lowest font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest border-b border-outline-variant/30"><div class="w-full h-16 px-gutter-lg flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><span class="font-headline-sm text-headline-sm text-primary tracking-tight font-bold">PulseCart</span><span class="px-space-xs py-0.5 rounded-DEFAULT bg-surface-container-low text-secondary text-label-sm font-label-sm uppercase tracking-wider border border-secondary/20">DETERMINISTIC</span></div><div class="h-4 w-px bg-outline-variant/40 hidden md:block"></div><nav class="hidden md:flex items-center gap-space-md" data-active-classes="text-primary font-semibold"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="shop" href="#">Shop</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="cart" href="#">Cart</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="lab" href="#">Lab</a><a aria-current="page" class="transition-colors text-primary font-semibold" data-path="overview" href="#">Admin</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-space-sm px-space-sm py-1 bg-surface-container-low border border-outline-variant/40 rounded-DEFAULT text-on-surface-variant"><span class="material-symbols-outlined text-[16px] text-outline">search</span><span class="font-body-sm text-body-sm text-outline">Search telemetry, keys, locks...</span><kbd class="px-1.5 py-0.5 bg-surface-container-lowest border border-outline-variant/60 rounded-DEFAULT text-[10px] font-mono text-outline">⌘K</kbd></div><div class="flex items-center gap-1.5 px-space-sm py-1 rounded-DEFAULT bg-surface-container-low border border-outline-variant/30"><span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span><span class="font-tabular-data-md text-tabular-data-md text-secondary">0.42ms</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/30 z-40 flex flex-col justify-between py-space-md"><div class="flex flex-col gap-space-md px-space-sm"><div class="px-space-sm"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Developer Engine</span></div><nav class="flex flex-col gap-0.5" data-active-classes="bg-surface-container-low text-primary font-semibold border-r-2 border-primary"><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 rounded-DEFAULT transition-colors bg-surface-container-low text-primary font-semibold border-r-2 border-primary" data-path="overview" href="#"><span class="material-symbols-outlined text-[18px]">space_dashboard</span><span class="font-body-md text-body-md">Overview</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="mutex-locks" href="#"><span class="material-symbols-outlined text-[18px]">lock</span><span class="font-body-md text-body-md">Mutex Locks</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="stress-test" href="#"><span class="material-symbols-outlined text-[18px]">speed</span><span class="font-body-md text-body-md">Stress Test</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="event-stream" href="#"><span class="material-symbols-outlined text-[18px]">stream</span><span class="font-body-md text-body-md">Event Stream</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="database-wal" href="#"><span class="material-symbols-outlined text-[18px]">data_table</span><span class="font-body-md text-body-md">Database WAL</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span class="font-body-md text-body-md">Settings</span></a></nav></div><div class="px-space-md py-space-sm border-t border-outline-variant/30 flex flex-col gap-1"><div class="flex items-center justify-between text-outline"><span class="font-label-sm text-label-sm">CLUSTER NODE</span><span class="font-tabular-data-md text-tabular-data-md text-on-surface">us-east-4a</span></div><div class="flex items-center justify-between text-outline"><span class="font-label-sm text-label-sm">TX LATENCY</span><span class="font-tabular-data-md text-tabular-data-md text-secondary">p99 1.1ms</span></div></div></aside><div class="pl-64"><main class="w-full pt-16 bg-surface-container-lowest min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-Header / Telemetry Ticker Strip -->
+<div class="w-full bg-surface-container-low px-gutter py-space-sm flex flex-wrap items-center justify-between gap-space-md shadow-sm">
+<div class="flex flex-wrap items-center gap-space-lg">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+<span class="w-2 h-2 rounded-full bg-secondary -ml-2.5"></span>
+<span class="font-label-sm text-label-sm uppercase text-secondary font-semibold">ALL 12 AP-SOUTH PODS HEALTHY</span>
+</div>
+<div class="hidden sm:flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-outline">sync_alt</span>
+<span class="font-label-sm text-label-sm uppercase text-outline">Direct Bus Throughput:</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">48.2k msg/sec</span>
+</div>
+<div class="hidden md:flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-outline">verified</span>
+<span class="font-label-sm text-label-sm uppercase text-outline">Inventory Sync:</span>
+<span class="font-label-md text-label-md text-secondary font-semibold">0.00% Drift</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs px-space-sm py-1 bg-surface-container rounded-DEFAULT text-on-surface">
+<span class="material-symbols-outlined text-[14px] text-primary">dns</span>
+<span class="font-label-sm text-label-sm">PRIMARY: ap-south-1a</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline hidden lg:inline">UTC 08:44:12.902</span>
+</div>
+</div>
+<div class="px-gutter py-space-lg flex flex-col gap-space-xl max-w-[1440px] w-full mx-auto">
+<!-- Title / Scope Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-primary tracking-widest font-semibold">Mission Control</span>
+<span class="text-outline text-xs">/</span>
+<span class="font-label-sm text-label-sm text-outline">Deterministic Ledger Node #04</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Operations Console &amp; Hardware Mesh</h1>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-space-xs px-space-md py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md rounded-DEFAULT shadow-sm transition-colors" id="refreshBtn">
+<span class="material-symbols-outlined text-[16px] text-outline">refresh</span>
+<span>Sync State</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-2 bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md rounded-DEFAULT shadow-md transition-colors">
+<span class="material-symbols-outlined text-[16px]">emergency_home</span>
+<span>Throttle Controls</span>
+</button>
+</div>
+</div>
+<!-- 4 KPI Metric Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-low p-space-lg rounded-DEFAULT shadow-sm flex flex-col justify-between gap-space-md relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 bg-primary/5 rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-medium">Gross Volume (24h)</span>
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-secondary/10 text-secondary text-label-sm font-label-sm flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>18.4%
+          </span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="font-display-lg text-headline-lg text-on-surface font-bold tracking-tight">₹4,89,240</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span>vs ₹4,13,080 previous window</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 78%"></div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-low p-space-lg rounded-DEFAULT shadow-sm flex flex-col justify-between gap-space-md relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 bg-primary/5 rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-medium">In-Flight Mutex Holds</span>
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-primary/10 text-primary text-label-sm font-label-sm flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">lock</span>CONCURRENT
+          </span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="font-display-lg text-headline-lg text-on-surface font-bold tracking-tight">128 <span class="font-headline-md text-headline-md text-outline font-normal">Active</span></div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span>Distributed across 8 priority SKUs</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 44%"></div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-low p-space-lg rounded-DEFAULT shadow-sm flex flex-col justify-between gap-space-md relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 bg-secondary/5 rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-medium">Hyper-Local Rovers</span>
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm flex items-center gap-0.5">
+            22 Total Units
+          </span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="font-display-lg text-headline-lg text-on-surface font-bold tracking-tight">18 <span class="text-secondary text-headline-md font-normal">Dispatched</span></div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span>4 Idle · Mean Transit: <strong>28m</strong></span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full rounded-full" style="width: 82%"></div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-low p-space-lg rounded-DEFAULT shadow-sm flex flex-col justify-between gap-space-md relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 bg-primary/5 rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-medium">DB Query P99 Latency</span>
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-secondary/10 text-secondary text-label-sm font-label-sm flex items-center gap-0.5">
+            OPTIMAL
+          </span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="font-display-lg text-headline-lg text-on-surface font-bold tracking-tight">0.82 <span class="font-headline-md text-headline-md text-outline font-normal">ms</span></div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span>Aiven PostgreSQL v16 Primary</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 22%"></div>
+</div>
+</div>
+</div>
+<!-- Section 1: Active Inventory & Row-Level Lock Management Table -->
+<div class="bg-surface-container-low rounded-DEFAULT shadow-sm overflow-hidden flex flex-col">
+<div class="p-space-lg bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">lock_clock</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Active Row-Level Mutex Lock Registry</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Real-time dynamic checkout cart isolation preventing double-sell race conditions across regional nodes.</p>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline px-space-xs py-1 bg-surface-container rounded-DEFAULT">PESSIMISTIC_WRITE</span>
+<button class="px-space-sm py-1.5 bg-surface-container text-on-surface hover:bg-surface-container-high rounded-DEFAULT font-label-sm text-label-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+<span>Filter Active Locks</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-md text-body-md border-collapse">
+<thead>
+<tr class="bg-surface-container text-outline font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-space-sm px-space-lg">SKU Descriptor</th>
+<th class="py-space-sm px-space-md">Category</th>
+<th class="py-space-sm px-space-md text-right">Physical Stock</th>
+<th class="py-space-sm px-space-md text-right">In-Flight Locks</th>
+<th class="py-space-sm px-space-md">Buffer TTL</th>
+<th class="py-space-sm px-space-md">Fulfillment Hub</th>
+<th class="py-space-sm px-space-lg text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-on-surface">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container/60 transition-colors">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col">
+<span class="font-headline-md text-body-md font-semibold text-on-surface">boAt Rockerz 450 Pro</span>
+<span class="font-label-sm text-label-sm text-outline">SKU: AUD-BOAT-450P-BLK</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Audio &amp; Acoustics</span>
+</td>
+<td class="py-space-md px-space-md text-right font-label-md text-label-md font-semibold text-on-surface">42</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1.5 px-space-xs py-0.5 rounded-DEFAULT bg-error/10 text-error font-label-md text-label-md font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                  18 locked
+                </div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>14.2s (expiring)</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-body-sm text-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>BLR-01 Koramangala</span>
+</div>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-primary transition-colors" title="Inspect Active Mutex">
+<span class="material-symbols-outlined text-[18px]">policy</span>
+</button>
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-error transition-colors" title="Force Rollback">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+</button>
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-secondary transition-colors" title="Restock Node">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container/60 transition-colors bg-surface-container/20">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col">
+<span class="font-headline-md text-body-md font-semibold text-on-surface">ESP32-S3 Dual-Core Xtensa</span>
+<span class="font-label-sm text-label-sm text-outline">SKU: MCU-ESP32-S3-WROOM</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Embedded Silicon</span>
+</td>
+<td class="py-space-md px-space-md text-right font-label-md text-label-md font-semibold text-on-surface">140</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1.5 px-space-xs py-0.5 rounded-DEFAULT bg-error/10 text-error font-label-md text-label-md font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
+                  34 locked
+                </div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>42.0s</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-body-sm text-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>BLR-02 Indiranagar</span>
+</div>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-primary transition-colors" title="Inspect Active Mutex">
+<span class="material-symbols-outlined text-[18px]">policy</span>
+</button>
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-error transition-colors" title="Force Rollback">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+</button>
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-secondary transition-colors" title="Restock Node">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container/60 transition-colors">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col">
+<span class="font-headline-md text-body-md font-semibold text-on-surface">100W Braided Cable w/ OLED</span>
+<span class="font-label-sm text-label-sm text-outline">SKU: CAB-USBC-100W-DISP</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Power Hardware</span>
+</td>
+<td class="py-space-md px-space-md text-right font-label-md text-label-md font-semibold text-on-surface">96</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1.5 px-space-xs py-0.5 rounded-DEFAULT bg-primary/10 text-primary font-label-md text-label-md font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  12 locked
+                </div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>58.4s</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-body-sm text-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>BLR-01 Koramangala</span>
+</div>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-primary transition-colors" title="Inspect Active Mutex">
+<span class="material-symbols-outlined text-[18px]">policy</span>
+</button>
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-error transition-colors" title="Force Rollback">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+</button>
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-secondary transition-colors" title="Restock Node">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container/60 transition-colors bg-surface-container/20">
+<td class="py-space-md px-space-lg">
+<div class="flex flex-col">
+<span class="font-headline-md text-body-md font-semibold text-on-surface">Raspberry Pi Pico W</span>
+<span class="font-label-sm text-label-sm text-outline">SKU: SBC-RPI-PICO-W-IOT</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Micro-Compute</span>
+</td>
+<td class="py-space-md px-space-md text-right font-label-md text-label-md font-semibold text-on-surface">58</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1.5 px-space-xs py-0.5 rounded-DEFAULT bg-primary/10 text-primary font-label-md text-label-md font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  8 locked
+                </div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>108.0s</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-body-sm text-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>BLR-02 Indiranagar</span>
+</div>
+</td>
+<td class="py-space-md px-space-lg text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-primary transition-colors" title="Inspect Active Mutex">
+<span class="material-symbols-outlined text-[18px]">policy</span>
+</button>
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-error transition-colors" title="Force Rollback">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+</button>
+<button class="p-1 hover:bg-surface-container rounded-DEFAULT text-secondary transition-colors" title="Restock Node">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Micro Summary -->
+<div class="px-space-lg py-space-sm bg-surface-container flex flex-wrap items-center justify-between text-on-surface-variant font-label-sm text-label-sm gap-space-sm">
+<span>Displaying 4 active lock records · Auto-vacuum daemon running</span>
+<div class="flex items-center gap-space-md">
+<span>Row Lock Protocol: <span class="text-on-surface font-semibold">SERIALIZABLE</span></span>
+<span class="text-outline">·</span>
+<span>Tx Isolation Checksum: <span class="text-secondary font-mono">0x9F4C2A</span></span>
+</div>
+</div>
+</div>
+<!-- Section 2: Live Warehouse Micro-Fulfillment & Dispatch Monitor -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<!-- Rover Fleet & Packing Drone Telemetry (8 Cols) -->
+<div class="lg:col-span-8 bg-surface-container-low p-space-lg rounded-DEFAULT shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-secondary">precision_manufacturing</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Micro-Fulfillment Pod Telemetry</h2>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-on-surface-variant">Live Dispatch Link (BLR Cluster)</span>
+</div>
+</div>
+<!-- Visual Mesh Map Representation -->
+<div class="relative w-full h-64 bg-surface-container rounded-DEFAULT overflow-hidden p-space-md flex flex-col justify-between">
+<!-- Background Grid Overlay -->
+<div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(circle at 1px 1px, #adc6ff 1px, transparent 0); background-size: 24px 24px;"></div>
+<div class="relative z-10 flex items-center justify-between">
+<div class="flex items-center gap-space-xs bg-surface-container-low/90 px-space-sm py-1 rounded-DEFAULT backdrop-blur-sm">
+<span class="font-label-sm text-label-sm text-outline">POD ZONE:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">BLR-SOUTH-METRO</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-low/90 px-space-sm py-1 rounded-DEFAULT backdrop-blur-sm">
+<span class="material-symbols-outlined text-[14px] text-secondary">flight_takeoff</span>
+<span class="font-label-sm text-label-sm text-secondary">4 AIR DRONES ACTIVE</span>
+</div>
+</div>
+<!-- Dynamic Rover Waypoints Grid -->
+<div class="relative z-10 grid grid-cols-3 sm:grid-cols-6 gap-space-xs my-auto py-2">
+<!-- Node A -->
+<div class="bg-surface-container-low/80 p-space-xs rounded-DEFAULT flex flex-col items-center gap-0.5 text-center">
+<span class="material-symbols-outlined text-[16px] text-secondary">smart_toy</span>
+<span class="font-label-sm text-[10px] text-on-surface">RVR-101</span>
+<span class="text-[9px] text-secondary font-mono">98% BAT</span>
+</div>
+<!-- Node B -->
+<div class="bg-surface-container-low/80 p-space-xs rounded-DEFAULT flex flex-col items-center gap-0.5 text-center">
+<span class="material-symbols-outlined text-[16px] text-secondary">smart_toy</span>
+<span class="font-label-sm text-[10px] text-on-surface">RVR-104</span>
+<span class="text-[9px] text-secondary font-mono">84% BAT</span>
+</div>
+<!-- Node C -->
+<div class="bg-surface-container-low/80 p-space-xs rounded-DEFAULT flex flex-col items-center gap-0.5 text-center border border-primary/40">
+<span class="material-symbols-outlined text-[16px] text-primary">smart_toy</span>
+<span class="font-label-sm text-[10px] text-on-surface">RVR-112</span>
+<span class="text-[9px] text-primary font-mono">DISPATCH</span>
+</div>
+<!-- Node D -->
+<div class="bg-surface-container-low/80 p-space-xs rounded-DEFAULT flex flex-col items-center gap-0.5 text-center">
+<span class="material-symbols-outlined text-[16px] text-secondary">flight</span>
+<span class="font-label-sm text-[10px] text-on-surface">DRN-02</span>
+<span class="text-[9px] text-secondary font-mono">ALT 42m</span>
+</div>
+<!-- Node E (Idle) -->
+<div class="bg-surface-container-low/80 p-space-xs rounded-DEFAULT flex flex-col items-center gap-0.5 text-center opacity-60">
+<span class="material-symbols-outlined text-[16px] text-outline">smart_toy</span>
+<span class="font-label-sm text-[10px] text-outline">RVR-119</span>
+<span class="text-[9px] text-outline font-mono">IDLE-DOCK</span>
+</div>
+<!-- Node F -->
+<div class="bg-surface-container-low/80 p-space-xs rounded-DEFAULT flex flex-col items-center gap-0.5 text-center">
+<span class="material-symbols-outlined text-[16px] text-secondary">flight</span>
+<span class="font-label-sm text-[10px] text-on-surface">DRN-09</span>
+<span class="text-[9px] text-secondary font-mono">ALT 38m</span>
+</div>
+</div>
+<div class="relative z-10 flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>Mesh Topology: Sub-GHz LoRaWAN + 5G NR Slice</span>
+<span class="text-on-surface-variant font-mono">RTT 1.8ms</span>
+</div>
+</div>
+<!-- Telemetry Spec Metrics Bar -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm pt-space-xs">
+<div class="bg-surface-container p-space-sm rounded-DEFAULT flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">ROVER TEMP (AVG)</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">34.2 °C</span>
+</div>
+<div class="bg-surface-container p-space-sm rounded-DEFAULT flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">DRONE PACK CYCLES</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">1,402 / day</span>
+</div>
+<div class="bg-surface-container p-space-sm rounded-DEFAULT flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">PACKING ARM VIBE</span>
+<span class="font-label-md text-label-md text-secondary font-semibold">0.02 mm/s (Nom)</span>
+</div>
+<div class="bg-surface-container p-space-sm rounded-DEFAULT flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">MEAN DELIVERY TIME</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">14m 20s</span>
+</div>
+</div>
+</div>
+<!-- Active Micro-Fulfillment Dispatch Queue (4 Cols) -->
+<div class="lg:col-span-4 bg-surface-container-low p-space-lg rounded-DEFAULT shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">local_shipping</span>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Live Queue</h3>
+</div>
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-surface-container text-primary font-label-sm text-label-sm font-semibold">6 PENDING</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<!-- Queue Item 1 -->
+<div class="p-space-sm bg-surface-container rounded-DEFAULT flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-on-surface">ORD-8921-X</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">ROVER #18</span>
+</div>
+<div class="flex items-center justify-between font-body-sm text-body-sm text-on-surface-variant">
+<span>HSR Layout Sector 2</span>
+<span class="font-label-sm text-label-sm text-outline">ETA: 6m</span>
+</div>
+<div class="w-full bg-surface-container-low h-1 rounded-full overflow-hidden mt-1">
+<div class="bg-secondary h-full rounded-full" style="width: 72%"></div>
+</div>
+</div>
+<!-- Queue Item 2 -->
+<div class="p-space-sm bg-surface-container rounded-DEFAULT flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-on-surface">ORD-8924-K</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">DRONE #04</span>
+</div>
+<div class="flex items-center justify-between font-body-sm text-body-sm text-on-surface-variant">
+<span>Indiranagar 100ft Rd</span>
+<span class="font-label-sm text-label-sm text-outline">ETA: 3m</span>
+</div>
+<div class="w-full bg-surface-container-low h-1 rounded-full overflow-hidden mt-1">
+<div class="bg-primary h-full rounded-full" style="width: 88%"></div>
+</div>
+</div>
+<!-- Queue Item 3 -->
+<div class="p-space-sm bg-surface-container rounded-DEFAULT flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-on-surface">ORD-8929-B</span>
+<span class="font-label-sm text-label-sm text-outline font-semibold">STAGING</span>
+</div>
+<div class="flex items-center justify-between font-body-sm text-body-sm text-on-surface-variant">
+<span>Koramangala 4th Block</span>
+<span class="font-label-sm text-label-sm text-outline">Arm Active</span>
+</div>
+<div class="w-full bg-surface-container-low h-1 rounded-full overflow-hidden mt-1">
+<div class="bg-surface-tint h-full rounded-full" style="width: 30%"></div>
+</div>
+</div>
+</div>
+<button class="w-full py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm rounded-DEFAULT transition-colors text-center">
+          View Complete Dispatch Ledger (42)
+        </button>
+</div>
+</div>
+<!-- Section 3: System Health & Infrastructure Enclaves -->
+<div class="bg-surface-container-low p-space-lg rounded-DEFAULT shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">hub</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Infrastructure Enclaves &amp; Storage Topologies</h2>
+</div>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> CLUSTER COHESION: OPTIMAL
+        </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Enclave 1: Aiven PostgreSQL v16 -->
+<div class="bg-surface-container p-space-md rounded-DEFAULT flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Storage Engine</span>
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-secondary/10 text-secondary font-label-sm text-label-sm font-semibold">PRIMARY</span>
+</div>
+<span class="font-headline-md text-body-lg font-semibold text-on-surface">Aiven PostgreSQL v16</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Connection pooling via PgBouncer with distributed transaction read replicas.</p>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-outline">Pool Saturation:</span>
+<span class="text-on-surface font-semibold">42 / 120 Conns (35%)</span>
+</div>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 35%"></div>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm pt-1">
+<span class="text-outline">Replication Lag:</span>
+<span class="text-secondary font-mono font-semibold">0.12 ms</span>
+</div>
+</div>
+</div>
+<!-- Enclave 2: Apache Kafka Broker -->
+<div class="bg-surface-container p-space-md rounded-DEFAULT flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Message Bus</span>
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-primary/10 text-primary font-label-sm text-label-sm font-semibold">KAFKA CLUSTER</span>
+</div>
+<span class="font-headline-md text-body-lg font-semibold text-on-surface">Apache Kafka Topics</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Partitioned streams for cart locks, stock mutations, and rover dispatch vectors.</p>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-outline">Topic Partitions:</span>
+<span class="text-on-surface font-semibold">48 Active / 3 Replicas</span>
+</div>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 65%"></div>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm pt-1">
+<span class="text-outline">Consumer Group Lag:</span>
+<span class="text-secondary font-mono font-semibold">0 msgs</span>
+</div>
+</div>
+</div>
+<!-- Enclave 3: OpenSearch Sync Engine -->
+<div class="bg-surface-container p-space-md rounded-DEFAULT flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Search &amp; Catalog</span>
+<span class="px-space-xs py-0.5 rounded-DEFAULT bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">OPENSEARCH</span>
+</div>
+<span class="font-headline-md text-body-lg font-semibold text-on-surface">OpenSearch Cluster</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Ultra-low latency catalog autocomplete with change-data-capture synchronization.</p>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-outline">CDC Sync Delay:</span>
+<span class="text-on-surface font-semibold">14.1 ms (Real-time)</span>
+</div>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 14%"></div>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm pt-1">
+<span class="text-outline">Cluster Heap Usage:</span>
+<span class="text-on-surface font-mono font-semibold">41.8%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Inline Interaction Logic -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const refreshBtn = document.getElementById('refreshBtn');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+          const icon = refreshBtn.querySelector('.material-symbols-outlined');
+          if (icon) {
+            icon.classList.add('animate-spin');
+            setTimeout(() => {
+              icon.classList.remove('animate-spin');
+            }, 800);
+          }
+        });
+      }
+    });
+  </script>
+</div></main></div></body></html>

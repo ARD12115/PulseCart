@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import ProductArtwork from '../product-artwork';
 import { syncCart, type CartItem } from '../cart-sync';
+import * as THREE from 'three';
 
 type Product = {
   id: number;
@@ -126,8 +127,10 @@ export default function KineticStorefrontPage() {
       else saved.push({ ...product, qty: 1 });
       localStorage.setItem('pulsecart_cart', JSON.stringify(saved));
       window.dispatchEvent(new Event('pulsecart:cart-updated'));
-      void syncCart(saved);
-      showToast(`⚡ ADDED TO CART: ${product.sku}`);
+      syncCart(saved).catch((err) => {
+        showToast(`CART SYNC FAILED: ${err.message}`);
+      });
+      showToast(`ADDED TO CART: ${product.sku}`);
     } catch {
       showToast('Could not add to cart.');
     }
@@ -135,23 +138,139 @@ export default function KineticStorefrontPage() {
 
   const commitLock = () => {
     if (modalProduct) {
-      showToast(`⚡ ROW LEASE ACQUIRED: ${modalProduct.sku} LOCKED IN POSTGRES FOR 15m!`);
+      showToast(`ROW LEASE ACQUIRED: ${modalProduct.sku} LOCKED IN POSTGRES FOR 15m!`);
       closeInspector();
     }
   };
 
   // Initialize Three.js background on mount
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const animationFrameRef = useRef<number>(0);
+
   useEffect(() => {
-    const initBackground3D = async () => {
-      const THREE = (window as any).THREE;
-      if (!THREE) {
-        await loadThreeJS();
-        initBackground3D();
-        return;
+    const container = document.getElementById('threejs-bg-canvas');
+    if (!container) return;
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0a0a0c, 0.02);
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
+    camera.position.set(0, 0, 6.2);
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    container.appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xd4ff00, 2.8);
+    dirLight1.position.set(6, 8, 5);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0x00f0ff, 2.2);
+    dirLight2.position.set(-6, -5, -4);
+    scene.add(dirLight2);
+
+    const masterGroup = new THREE.Group();
+    scene.add(masterGroup);
+
+    const coreGeo = new THREE.IcosahedronGeometry(1.25, 1);
+    const coreMat = new THREE.MeshPhongMaterial({ color: 0x111114, emissive: 0x1c2800, specular: 0xd4ff00, shininess: 100, flatShading: true });
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    masterGroup.add(coreMesh);
+
+    const wireMat = new THREE.MeshBasicMaterial({ color: 0xd4ff00, wireframe: true, transparent: true, opacity: 0.88 });
+    const wireMesh = new THREE.Mesh(coreGeo, wireMat);
+    wireMesh.scale.set(1.03, 1.03, 1.03);
+    masterGroup.add(wireMesh);
+
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.1, 0.035, 16, 80), new THREE.MeshBasicMaterial({ color: 0xd4ff00 }));
+    ring1.rotation.x = Math.PI / 3;
+    masterGroup.add(ring1);
+
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.45, 0.025, 16, 80), new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.8 }));
+    ring2.rotation.y = Math.PI / 4;
+    masterGroup.add(ring2);
+
+    const satellites: { mesh: THREE.Mesh; angle: number; speed: number }[] = [];
+    for (let i = 0; i < 8; i++) {
+      const satGeo = new THREE.BoxGeometry(0.26, 0.26, 0.26);
+      const col = i % 2 === 0 ? 0xd4ff00 : 0x00f0ff;
+      const sat = new THREE.Mesh(satGeo, new THREE.MeshPhongMaterial({ color: 0x0e0e11, emissive: col, emissiveIntensity: 0.55 }));
+      sat.add(new THREE.LineSegments(new THREE.EdgesGeometry(satGeo), new THREE.LineBasicMaterial({ color: col })));
+      const angle = (i / 8) * Math.PI * 2;
+      const radius = 3.2;
+      sat.position.set(Math.cos(angle) * radius, (i - 4) * 0.4, Math.sin(angle) * radius);
+      masterGroup.add(sat);
+      satellites.push({ mesh: sat, angle, speed: 0.008 });
+    }
+
+    const grid = new THREE.GridHelper(40, 50, 0xd4ff00, 0x1f2410);
+    grid.position.y = -2.6;
+    scene.add(grid);
+
+    let scrollProgress = 0;
+    function updateScroll() {
+      const top = window.pageYOffset || document.documentElement.scrollTop;
+      const max = document.documentElement.scrollHeight - window.innerHeight || 1;
+      scrollProgress = Math.min(Math.max(top / max, 0), 1);
+      const pct = Math.round(scrollProgress * 100);
+      const barElem = document.getElementById('live-scroll');
+      if (barElem) barElem.innerText = `SCROLL DEPTH // [${'█'.repeat(Math.floor(pct / 10))}${'░'.repeat(10 - Math.floor(pct / 10))}] ${pct}%`;
+      const coordsElem = document.getElementById('live-coords');
+      if (coordsElem) coordsElem.innerText = `[X:${(scrollProgress * 100).toFixed(2)} // Y:${(-scrollProgress * 50).toFixed(2)} // Z:${(6.2 - scrollProgress * 3.5).toFixed(2)}]`;
+    }
+    window.addEventListener('scroll', updateScroll, { passive: true });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    const clock = new THREE.Clock();
+    function animate() {
+      animationFrameRef.current = requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      masterGroup.rotation.y = t * 0.15 + scrollProgress * Math.PI * 2;
+      masterGroup.rotation.x = scrollProgress * 1.5;
+      coreMesh.rotation.x = t * 0.3;
+      coreMesh.rotation.y = t * 0.4;
+      wireMesh.rotation.x = coreMesh.rotation.x;
+      wireMesh.rotation.y = coreMesh.rotation.y;
+
+      ring1.rotation.z = t * 0.4 + scrollProgress * 3;
+      ring2.rotation.x = -t * 0.5;
+
+      for (let i = 0; i < satellites.length; i++) {
+        const s = satellites[i];
+        s.angle += s.speed;
+        s.mesh.position.x = Math.cos(s.angle) * (3.2 + scrollProgress * 1.5);
+        s.mesh.position.z = Math.sin(s.angle) * (3.2 + scrollProgress * 1.5);
       }
-      initScene(THREE);
+
+      camera.position.z = 6.2 - scrollProgress * 3.5;
+      renderer.render(scene, camera);
+    }
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      window.removeEventListener('scroll', updateScroll);
+      window.removeEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
     };
-    initBackground3D();
   }, []);
 
   return (
@@ -166,7 +285,7 @@ export default function KineticStorefrontPage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-lime text-black font-black flex items-center justify-center text-xl border-2 border-black shadow-[3px_3px_0px_rgb(var(--color-ink))]">
-              ⚡
+              PC
             </div>
             <div>
               <div className="flex items-center gap-1.5 font-bold tracking-tighter text-lg">
@@ -267,7 +386,7 @@ export default function KineticStorefrontPage() {
         {/* TICKER RIBBON */}
         <div className="w-full bg-lime text-black py-2.5 border-y-2 border-black font-mono text-[12px] font-black uppercase tracking-widest overflow-hidden whitespace-nowrap">
           <div className="flex gap-6 animate-pulse">
-            <span>⚡ 3D MESH ARCHITECTURE</span> • <span>NO-OVERSELL RECOVERY ENGINE</span> • <span>LEVENSHTEIN FUZZY OPENSEARCH</span> • <span>15-MIN PESSIMISTIC LOCKS</span> • <span>DISPATCHING TO BLR (15m), MUM (45m), DEL (1h), HYD (35m)</span> • <span>KAFKA REPLICATION FACTOR 3</span> • <span>ATOMIC POSTGRES ROW-LOCKING</span>
+            <span>3D MESH ARCHITECTURE</span> • <span>NO-OVERSELL RECOVERY ENGINE</span> • <span>LEVENSHTEIN FUZZY OPENSEARCH</span> • <span>15-MIN PESSIMISTIC LOCKS</span> • <span>DISPATCHING TO BLR (15m), MUM (45m), DEL (1h), HYD (35m)</span> • <span>KAFKA REPLICATION FACTOR 3</span> • <span>ATOMIC POSTGRES ROW-LOCKING</span>
           </div>
         </div>
 
@@ -675,135 +794,3 @@ export default function KineticStorefrontPage() {
   );
 }
 
-function loadThreeJS(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if ((window as any).THREE) {
-      resolve();
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load Three.js'));
-    document.head.appendChild(script);
-  });
-}
-
-function initScene(THREE: any) {
-  const container = document.getElementById('threejs-bg-canvas');
-  if (!container) return;
-
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-
-  const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a0a0c, 0.02);
-
-  const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
-  camera.position.set(0, 0, 6.2);
-
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
-  renderer.setSize(width, height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  container.appendChild(renderer.domElement);
-
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
-  scene.add(ambientLight);
-
-  const dirLight1 = new THREE.DirectionalLight(0xd4ff00, 2.8);
-  dirLight1.position.set(6, 8, 5);
-  scene.add(dirLight1);
-
-  const dirLight2 = new THREE.DirectionalLight(0x00f0ff, 2.2);
-  dirLight2.position.set(-6, -5, -4);
-  scene.add(dirLight2);
-
-  const masterGroup = new THREE.Group();
-  scene.add(masterGroup);
-
-  // Core Monolith
-  const coreGeo = new THREE.IcosahedronGeometry(1.25, 1);
-  const coreMat = new THREE.MeshPhongMaterial({ color: 0x111114, emissive: 0x1c2800, specular: 0xd4ff00, shininess: 100, flatShading: true });
-  const coreMesh = new THREE.Mesh(coreGeo, coreMat);
-  masterGroup.add(coreMesh);
-
-  const wireMat = new THREE.MeshBasicMaterial({ color: 0xd4ff00, wireframe: true, transparent: true, opacity: 0.88 });
-  const wireMesh = new THREE.Mesh(coreGeo, wireMat);
-  wireMesh.scale.set(1.03, 1.03, 1.03);
-  masterGroup.add(wireMesh);
-
-  // Rings
-  const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.1, 0.035, 16, 80), new THREE.MeshBasicMaterial({ color: 0xd4ff00 }));
-  ring1.rotation.x = Math.PI / 3;
-  masterGroup.add(ring1);
-
-  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.45, 0.025, 16, 80), new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.8 }));
-  ring2.rotation.y = Math.PI / 4;
-  masterGroup.add(ring2);
-
-  // Satellites
-  const satellites: any[] = [];
-  for (let i = 0; i < 8; i++) {
-    const satGeo = new THREE.BoxGeometry(0.26, 0.26, 0.26);
-    const col = i % 2 === 0 ? 0xd4ff00 : 0x00f0ff;
-    const sat = new THREE.Mesh(satGeo, new THREE.MeshPhongMaterial({ color: 0x0e0e11, emissive: col, emissiveIntensity: 0.55 }));
-    sat.add(new THREE.LineSegments(new THREE.EdgesGeometry(satGeo), new THREE.LineBasicMaterial({ color: col })));
-    const angle = (i / 8) * Math.PI * 2;
-    const radius = 3.2;
-    sat.position.set(Math.cos(angle) * radius, (i - 4) * 0.4, Math.sin(angle) * radius);
-    masterGroup.add(sat);
-    satellites.push({ mesh: sat, angle, speed: 0.008 });
-  }
-
-  // Grid
-  const grid = new THREE.GridHelper(40, 50, 0xd4ff00, 0x1f2410);
-  grid.position.y = -2.6;
-  scene.add(grid);
-
-  // Scroll Tracking
-  let scrollProgress = 0;
-  function updateScroll() {
-    const top = window.pageYOffset || document.documentElement.scrollTop;
-    const max = document.documentElement.scrollHeight - window.innerHeight || 1;
-    scrollProgress = Math.min(Math.max(top / max, 0), 1);
-    const pct = Math.round(scrollProgress * 100);
-    const barElem = document.getElementById('live-scroll');
-    if (barElem) barElem.innerText = `SCROLL DEPTH // [${'█'.repeat(Math.floor(pct / 10))}${'░'.repeat(10 - Math.floor(pct / 10))}] ${pct}%`;
-    const coordsElem = document.getElementById('live-coords');
-    if (coordsElem) coordsElem.innerText = `[X:${(scrollProgress * 100).toFixed(2)} // Y:${(-scrollProgress * 50).toFixed(2)} // Z:${(6.2 - scrollProgress * 3.5).toFixed(2)}]`;
-  }
-  window.addEventListener('scroll', updateScroll, { passive: true });
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-  const clock = new THREE.Clock();
-  function animate() {
-    requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
-
-    masterGroup.rotation.y = t * 0.15 + scrollProgress * Math.PI * 2;
-    masterGroup.rotation.x = scrollProgress * 1.5;
-    coreMesh.rotation.x = t * 0.3;
-    coreMesh.rotation.y = t * 0.4;
-    wireMesh.rotation.x = coreMesh.rotation.x;
-    wireMesh.rotation.y = coreMesh.rotation.y;
-
-    ring1.rotation.z = t * 0.4 + scrollProgress * 3;
-    ring2.rotation.x = -t * 0.5;
-
-    for (let i = 0; i < satellites.length; i++) {
-      const s = satellites[i];
-      s.angle += s.speed;
-      s.mesh.position.x = Math.cos(s.angle) * (3.2 + scrollProgress * 1.5);
-      s.mesh.position.z = Math.sin(s.angle) * (3.2 + scrollProgress * 1.5);
-    }
-
-    camera.position.z = 6.2 - scrollProgress * 3.5;
-    renderer.render(scene, camera);
-  }
-  animate();
-}

@@ -199,6 +199,10 @@ async def process_message(
             CONSUMER_NAME,
             event_id,
         )
+        await pool.execute(
+            """UPDATE outbox_events SET consumer_status = 'synced' WHERE id = $1""",
+            event_id,
+        )
 
 
 async def main() -> None:

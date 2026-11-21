@@ -63,17 +63,24 @@ export default function CartPage() {
   }, []);
 
   function updateCart(next: CartItem[]) {
-    setCart(next);
-    idempotencyKey.current = null; // the order changed, so the next attempt is a new order
-    localStorage.setItem('pulsecart_cart', JSON.stringify(next));
-    localStorage.setItem(LOCAL_CART_UPDATED_KEY, String(Date.now()));
-    window.dispatchEvent(new Event('pulsecart:cart-updated'));
-    void syncCart(next);
-  }
+      setCart(next);
+      idempotencyKey.current = null; // the order changed, so the next attempt is a new order
+      localStorage.setItem('pulsecart_cart', JSON.stringify(next));
+      localStorage.setItem(LOCAL_CART_UPDATED_KEY, String(Date.now()));
+      window.dispatchEvent(new Event('pulsecart:cart-updated'));
+      syncCart(next).catch((err) => {
+        setNotice(`Cart sync warning: ${err instanceof Error ? err.message : String(err)}`);
+      });
+    }
 
   async function checkout(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!cart.length || busy) return;
+    if (!cart.length || busy) {
+      if (!cart.length || !email || !name || !city) {
+        setNotice('Add items and fill in your email');
+      }
+      return;
+    }
     setNotice('');
     setBusy(true);
     try {
@@ -109,7 +116,13 @@ export default function CartPage() {
       setOrderId(result.order_id);
       setOrderAccessToken(result.order_access_token ?? null);
       setOrderAccessTokenExpiresAt(result.order_access_token_expires_at ?? null);
-      updateCart([]);
+      await syncCart([]).catch((err) => {
+        setNotice(`Cart sync warning: ${err instanceof Error ? err.message : String(err)}`);
+      });
+      localStorage.setItem('pulsecart_cart', JSON.stringify([]));
+      localStorage.setItem(LOCAL_CART_UPDATED_KEY, String(Date.now()));
+      window.dispatchEvent(new Event('pulsecart:cart-updated'));
+      setCart([]);
     } catch (cause) {
       setNotice(cause instanceof Error ? cause.message : 'Checkout failed. Please try again.');
     } finally {

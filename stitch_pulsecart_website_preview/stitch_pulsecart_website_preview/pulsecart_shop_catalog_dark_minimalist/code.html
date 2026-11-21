@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary": "#4edea3", "surface-container-low": "#181b25", "on-primary-fixed": "#001a42", "surface-container": "#1c1f29", "error-container": "#93000a", "on-error": "#690005", "on-primary": "#002e6a", "surface-bright": "#353943", "on-background": "#dfe2ef", "secondary-container": "#00a572", "primary-fixed": "#d8e2ff", "on-secondary-container": "#00311f", "inverse-primary": "#005ac2", "primary-container": "#4d8eff", "on-primary-container": "#00285d", "on-error-container": "#ffdad6", "surface-dim": "#0f131c", "on-tertiary-fixed": "#07006c", "surface-container-highest": "#31353f", "on-tertiary-fixed-variant": "#2f2ebe", "on-tertiary-container": "#0d0096", "on-secondary": "#003824", "surface-container-high": "#262a34", "on-primary-fixed-variant": "#004395", "inverse-on-surface": "#2c303a", "surface": "#0f131c", "outline": "#8c909f", "outline-variant": "#424754", "on-surface-variant": "#c2c6d6", "error": "#ffb4ab", "surface-container-lowest": "#0a0e17", "on-secondary-fixed": "#002113", "tertiary": "#c0c1ff", "primary": "#adc6ff", "tertiary-container": "#8083ff", "background": "#0f131c", "surface-tint": "#adc6ff", "on-surface": "#dfe2ef", "surface-variant": "#31353f", "on-secondary-fixed-variant": "#005236", "on-tertiary": "#1000a9", "secondary-fixed-dim": "#4edea3", "inverse-surface": "#dfe2ef", "tertiary-fixed-dim": "#c0c1ff", "secondary-fixed": "#6ffbbe", "primary-fixed-dim": "#adc6ff", "tertiary-fixed": "#e1e0ff" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-md": "1rem", "gutter-mobile": "1rem", "gutter": "1.5rem", "space-xl": "2.5rem", "margin-mobile": "1.25rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "margin": "3rem" }, "fontFamily": { "headline-lg": ["Plus Jakarta Sans"], "label-md": ["JetBrains Mono"], "label-sm": ["JetBrains Mono"], "display-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "display-lg-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"] }, "fontSize": { "headline-lg": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-md": ["0.8125rem", { "lineHeight": "1.125rem", "letterSpacing": "0.04em", "fontWeight": "500" }], "label-sm": ["0.6875rem", { "lineHeight": "1rem", "letterSpacing": "0.06em", "fontWeight": "500" }], "display-lg": ["3.5rem", { "lineHeight": "4rem", "letterSpacing": "-0.03em", "fontWeight": "700" }], "body-sm": ["0.8125rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "400" }], "body-lg": ["1.125rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.005em", "fontWeight": "400" }], "body-md": ["0.9375rem", { "lineHeight": "1.5rem", "letterSpacing": "0", "fontWeight": "400" }], "display-lg-mobile": ["2.25rem", { "lineHeight": "2.75rem", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-md": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg-mobile": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.01em", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface-container-lowest text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/85 backdrop-blur-xl border-b border-outline-variant/30"><div class="h-16 max-w-[1440px] mx-auto px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><span class="font-headline-md text-headline-md font-bold tracking-tight text-on-surface">PulseCart</span><div class="flex items-center gap-1.5 px-space-xs py-0.5 rounded-DEFAULT bg-surface-container border border-outline-variant/30"><span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_8px_#4edea3]"></span><span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest">Cluster Online</span></div></div><nav class="hidden md:flex items-center gap-1" data-active-classes="bg-surface-container-high text-on-surface font-medium rounded-lg"><a aria-current="page" class="px-space-md py-1.5 transition-colors bg-surface-container-high text-on-surface font-medium rounded-lg" data-path="shop" href="#">Shop</a><a class="px-space-md py-1.5 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="cart" href="#">Cart</a><a class="px-space-md py-1.5 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="lab" href="#">Lab</a><a class="px-space-md py-1.5 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="admin" href="#">Admin</a></nav></div><div class="flex items-center gap-space-md"><button class="flex items-center gap-space-sm px-space-sm py-1.5 rounded-lg border border-outline-variant/40 bg-surface-container-low hover:bg-surface-container hover:text-on-surface text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">search</span><span class="font-label-sm text-label-sm hidden sm:inline text-on-surface-variant">⌘K</span></button><div class="hidden lg:flex items-center gap-1.5 px-space-sm py-1 rounded-DEFAULT bg-surface-container-low border border-outline-variant/20"><span class="material-symbols-outlined text-[14px] text-secondary">bolt</span><span class="font-label-sm text-label-sm text-on-surface-variant">0.8ms direct</span></div><a class="flex items-center gap-2 px-space-sm py-1.5 rounded-lg border border-outline-variant/40 bg-surface-container-low hover:bg-surface-container hover:text-on-surface text-on-surface transition-colors" data-path="cart" href="#"><span class="material-symbols-outlined text-[18px]">shopping_bag</span><span class="font-label-sm text-label-sm font-semibold text-primary">Cart [2]</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface-container-lowest min-h-screen"><div class="flex flex-col w-full">
+<!-- System Diagnostic Sub-Bar -->
+<section class="w-full bg-surface-container-low px-margin py-space-sm">
+<div class="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+          SYS.NODE // 0x4F92-PROD
+        </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant/60">LATENCY: 0.62ms</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant/60 hidden sm:inline">CONSENSUS: QUORUM REACHED</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-label-sm text-label-sm text-primary">POSTGRES WAL BUFFER: CLEAN</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">ACTIVE ENCLAVE: IN-BOM-01</span>
+</div>
+</div>
+</section>
+<!-- Control Header & Filtering Surface -->
+<section class="w-full bg-surface-container-lowest px-margin pt-space-xl pb-space-lg">
+<div class="max-w-[1440px] mx-auto flex flex-col gap-space-lg">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-space-sm mb-space-xs">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">Hardware Ledger / Registry</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-surface-container-high font-label-sm text-label-sm text-secondary font-medium">[42 VERIFIED SKUS]</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight uppercase font-semibold">
+            Catalog / Active Hardware Nodes
+          </h1>
+</div>
+<!-- Telemetry Pill & Filter Controls -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<div class="flex items-center bg-surface-container-low px-space-sm py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-secondary text-[16px] mr-1.5">sensors</span>
+<span class="font-label-sm text-label-sm text-on-surface">STREAM: READY</span>
+</div>
+<div class="relative inline-block">
+<button class="flex items-center gap-space-sm px-space-md py-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface transition-colors" id="sortDropdownBtn" type="button">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Sort By:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold" id="currentSortLabel">Deterministic SKU</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</button>
+<div class="hidden absolute right-0 mt-1 w-56 bg-surface-container-high rounded-lg shadow-xl z-30 py-1" id="sortMenu">
+<button class="sort-option w-full text-left px-space-md py-2 font-label-sm text-label-sm text-on-surface hover:bg-surface-bright flex items-center justify-between" data-sort="Deterministic SKU" type="button">
+<span>Deterministic SKU</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">check</span>
+</button>
+<button class="sort-option w-full text-left px-space-md py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-bright flex items-center justify-between" data-sort="Price: Low to High" type="button">
+<span>Price: Low to High</span>
+</button>
+<button class="sort-option w-full text-left px-space-md py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-bright flex items-center justify-between" data-sort="Price: High to Low" type="button">
+<span>Price: High to Low</span>
+</button>
+<button class="sort-option w-full text-left px-space-md py-2 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-bright flex items-center justify-between" data-sort="Cluster Availability" type="button">
+<span>Cluster Availability</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Category Filter Bay -->
+<div class="flex items-center justify-between gap-space-md flex-wrap pt-space-sm">
+<div class="flex items-center gap-space-xs flex-wrap" id="categoryTabs">
+<button class="category-btn px-space-md py-1.5 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-semibold transition-all shadow-sm" data-category="all" type="button">
+            All Units [42]
+          </button>
+<button class="category-btn px-space-md py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-sm text-label-sm transition-all" data-category="audio" type="button">
+            Audio Transducers
+          </button>
+<button class="category-btn px-space-md py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-sm text-label-sm transition-all" data-category="mcu" type="button">
+            Microcontrollers
+          </button>
+<button class="category-btn px-space-md py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-sm text-label-sm transition-all" data-category="cables" type="button">
+            Cables &amp; Interconnects
+          </button>
+<button class="category-btn px-space-md py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-sm text-label-sm transition-all" data-category="power" type="button">
+            Power Systems
+          </button>
+<button class="category-btn px-space-md py-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-sm text-label-sm transition-all" data-category="sensors" type="button">
+            Sensor Arrays
+          </button>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-label-sm text-label-sm">
+<span class="inline-block w-2 h-2 rounded-full bg-secondary"></span>
+<span>ROW-LOCK PROTOCOL v2.4</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Technical Hardware Matrix -->
+<section class="w-full bg-surface-container-lowest px-margin pb-space-xl">
+<div class="max-w-[1440px] mx-auto">
+<!-- 4-Column High-Precision Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md" id="hardwareGrid">
+<!-- Card 1 -->
+<article class="group relative flex flex-col justify-between bg-surface-container-low hover:bg-surface-container rounded-lg p-space-md transition-all duration-150" data-category="audio">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-sm font-label-sm text-label-sm">
+<span class="text-primary font-mono tracking-wider">SKU // BOAT-450-PRO</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-surface-container text-secondary font-mono text-[11px] flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+                42 UNITS
+              </span>
+</div>
+<div class="relative w-full h-52 bg-surface-container-lowest rounded-md overflow-hidden mb-space-md flex items-center justify-center p-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="High precision studio photograph of boAt Rockerz 450 Pro wireless technical headphones on absolute pitch black carbon surface. Minimal blue rim illumination, architectural lighting, matte black industrial design, crisp planar reflections, clean angled perspective." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXMKCGTBs4X6yrvj2i2Iwpa4YwEC08g2MrVJDZeYEHwRH3bsFL_2Iw04F4S2eEYtue_epZHv3lRrSX9RbLzKJdFtGyNZzODQFQ2DaQf_7DMYkIChRZLrc4o9spwJsoCwMId-wRJnH6lwWOmfeQJSihATnIqHUI_juecTx0_h6D-AcgCtmM-RHSZXTW01QW-JT4OPKV64l8iZX1RXQv9IgHJYwpw3vj06_HyQDpLU9h"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-DEFAULT bg-surface-container-high/90 text-on-surface-variant font-label-sm text-[10px] tracking-wide">AUDIO-TRANSDUCER</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+              boAt Rockerz 450 Pro
+            </h3>
+<div class="mt-space-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">lock</span>
+<p class="font-label-sm text-label-sm text-secondary font-mono">Row-Lock Reserved, 42 units</p>
+</div>
+<p class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              40mm dynamic drivers with high-entropy acoustic damping and 70hr standby reservoir.
+            </p>
+</div>
+<div class="mt-space-lg pt-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] uppercase text-on-surface-variant/70 tracking-wider">Settlement Price</span>
+<span class="font-label-md text-headline-md text-on-surface font-mono font-semibold">₹1,499</span>
+</div>
+<button class="add-to-cart-btn px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Reserve</span>
+</button>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="group relative flex flex-col justify-between bg-surface-container-low hover:bg-surface-container rounded-lg p-space-md transition-all duration-150" data-category="mcu">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-sm font-label-sm text-label-sm">
+<span class="text-primary font-mono tracking-wider">SKU // ESP32-S3-WROOM</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-surface-container text-secondary font-mono text-[11px] flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+                IN RACK
+              </span>
+</div>
+<div class="relative w-full h-52 bg-surface-container-lowest rounded-md overflow-hidden mb-space-md flex items-center justify-center p-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Technical macro photography of an ESP32-S3 microcontroller breakout board on an obsidian surface. Visible golden PCB traces, matte black solder mask, exposed dual-core silicon die reflection, ultra sharp architectural focus, cold cyan accent light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo1mayRqlQkdEBEIgKS5BFQx35LPLjsYEEo7f6FMpTiAAmZxanxFaiuGVo_TFywjmDs8q-10Modof5VLjH-DiTrfuRVQYoCEfkobFGmagtBuNGqAfrbFiFC0js2Gao3q_n1RW7f0g1gTmIkswxCS6SYKUcYrZsOjShvUZ1TWSSxWEEWrAX-Ua3_SZp6F9iZs4WhqQDrszKQk-k4xEkPeHm6naCo46G1lot_DMFTquu"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-DEFAULT bg-surface-container-high/90 text-on-surface-variant font-label-sm text-[10px] tracking-wide">SILICON-NODE</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+              ESP32-S3 Dual-Core Node
+            </h3>
+<div class="mt-space-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">verified</span>
+<p class="font-label-sm text-label-sm text-secondary font-mono">Physical shelf verified</p>
+</div>
+<p class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              Xtensa 32-bit LX7 vector instructions, 2.4GHz Wi-Fi + BLE 5.0 mesh integration.
+            </p>
+</div>
+<div class="mt-space-lg pt-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] uppercase text-on-surface-variant/70 tracking-wider">Settlement Price</span>
+<span class="font-label-md text-headline-md text-on-surface font-mono font-semibold">₹449</span>
+</div>
+<button class="add-to-cart-btn px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Reserve</span>
+</button>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="group relative flex flex-col justify-between bg-surface-container-low hover:bg-surface-container rounded-lg p-space-md transition-all duration-150" data-category="cables">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-sm font-label-sm text-label-sm">
+<span class="text-primary font-mono tracking-wider">SKU // CAB-100W-OLED</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-surface-container text-secondary font-mono text-[11px] flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+                140 CLUSTER
+              </span>
+</div>
+<div class="relative w-full h-52 bg-surface-container-lowest rounded-md overflow-hidden mb-space-md flex items-center justify-center p-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Technical product shot of 100W braided USB-C cable featuring a tiny integrated monochrome OLED power wattage display on the zinc-alloy connector casing. Dark slate backdrop, precision laser engraving, deep obsidian aesthetic, blue status glow." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOm3dZWerlVIeRfRewey__wcGMuCXvFO94AIu-uehI5zKGsDOVQpewcHWkpX8a-3q0fKKKLahqrPrcm8-FOP_rSaCdyrhwU4UIbnHiotlaDZYVLNvoyFqkxRejZkvEphDtu5-mf8WYOc-YI_lbSnIxb298f5cKWn6GOtesyV02xrXAc2RRIrtXk4N0X5Lrh53bq9_W7lsXE83pf7qsTTn2gyAlVfH6muVpr40Zdjo8"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-DEFAULT bg-surface-container-high/90 text-on-surface-variant font-label-sm text-[10px] tracking-wide">INTERCONNECT</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+              100W Braided Cable w/ OLED
+            </h3>
+<div class="mt-space-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">inventory_2</span>
+<p class="font-label-sm text-label-sm text-secondary font-mono">140 in cluster</p>
+</div>
+<p class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              Integrated real-time watt/volt telemetry screen, E-marker silicon, Kevlar reinforcement.
+            </p>
+</div>
+<div class="mt-space-lg pt-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] uppercase text-on-surface-variant/70 tracking-wider">Settlement Price</span>
+<span class="font-label-md text-headline-md text-on-surface font-mono font-semibold">₹399</span>
+</div>
+<button class="add-to-cart-btn px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Reserve</span>
+</button>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="group relative flex flex-col justify-between bg-surface-container-low hover:bg-surface-container rounded-lg p-space-md transition-all duration-150" data-category="mcu">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-sm font-label-sm text-label-sm">
+<span class="text-primary font-mono tracking-wider">SKU // RPI-PICO-W-01</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-surface-container text-secondary font-mono text-[11px] flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+                ACTIVE LOCK
+              </span>
+</div>
+<div class="relative w-full h-52 bg-surface-container-lowest rounded-md overflow-hidden mb-space-md flex items-center justify-center p-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Raspberry Pi Pico W single board computer microcontroller resting flat on metallic dark industrial grid. High contrast emerald antenna trace and RP2040 chip detailing, clinical laboratory lighting, obsidian slate environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAevkHLxl0t7x--EqS2iMgWJ6hUA0ijpTZoAq557b77o5vXwBlRPkSGf2673QdxlezrgQamD02QSQrv3IDaRdeIHND9y3cybigHSmKjZWjhc1IWTxuAsniuP1vv7998tm0znuG_YTbb_Ho5PBiOWkt6cxqilsrDdukZM72_Qto3kGnZlnOuy3Q461wplU0sbKagRYknTQKczhL8jckTlICHucW0NhI4LNLfsrULcpHo"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-DEFAULT bg-surface-container-high/90 text-on-surface-variant font-label-sm text-[10px] tracking-wide">EMBEDDED-CORE</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+              Raspberry Pi Pico W
+            </h3>
+<div class="mt-space-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">lock_clock</span>
+<p class="font-label-sm text-label-sm text-secondary font-mono">Deterministic stock lock</p>
+</div>
+<p class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              RP2040 dual ARM Cortex-M0+ with Infineon CYW43439 wireless transceiver subsystem.
+            </p>
+</div>
+<div class="mt-space-lg pt-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] uppercase text-on-surface-variant/70 tracking-wider">Settlement Price</span>
+<span class="font-label-md text-headline-md text-on-surface font-mono font-semibold">₹520</span>
+</div>
+<button class="add-to-cart-btn px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Reserve</span>
+</button>
+</div>
+</article>
+<!-- Card 5 -->
+<article class="group relative flex flex-col justify-between bg-surface-container-low hover:bg-surface-container rounded-lg p-space-md transition-all duration-150" data-category="audio">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-sm font-label-sm text-label-sm">
+<span class="text-primary font-mono tracking-wider">SKU // PM-CYBERPOD-25</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-surface-container text-secondary font-mono text-[11px] flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+                ENROUTE
+              </span>
+</div>
+<div class="relative w-full h-52 bg-surface-container-lowest rounded-md overflow-hidden mb-space-md flex items-center justify-center p-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Futuristic cybernetic wireless earbuds housed in a semi-transparent smoky polycarbonate charging pod. Cyan led accent ring glowing softly on a matte dark carbon platform, studio rim lighting, cyberpunk architectural minimalism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLGrcCNB9ESpx-s_JCYKsI7HZH0GtP5kwSRGNbos6T-U-Q4utnHc5x8W2f3f_74O7ZIFK71dWGm1JnJj25P9XATyp7VyTjJOlm-Wx9XnnpuC48aA6Z71a7ZvGt5x5cyOep_8MrMCS7kH7gk-1rrJjZssOaBHhBIg84tA78HHRUKG0lfMJvpzLxFnCMPhkqwAaKlUnfMMbd3jmizp4McUxf6g_X50Jy6bJdBwJYHrUS"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-DEFAULT bg-surface-container-high/90 text-on-surface-variant font-label-sm text-[10px] tracking-wide">LOW-LATENCY</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+              PulseMech CyberPods ENC
+            </h3>
+<div class="mt-space-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">sync_alt</span>
+<p class="font-label-sm text-label-sm text-secondary font-mono">Low-latency pairing (25ms)</p>
+</div>
+<p class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              Dual quad-mic beamforming array with quad-core DSP hardware filtering for harsh RF bands.
+            </p>
+</div>
+<div class="mt-space-lg pt-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] uppercase text-on-surface-variant/70 tracking-wider">Settlement Price</span>
+<span class="font-label-md text-headline-md text-on-surface font-mono font-semibold">₹1,899</span>
+</div>
+<button class="add-to-cart-btn px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Reserve</span>
+</button>
+</div>
+</article>
+<!-- Card 6 -->
+<article class="group relative flex flex-col justify-between bg-surface-container-low hover:bg-surface-container rounded-lg p-space-md transition-all duration-150" data-category="sensors">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-sm font-label-sm text-label-sm">
+<span class="text-primary font-mono tracking-wider">SKU // BME688-CAL-AI</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-surface-container text-secondary font-mono text-[11px] flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+                99.8% PRECISION
+              </span>
+</div>
+<div class="relative w-full h-52 bg-surface-container-lowest rounded-md overflow-hidden mb-space-md flex items-center justify-center p-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Close up architectural capture of a high-spec Bosch BME688 MEMS sensor on an engineered black aluminum breakout sled. Gold plated pin terminals, clinical depth of field, subtle metallic reflections in a minimal darkroom setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEahZnfaM0b5R9xc4EWL0OB1zZ5zS-jBobV9YIj7OkzTE0KBbDu7Tv3clfdMzTDjK1yMHoCL0ft5xpM3hreEvbDQLXJz7OhhlnDhj1h5MpumfxP7Z1TER8ZL14XNNpsRVBE6jqnvGsVbqH1rOpE7zDdocO4JzdU_nRsU1UIztRVlxlB_K__kdy-J6QpF87NifqkDPHkOrfD3Of9NOUHdOwStFftbcvCmBesIi7ug2c"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-DEFAULT bg-surface-container-high/90 text-on-surface-variant font-label-sm text-[10px] tracking-wide">ATMOSPHERIC</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+              BME688 Sensor Node
+            </h3>
+<div class="mt-space-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">tune</span>
+<p class="font-label-sm text-label-sm text-secondary font-mono">Air quality precision AI</p>
+</div>
+<p class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              4-in-1 VOC, VSC, barometric pressure and thermal drift compensating machine-learning sensor.
+            </p>
+</div>
+<div class="mt-space-lg pt-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] uppercase text-on-surface-variant/70 tracking-wider">Settlement Price</span>
+<span class="font-label-md text-headline-md text-on-surface font-mono font-semibold">₹1,250</span>
+</div>
+<button class="add-to-cart-btn px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Reserve</span>
+</button>
+</div>
+</article>
+<!-- Card 7 -->
+<article class="group relative flex flex-col justify-between bg-surface-container-low hover:bg-surface-container rounded-lg p-space-md transition-all duration-150" data-category="power">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-sm font-label-sm text-label-sm">
+<span class="text-primary font-mono tracking-wider">SKU // PWR-20K-65W</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-surface-container text-secondary font-mono text-[11px] flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+                CERTIFIED
+              </span>
+</div>
+<div class="relative w-full h-52 bg-surface-container-lowest rounded-md overflow-hidden mb-space-md flex items-center justify-center p-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Monolithic 20,000mAh external battery power brick in matte dark anodized aluminum. Chamfered edges, USB-C dual ports illuminated by subtle white LED, minimal technical markings on obsidian backdrop, architectural industrial styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9S9ia5JTMPXke2zr94mBG2p89QIZYcXyj4nes2Mlp75-ggWoEjpqM0KTZ4N3MxDRjcZ8z04cqkVty4XaVLeQy-NjRD3RT5H5IZ1z5Icl53MN7uAUrheBtWnRZMifOa7rfNyKKS2DZfzzsHww5v5WuFf-wZw-E0sEE1tANqIs7H184SVQDVSdwKurW8IaZV2GmZWekodpj-mUyC8ZElh01sN5pwaI-7TF-CUbcu-c0"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-DEFAULT bg-surface-container-high/90 text-on-surface-variant font-label-sm text-[10px] tracking-wide">POWER-STORAGE</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+              20,000mAh 65W Brick
+            </h3>
+<div class="mt-space-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">bolt</span>
+<p class="font-label-sm text-label-sm text-secondary font-mono">Quick charge bi-directional</p>
+</div>
+<p class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              Automotive-grade pouch cells with dual PD3.0 buck-boost controllers and thermal throttle protection.
+            </p>
+</div>
+<div class="mt-space-lg pt-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] uppercase text-on-surface-variant/70 tracking-wider">Settlement Price</span>
+<span class="font-label-md text-headline-md text-on-surface font-mono font-semibold">₹1,899</span>
+</div>
+<button class="add-to-cart-btn px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Reserve</span>
+</button>
+</div>
+</article>
+<!-- Card 8 -->
+<article class="group relative flex flex-col justify-between bg-surface-container-low hover:bg-surface-container rounded-lg p-space-md transition-all duration-150" data-category="sensors">
+<div>
+<div class="flex items-center justify-between gap-space-xs mb-space-sm font-label-sm text-label-sm">
+<span class="text-primary font-mono tracking-wider">SKU // EINK-SPI-29-REF</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-surface-container text-secondary font-mono text-[11px] flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+                ZERO-DRAIN
+              </span>
+</div>
+<div class="relative w-full h-52 bg-surface-container-lowest rounded-md overflow-hidden mb-space-md flex items-center justify-center p-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Monochrome 2.9 inch SPI electronic paper e-ink display displaying sharp technical telemetry graphs. Sitting flat on obsidian non-reflective composite table, pristine clean edge solder joints, cold directional softbox light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPF2EqUeVd-w_Lcf1G1uQVnEvYDTEgwA89xWofUr4gp0_k9VVRKr5TF5-OAZqAxfh0MTbZw1iQwjMjZK8c6ml7-1b35Op7kx_DkSOJEHnyharoltjZ1aQfg0zWRj-WMB7zEn7_XYCvXrx160LxN8skvhrYAUUJRq8OumjXNittEOzNmCr6Gck6fNOgpirAKgE2A2gP-JNIpWmQIw2bjCyJGRlewfy-EY_6j1KW6222"/>
+<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-DEFAULT bg-surface-container-high/90 text-on-surface-variant font-label-sm text-[10px] tracking-wide">VISUAL-SURFACE</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-semibold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+              2.9-inch SPI E-Ink Matrix
+            </h3>
+<div class="mt-space-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">memory</span>
+<p class="font-label-sm text-label-sm text-secondary font-mono">Bistable reflect (0μA static)</p>
+</div>
+<p class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              High-contrast electrophoresis layer with integrated SRAM frame storage and partial refresh capability.
+            </p>
+</div>
+<div class="mt-space-lg pt-space-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] uppercase text-on-surface-variant/70 tracking-wider">Settlement Price</span>
+<span class="font-label-md text-headline-md text-on-surface font-mono font-semibold">₹890</span>
+</div>
+<button class="add-to-cart-btn px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Reserve</span>
+</button>
+</div>
+</article>
+</div>
+<!-- Real-Time Hardware Ledger Telemetry Section -->
+<div class="mt-space-xl p-space-lg rounded-xl bg-surface-container-low flex flex-col lg:flex-row items-center justify-between gap-space-lg">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-[28px]">hub</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface font-semibold">Cluster Concurrency Engine</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Row locks hold items across distributed nodes for exactly 300 seconds per checkout window.</p>
+</div>
+</div>
+<div class="flex items-center gap-space-xl">
+<div class="text-right hidden sm:block">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Lock Quorum State</span>
+<span class="font-label-md text-label-md text-secondary font-mono">99.999% CONSENSUS</span>
+</div>
+<div class="h-8 w-px bg-surface-bright hidden sm:block"></div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Cart Payload</span>
+<span class="font-label-md text-label-md text-primary font-mono" id="telemetryCartCount">2 ITEMS ACQUIRED</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Script for Dropdowns, Categories and Add Cart Toast -->
+<script>
+    (function() {
+      // Sorting Dropdown Toggle
+      const sortBtn = document.getElementById('sortDropdownBtn');
+      const sortMenu = document.getElementById('sortMenu');
+      const currentSortLabel = document.getElementById('currentSortLabel');
+
+      if (sortBtn && sortMenu) {
+        sortBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sortMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+          sortMenu.classList.add('hidden');
+        });
+
+        const sortOptions = document.querySelectorAll('.sort-option');
+        sortOptions.forEach(opt => {
+          opt.addEventListener('click', () => {
+            const val = opt.getAttribute('data-sort');
+            currentSortLabel.textContent = val;
+            sortMenu.classList.add('hidden');
+            
+            // Visual check update
+            sortOptions.forEach(o => {
+              const check = o.querySelector('.material-symbols-outlined');
+              if (check) check.remove();
+            });
+            const checkIcon = document.createElement('span');
+            checkIcon.className = 'material-symbols-outlined text-[14px] text-secondary';
+            checkIcon.textContent = 'check';
+            opt.appendChild(checkIcon);
+          });
+        });
+      }
+
+      // Category Filtering
+      const categoryButtons = document.querySelectorAll('.category-btn');
+      const hardwareCards = document.querySelectorAll('#hardwareGrid article');
+
+      categoryButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          categoryButtons.forEach(b => {
+            b.classList.remove('bg-primary', 'text-on-primary', 'font-semibold', 'shadow-sm');
+            b.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+          });
+
+          btn.classList.add('bg-primary', 'text-on-primary', 'font-semibold', 'shadow-sm');
+          btn.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+
+          const cat = btn.getAttribute('data-category');
+          hardwareCards.forEach(card => {
+            if (cat === 'all' || card.getAttribute('data-category') === cat) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // Add to Cart Simulation
+      let cartCount = 2;
+      const cartTelemetry = document.getElementById('telemetryCartCount');
+      const addBtns = document.querySelectorAll('.add-to-cart-btn');
+
+      addBtns.forEach(b => {
+        b.addEventListener('click', function() {
+          cartCount++;
+          if (cartTelemetry) {
+            cartTelemetry.textContent = cartCount + ' ITEMS ACQUIRED';
+          }
+          const prevHTML = this.innerHTML;
+          this.innerHTML = '<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span><span>Reserved</span>';
+          this.classList.replace('bg-primary', 'bg-surface-container-high');
+          setTimeout(() => {
+            this.innerHTML = prevHTML;
+            this.classList.replace('bg-surface-container-high', 'bg-primary');
+          }, 1400);
+        });
+      });
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest border-t border-outline-variant/30"><div class="max-w-[1440px] mx-auto px-margin py-space-xl flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><span class="font-label-sm text-label-sm text-on-surface-variant">PulseCart OS © 2025</span><span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span><span class="font-label-sm text-label-sm text-secondary flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_6px_#4edea3]"></span> All Systems Operational</span></div><div class="flex items-center gap-space-lg"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="protocol-specs" href="#">Protocol Specs</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="postgres-enclave" href="#">Postgres Enclave</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="kafka-stream" href="#">Kafka Stream</a></div></div></footer></body></html>

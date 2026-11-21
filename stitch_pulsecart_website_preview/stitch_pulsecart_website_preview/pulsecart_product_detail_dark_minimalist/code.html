@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary": "#4edea3", "surface-container-low": "#181b25", "on-primary-fixed": "#001a42", "surface-container": "#1c1f29", "error-container": "#93000a", "on-error": "#690005", "on-primary": "#002e6a", "surface-bright": "#353943", "on-background": "#dfe2ef", "secondary-container": "#00a572", "primary-fixed": "#d8e2ff", "on-secondary-container": "#00311f", "inverse-primary": "#005ac2", "primary-container": "#4d8eff", "on-primary-container": "#00285d", "on-error-container": "#ffdad6", "surface-dim": "#0f131c", "on-tertiary-fixed": "#07006c", "surface-container-highest": "#31353f", "on-tertiary-fixed-variant": "#2f2ebe", "on-tertiary-container": "#0d0096", "on-secondary": "#003824", "surface-container-high": "#262a34", "on-primary-fixed-variant": "#004395", "inverse-on-surface": "#2c303a", "surface": "#0f131c", "outline": "#8c909f", "outline-variant": "#424754", "on-surface-variant": "#c2c6d6", "error": "#ffb4ab", "surface-container-lowest": "#0a0e17", "on-secondary-fixed": "#002113", "tertiary": "#c0c1ff", "primary": "#adc6ff", "tertiary-container": "#8083ff", "background": "#0f131c", "surface-tint": "#adc6ff", "on-surface": "#dfe2ef", "surface-variant": "#31353f", "on-secondary-fixed-variant": "#005236", "on-tertiary": "#1000a9", "secondary-fixed-dim": "#4edea3", "inverse-surface": "#dfe2ef", "tertiary-fixed-dim": "#c0c1ff", "secondary-fixed": "#6ffbbe", "primary-fixed-dim": "#adc6ff", "tertiary-fixed": "#e1e0ff" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-md": "1rem", "gutter-mobile": "1rem", "gutter": "1.5rem", "space-xl": "2.5rem", "margin-mobile": "1.25rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "margin": "3rem" }, "fontFamily": { "headline-lg": ["Plus Jakarta Sans"], "label-md": ["JetBrains Mono"], "label-sm": ["JetBrains Mono"], "display-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "display-lg-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"] }, "fontSize": { "headline-lg": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-md": ["0.8125rem", { "lineHeight": "1.125rem", "letterSpacing": "0.04em", "fontWeight": "500" }], "label-sm": ["0.6875rem", { "lineHeight": "1rem", "letterSpacing": "0.06em", "fontWeight": "500" }], "display-lg": ["3.5rem", { "lineHeight": "4rem", "letterSpacing": "-0.03em", "fontWeight": "700" }], "body-sm": ["0.8125rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "400" }], "body-lg": ["1.125rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.005em", "fontWeight": "400" }], "body-md": ["0.9375rem", { "lineHeight": "1.5rem", "letterSpacing": "0", "fontWeight": "400" }], "display-lg-mobile": ["2.25rem", { "lineHeight": "2.75rem", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-md": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg-mobile": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.01em", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface-container-lowest text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/85 backdrop-blur-xl border-b border-outline-variant/30"><div class="h-16 max-w-[1440px] mx-auto px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><span class="font-headline-md text-headline-md font-bold tracking-tight text-on-surface">PulseCart</span><div class="flex items-center gap-1.5 px-space-xs py-0.5 rounded-DEFAULT bg-surface-container border border-outline-variant/30"><span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_8px_#4edea3]"></span><span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest">Cluster Online</span></div></div><nav class="hidden md:flex items-center gap-1" data-active-classes="bg-surface-container-high text-on-surface font-medium rounded-lg"><a aria-current="page" class="px-space-md py-1.5 transition-colors bg-surface-container-high text-on-surface font-medium rounded-lg" data-path="shop" href="#">Shop</a><a class="px-space-md py-1.5 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="cart" href="#">Cart</a><a class="px-space-md py-1.5 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="lab" href="#">Lab</a><a class="px-space-md py-1.5 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="admin" href="#">Admin</a></nav></div><div class="flex items-center gap-space-md"><button class="flex items-center gap-space-sm px-space-sm py-1.5 rounded-lg border border-outline-variant/40 bg-surface-container-low hover:bg-surface-container hover:text-on-surface text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">search</span><span class="font-label-sm text-label-sm hidden sm:inline text-on-surface-variant">⌘K</span></button><div class="hidden lg:flex items-center gap-1.5 px-space-sm py-1 rounded-DEFAULT bg-surface-container-low border border-outline-variant/20"><span class="material-symbols-outlined text-[14px] text-secondary">bolt</span><span class="font-label-sm text-label-sm text-on-surface-variant">0.8ms direct</span></div><a class="flex items-center gap-2 px-space-sm py-1.5 rounded-lg border border-outline-variant/40 bg-surface-container-low hover:bg-surface-container hover:text-on-surface text-on-surface transition-colors" data-path="cart" href="#"><span class="material-symbols-outlined text-[18px]">shopping_bag</span><span class="font-label-sm text-label-sm font-semibold text-primary">Cart [2]</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface-container-lowest min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-header telemetry ribbon -->
+<div class="w-full bg-surface-container-lowest px-margin py-space-xs flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md">
+<span class="font-label-sm text-label-sm text-outline flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-secondary">terminal</span>
+        NODE: <span class="text-on-surface">AP-SOUTH-1A</span>
+</span>
+<span class="font-label-sm text-label-sm text-outline hidden sm:inline">|</span>
+<span class="font-label-sm text-label-sm text-outline hidden sm:flex items-center gap-1">
+        PG_SESSION: <span class="text-primary font-mono">0x7F98B2.ACTIVE</span>
+</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container px-space-xs py-0.5 rounded-DEFAULT">
+        CONSENSUS: QUORUM_REACHED
+      </span>
+<span class="font-label-sm text-label-sm text-outline">CLOCK: 14:02:18.491Z</span>
+</div>
+</div>
+<!-- Primary Content Bay: 12-Column Technical Layout -->
+<div class="max-w-[1440px] w-full mx-auto px-margin py-space-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- LEFT COLUMN (Viewport & Sensor Array: 7 cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<!-- Bounding Box / Product Chamber -->
+<div class="relative bg-surface-container-low p-space-md overflow-hidden rounded-DEFAULT">
+<!-- Hairline Corner Wireframe Accents -->
+<div class="absolute top-2 left-2 w-4 h-4 pointer-events-none">
+<div class="w-full h-[1px] bg-outline-variant"></div>
+<div class="w-[1px] h-full bg-outline-variant"></div>
+</div>
+<div class="absolute top-2 right-2 w-4 h-4 pointer-events-none flex flex-col items-end">
+<div class="w-full h-[1px] bg-outline-variant"></div>
+<div class="w-[1px] h-full bg-outline-variant"></div>
+</div>
+<div class="absolute bottom-2 left-2 w-4 h-4 pointer-events-none flex flex-col justify-end">
+<div class="w-[1px] h-full bg-outline-variant"></div>
+<div class="w-full h-[1px] bg-outline-variant"></div>
+</div>
+<div class="absolute bottom-2 right-2 w-4 h-4 pointer-events-none flex flex-col justify-end items-end">
+<div class="w-[1px] h-full bg-outline-variant"></div>
+<div class="w-full h-[1px] bg-outline-variant"></div>
+</div>
+<!-- Chamber Header HUD -->
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                OPTICAL SCANNER // CALIBRATED
+              </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-space-xs py-0.5">
+                FOV: 42.8°
+              </span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">
+                SHELF: <span class="text-on-surface font-semibold">BGL-BAY-04</span>
+</span>
+</div>
+</div>
+<!-- Primary Specimen Stage -->
+<div class="relative w-full aspect-[4/3] bg-surface-container-lowest flex items-center justify-center overflow-hidden rounded-DEFAULT">
+<!-- Background Carbon Grid Reticle -->
+<div class="absolute inset-0 bg-[radial-gradient(#1c1f29_1px,transparent_1px)] [background-size:16px_16px] opacity-70"></div>
+<!-- Technical Overlay Target Circles -->
+<div class="absolute w-72 h-72 rounded-full pointer-events-none opacity-20"></div>
+<div class="absolute w-44 h-44 rounded-full pointer-events-none opacity-15"></div>
+<!-- Carbon Plinth Shadow Baseline -->
+<div class="absolute bottom-8 w-3/5 h-6 bg-surface-container-highest/40 blur-md rounded-full pointer-events-none"></div>
+<!-- Main Product Image -->
+<img alt="boAt Rockerz 450 Pro Technical View" class="relative z-10 max-h-[82%] object-contain filter drop-shadow-2xl transition-all duration-300" data-alt="Matte obsidian black boAt Rockerz 450 Pro over-ear wireless headphones with cushioned memory-foam cups and industrial brushed-gunmetal pivot hinges resting on a dark carbon fiber examination plinth, dramatic clinical edge lighting, sharp metallic contours, dark high-contrast studio presentation." id="main-specimen-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMR4O-9sL2Qjtoab6TTQB-9_QuNDUSW5hd0vfBwt4J5d1htPO69Uu67if7IZLVh7XtzvQR9MNLIycjLXrFTgtom6HC6Q-WgcAFdEoR0jaSHwI4MCJ31MmgGfbBGhRyLTSIMJsdPIyoDwRCyTS1HG99X3hNcXH4ekqGKb3D7FpJR4YNgsl_8R0ZLYmW5L-R0zysdV-aNUTrJP3is6caW9-p6A7qIeT6fqzOdw1_Df7g"/>
+<!-- Real-time Calibration HUD Overlay Pins -->
+<div class="absolute top-1/4 left-10 z-20 flex items-center gap-2 pointer-events-none">
+<div class="w-2 h-2 rounded-full bg-primary-container"></div>
+<div class="w-12 h-[1px] bg-primary-container/60"></div>
+<div class="bg-surface-container/90 px-space-xs py-0.5 rounded-DEFAULT">
+<span class="font-label-sm text-label-sm text-primary">DRIVER: 40MM NdFeB</span>
+</div>
+</div>
+<div class="absolute bottom-1/3 right-8 z-20 flex items-center gap-2 flex-row-reverse pointer-events-none">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<div class="w-12 h-[1px] bg-secondary/60"></div>
+<div class="bg-surface-container/90 px-space-xs py-0.5 rounded-DEFAULT">
+<span class="font-label-sm text-label-sm text-secondary">ASAP FAST CHARGE IC</span>
+</div>
+</div>
+</div>
+<!-- Multi-angle Thumbnails & Sensor Controls -->
+<div class="mt-space-md pt-space-sm flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<button class="angle-btn active group px-space-sm py-space-xs bg-surface-container-high rounded-DEFAULT transition-all" onclick="switchAngle('iso')">
+<span class="font-label-sm text-label-sm text-on-surface">ANG:01 // ISOMETRIC</span>
+</button>
+<button class="angle-btn group px-space-sm py-space-xs bg-surface-container rounded-DEFAULT hover:bg-surface-container-high transition-all" onclick="switchAngle('front')">
+<span class="font-label-sm text-label-sm text-on-surface-variant group-hover:text-on-surface">ANG:02 // TRANSDUCER</span>
+</button>
+<button class="angle-btn group px-space-sm py-space-xs bg-surface-container rounded-DEFAULT hover:bg-surface-container-high transition-all" onclick="switchAngle('detail')">
+<span class="font-label-sm text-label-sm text-on-surface-variant group-hover:text-on-surface">ANG:03 // TYPE-C BUS</span>
+</button>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-outline">view_in_ar</span>
+<span class="font-label-sm text-label-sm text-outline">STEREOMETRIC RATIO 1:1</span>
+</div>
+</div>
+</div>
+<!-- Inline Acoustic Sensor Sparkline Readout -->
+<div class="bg-surface-container-low p-space-md rounded-DEFAULT flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-primary">equalizer</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">ACOUSTIC PROFILE // SIGNATURE BASS CURVE (20Hz - 20kHz)</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container px-space-xs py-0.5">HARMONIC THD &lt; 0.5%</span>
+</div>
+<!-- Inline Sparkline Curve (Clean SVG under 1.5KB) -->
+<div class="w-full h-16 bg-surface-container-lowest px-space-sm py-space-xs rounded-DEFAULT flex items-center justify-center">
+<svg class="w-full h-12 text-primary overflow-visible" preserveaspectratio="none" viewbox="0 0 500 50">
+<!-- Grid lines -->
+<line stroke="#31353f" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="500" y1="25" y2="25"></line>
+<line stroke="#1c1f29" stroke-width="1" x1="125" x2="125" y1="0" y2="50"></line>
+<line stroke="#1c1f29" stroke-width="1" x1="250" x2="250" y1="0" y2="50"></line>
+<line stroke="#1c1f29" stroke-width="1" x1="375" x2="375" y1="0" y2="50"></line>
+<!-- Smooth Response Curve -->
+<path d="M0,35 Q40,15 90,20 T180,24 T260,28 T340,18 T420,12 L500,22" fill="none" stroke="currentColor" stroke-width="2"></path>
+<!-- Low latency peak dot -->
+<circle cx="90" cy="20" fill="#4edea3" r="3.5"></circle>
+<circle cx="340" cy="18" fill="#adc6ff" r="3"></circle>
+</svg>
+</div>
+<div class="flex items-center justify-between text-outline">
+<span class="font-label-sm text-label-sm">20 Hz (SUB)</span>
+<span class="font-label-sm text-label-sm">1 kHz (MID CORE)</span>
+<span class="font-label-sm text-label-sm">8 kHz (PRESENCE)</span>
+<span class="font-label-sm text-label-sm">20 kHz (AIR)</span>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN (Technical Sheet, ACID Lock & Specs: 5 cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Breadcrumb & SKU Metadata -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm tracking-wider">
+<a class="hover:text-primary transition-colors" data-path="shop" href="#">/SHOP</a>
+<span>/</span>
+<a class="hover:text-primary transition-colors" data-path="shop/transducers" href="#">TRANSDUCERS</a>
+<span>/</span>
+<span class="text-secondary font-mono">SPEC-BO-450PRO</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight mt-1">
+            boAt Rockerz 450 Pro
+          </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Engineered wireless on-ear transducer system equipped with ENx™ environmental noise suppression algorithms and proprietary 40mm tuned beryllium-alloy diaphragm drivers.
+          </p>
+</div>
+<!-- Pricing & Inventory Allocation Matrix -->
+<div class="bg-surface-container-low p-space-md rounded-DEFAULT flex flex-col gap-space-sm">
+<div class="flex items-baseline justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">UNIT TRANSFER VALUATION</span>
+<div class="flex items-baseline gap-space-sm mt-0.5">
+<span class="font-display-lg text-display-lg font-bold text-on-surface tabular-nums tracking-tighter">
+                  ₹1,499
+                </span>
+<span class="font-label-md text-label-md text-outline line-through tabular-nums">
+                  ₹3,990
+                </span>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container px-space-xs py-0.5 rounded-DEFAULT">
+                  -62.4% OFF MSRP
+                </span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline">EST. CLEARANCE</span>
+<div class="font-label-md text-label-md text-secondary font-mono font-medium">T+24H DISPATCH</div>
+</div>
+</div>
+</div>
+<!-- Interactive ACID Row Lock Control Card -->
+<div class="bg-surface-container p-space-md rounded-DEFAULT flex flex-col gap-space-sm relative overflow-hidden" id="acid-card">
+<!-- Live pulse glow background -->
+<div class="absolute -right-12 -top-12 w-32 h-32 bg-secondary/5 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold tracking-wide">
+                TRANSACTION ENCLAVE STATUS
+              </span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">
+              LATENCY: <span class="text-secondary">0.8ms</span>
+</span>
+</div>
+<!-- Lock state indicator -->
+<div class="bg-surface-container-lowest p-space-sm rounded-DEFAULT flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">DATABASE MUTEX:</span>
+<span class="text-primary font-mono font-semibold" id="lock-status-badge">ACQUIRING ROW EXCLUSIVE LOCK</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">AVAILABLE ROW ALLOCATION:</span>
+<span class="text-on-surface font-mono font-bold"><span class="text-secondary" id="units-count">42</span> UNITS UNCOMMITTED</span>
+</div>
+<!-- Progress / Lock Capacity bar -->
+<div class="w-full bg-surface-container h-1.5 rounded-DEFAULT overflow-hidden mt-1">
+<div class="h-full bg-secondary transition-all duration-500" id="lock-meter" style="width: 84%;"></div>
+</div>
+</div>
+<!-- Transaction Telemetry Mini Bar -->
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-secondary">security</span>
+              ISOLATION: SERIALIZABLE
+            </span>
+<span>MVCC TID: 8392104-B</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-space-sm">
+<button class="w-full h-11 bg-on-surface text-surface-container-lowest font-headline-md text-body-md font-bold rounded-DEFAULT hover:bg-on-surface/90 active:translate-y-[1px] transition-all flex items-center justify-center gap-space-sm shadow-md" id="claim-btn" onclick="executeClaimLock()" type="button">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>CLAIM SKU &amp; LOCK INVENTORY</span>
+</button>
+<button class="w-full h-11 bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-md text-body-md font-medium rounded-DEFAULT transition-all flex items-center justify-center gap-space-sm" id="dryrun-btn" onclick="executeDryRun()" type="button">
+<span class="material-symbols-outlined text-[18px] text-outline">terminal</span>
+<span id="dryrun-label">TRIGGER DRY-RUN QUERY (EXPLAIN ANALYZE)</span>
+</button>
+</div>
+<!-- Technical Hardware Specifications Matrix -->
+<div class="bg-surface-container-low rounded-DEFAULT overflow-hidden mt-space-xs">
+<div class="px-space-md py-space-sm bg-surface-container flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold tracking-wider uppercase">
+              HARDWARE SPECIFICATION SHEET
+            </span>
+<span class="font-label-sm text-label-sm text-outline font-mono">SPEC_VER: 4.10.9</span>
+</div>
+<div class="flex flex-col divide-y divide-outline-variant/20">
+<!-- Spec Row 1 -->
+<div class="px-space-md py-space-xs flex items-center justify-between hover:bg-surface-container transition-colors">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Acoustic Driver Size</span>
+<span class="font-label-md text-label-md text-on-surface font-mono font-medium">40mm Dynamic NdFeB</span>
+</div>
+<!-- Spec Row 2 -->
+<div class="px-space-md py-space-xs flex items-center justify-between hover:bg-surface-container transition-colors">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Nominal Impedance</span>
+<span class="font-label-md text-label-md text-on-surface font-mono font-medium">32Ω (±15% @ 1kHz)</span>
+</div>
+<!-- Spec Row 3 -->
+<div class="px-space-md py-space-xs flex items-center justify-between hover:bg-surface-container transition-colors">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Frequency Bandwidth</span>
+<span class="font-label-md text-label-md text-on-surface font-mono font-medium">20 Hz – 20,000 Hz</span>
+</div>
+<!-- Spec Row 4 -->
+<div class="px-space-md py-space-xs flex items-center justify-between hover:bg-surface-container transition-colors">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cellular Energy Reserve</span>
+<span class="font-label-md text-label-md text-secondary font-mono font-medium">70 Hours (400mAh Li-Po)</span>
+</div>
+<!-- Spec Row 5 -->
+<div class="px-space-md py-space-xs flex items-center justify-between hover:bg-surface-container transition-colors">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Beast™ Mode Latency</span>
+<span class="font-label-md text-label-md text-primary font-mono font-medium">40ms Ultra-Low Latency</span>
+</div>
+<!-- Spec Row 6 -->
+<div class="px-space-md py-space-xs flex items-center justify-between hover:bg-surface-container transition-colors">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Wireless Protocol Bus</span>
+<span class="font-label-md text-label-md text-on-surface font-mono font-medium">Bluetooth v5.0 / A2DP, AVRCP</span>
+</div>
+<!-- Spec Row 7 -->
+<div class="px-space-md py-space-xs flex items-center justify-between hover:bg-surface-container transition-colors">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Fast Ingress Charging</span>
+<span class="font-label-md text-label-md text-on-surface font-mono font-medium">ASAP Charge (10m = 10hrs)</span>
+</div>
+</div>
+</div>
+<!-- Telemetry Integrity Footnote -->
+<div class="p-space-sm bg-surface-container-lowest rounded-DEFAULT flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-secondary mt-0.5">verified_user</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface font-medium">
+              POSTGRESQL INVENTORY INTEGRITY ENFORCED
+            </span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">
+              Direct Postgres isolation level: <span class="text-on-surface font-mono">SERIALIZABLE</span>. Guaranteed zero phantom reads, no double-allocations, zero race conditions under concurrent workloads.
+            </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Client-side Script -->
+<script>
+    function switchAngle(mode) {
+      const img = document.getElementById('main-specimen-img');
+      const buttons = document.querySelectorAll('.angle-btn');
+      
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-surface-container-high', 'text-on-surface');
+        btn.classList.add('bg-surface-container', 'text-on-surface-variant');
+      });
+
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add('bg-surface-container-high', 'text-on-surface');
+        event.currentTarget.classList.remove('bg-surface-container', 'text-on-surface-variant');
+      }
+
+      img.style.transform = 'scale(0.97)';
+      setTimeout(() => {
+        if(mode === 'front') {
+          img.style.filter = 'brightness(1.05) contrast(1.1)';
+        } else if(mode === 'detail') {
+          img.style.filter = 'brightness(0.95) contrast(1.15)';
+        } else {
+          img.style.filter = 'none';
+        }
+        img.style.transform = 'scale(1)';
+      }, 150);
+    }
+
+    function executeClaimLock() {
+      const badge = document.getElementById('lock-status-badge');
+      const count = document.getElementById('units-count');
+      const meter = document.getElementById('lock-meter');
+      const btn = document.getElementById('claim-btn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span><span>ACQUIRING ROW EXCLUSIVE LOCK...</span>';
+
+      setTimeout(() => {
+        badge.textContent = 'ROW EXCLUSIVE LOCK COMMITTED [TXID: 99428]';
+        badge.classList.remove('text-primary');
+        badge.classList.add('text-secondary');
+        count.textContent = '41';
+        meter.style.width = '82%';
+        
+        btn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-secondary">check_circle</span><span>RESERVED & ADDED TO DISPATCH ENCLAVE</span>';
+        btn.classList.remove('bg-on-surface');
+        btn.classList.add('bg-surface-container-high', 'text-secondary');
+      }, 700);
+    }
+
+    function executeDryRun() {
+      const label = document.getElementById('dryrun-label');
+      label.textContent = 'EXECUTING: SELECT * FOR UPDATE NOWAIT...';
+      
+      setTimeout(() => {
+        label.textContent = 'RESULT: Planning Time 0.041ms | Execution 0.118ms (0 PHANTOMS)';
+        setTimeout(() => {
+          label.textContent = 'TRIGGER DRY-RUN QUERY (EXPLAIN ANALYZE)';
+        }, 3200);
+      }, 500);
+    }
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest border-t border-outline-variant/30"><div class="max-w-[1440px] mx-auto px-margin py-space-xl flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><span class="font-label-sm text-label-sm text-on-surface-variant">PulseCart OS © 2025</span><span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span><span class="font-label-sm text-label-sm text-secondary flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_6px_#4edea3]"></span> All Systems Operational</span></div><div class="flex items-center gap-space-lg"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="protocol-specs" href="#">Protocol Specs</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="postgres-enclave" href="#">Postgres Enclave</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="kafka-stream" href="#">Kafka Stream</a></div></div></footer></body></html>

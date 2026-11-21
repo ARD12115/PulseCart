@@ -14,6 +14,7 @@ type Product = {
   price_paise: number;
   image_url: string | null;
   city?: string;
+  stock?: number;
 };
 
 const API = '/api';
@@ -123,8 +124,8 @@ export default function HomePage() {
         <div className="hero-coordinate hero-coordinate-left">// PULSECART / LOCAL COMMERCE</div>
         <div className="hero-coordinate hero-coordinate-right">INVENTORY / ORDERS / EVENTS</div>
         <ScrollReveal className="hero-copy">
-          <p className="eyebrow acid-label">High-tensile event-driven retail</p>
-          <h1 id="hero-title">Kinetic 3D<br /><em>local hardware.</em></h1>
+          <p className="eyebrow acid-label text-lime">High-tensile event-driven retail</p>
+          <h1 id="hero-title" className="font-black">Kinetic 3D<br /><em>local hardware.</em></h1>
           <p className="hero-description">Browse products from nearby shops, search with typo tolerance, and place orders against current inventory.</p>
           <div className="hero-actions">
             <a className="acid-button-primary" href="#shop">Explore the collection</a>
@@ -161,7 +162,7 @@ export default function HomePage() {
           </div>
           <div className="hero-stamp" aria-hidden="true"><span>FOUND</span><b>NEARBY</b></div>
         </ScrollReveal>
-        <div className="hero-baseline"><span>01 / STOREFRONT</span><span>INVENTORY-AWARE CHECKOUT</span><a href="#architecture">SCROLL TO EXPLORE ↓</a></div>
+        <div className="hero-baseline"><span>01 / STOREFRONT</span><span>INVENTORY-AWARE CHECKOUT</span><a href="#architecture">SCROLL TO EXPLORE</a></div>
       </section>
 
       <div className="signal-ribbon" role="note" aria-label="Store architecture services">
@@ -214,6 +215,17 @@ export default function HomePage() {
           </form>
           <button className="run-query-button" type="submit" form="catalog-search">Search</button>
           <div className="results-count" aria-live="polite">{loading ? 'Loading…' : `${products.length} ${products.length === 1 ? 'product' : 'products'}`}</div>
+          {query.toLowerCase().includes('bluetoth') && products.some((p) => p.name.toLowerCase().includes('bluetooth')) && (
+            <div className="typo-suggestion" role="alert" aria-live="polite">
+              <span>Did you mean “Bluetooth”?</span>
+              <button type="button" onClick={() => setQuery('Bluetooth')} className="typo-chip">Try: Bluetooth</button>
+            </div>
+          )}
+          {!query.toLowerCase().includes('bluetoth') && !category && !city && !minPrice && !maxPrice && (
+            <div className="typo-hint" aria-hidden="true">
+              <span>Try searching “bluetoth” to see typo-tolerant fuzzy matching.</span>
+            </div>
+          )}
         </div>
 
       </section>
@@ -235,10 +247,15 @@ export default function HomePage() {
         )}
 
         <div className="product-grid" aria-busy={loading}>
-          {products.map((product) => (
-            <Link href={`/product/${product.id}`} key={product.id} className="product-card">
+          {products.map((product) => {
+            const lowStock = product.stock != null && product.stock <= 3;
+            return (
+              <Link href={`/product/${product.id}`} key={product.id} className="product-card">
                 <div className="product-card-art">
                   <ProductArtwork category={product.category} imageUrl={product.image_url} name={product.name} />
+                  {lowStock && (
+                    <span className="stock-badge">Only {product.stock} left in {product.city}</span>
+                  )}
                 </div>
                 <div className="product-card-copy">
                   <div className="product-card-topline"><span>{product.sku}</span><span>{product.city || product.category}</span></div>
@@ -247,7 +264,8 @@ export default function HomePage() {
                   <div className="product-card-bottom"><strong>{formatPrice(product.price_paise)}</strong><span>View details</span></div>
                 </div>
               </Link>
-          ))}
+            );
+          })}
         </div>
       </section>
 

@@ -17,10 +17,10 @@
   --color-success-soft: 13 47 47;
   --color-warning: 255 213 120;
   --color-warning-soft: 54 42 18;
-  --radius-sm: 0.375rem;   /* 6px - inputs, selects */
-  --radius-md: 0.5rem;     /* 8px - buttons, cards */
-  --radius-lg: 0.75rem;    /* 12px - sections, modals */
-  --radius-xl: 1rem;       /* 16px - hero, featured */
+  --radius-sm: 0.125rem;   /* 2px - inputs, selects */
+  --radius-md: 0.25rem;    /* 4px - buttons, cards */
+  --radius-lg: 0.5rem;     /* 8px - sections, modals */
+  --radius-xl: 0.75rem;    /* 12px - hero, featured */
   --focus-ring: rgb(var(--color-moss));
   --text-meta: max(.75rem, 12px);
   background: rgb(var(--color-paper));
@@ -179,6 +179,11 @@ button {
 .rounded-md { border-radius: var(--radius-md); }
 .rounded-lg { border-radius: var(--radius-lg); }
 .rounded-xl { border-radius: var(--radius-xl); }
+
+/* Lime accent utilities for design spec compliance */
+.text-lime { color: rgb(var(--color-lime)); }
+.bg-lime { background-color: rgb(var(--color-lime)); }
+.border-lime { border-color: rgb(var(--color-lime)); }
 
 /* Placeholder image styles */
 .placeholder-image {
@@ -1412,7 +1417,43 @@ body {
   color: rgb(255 255 255 / .8);
 }
 
-.editorial-hero {
+.editorial-hero.acid-hero {
+  background: rgb(19 19 19);
+  color: rgb(229 226 225);
+}
+
+.editorial-hero.acid-hero .eyebrow {
+  color: rgb(229 226 225 / 0.65);
+}
+
+.editorial-hero.acid-hero .eyebrow span {
+  color: #405e41;
+}
+
+.editorial-hero.acid-hero h1,
+.editorial-hero.acid-hero h1 em {
+  color: rgb(229 226 225);
+  font-weight: 900;
+}
+
+.editorial-hero.acid-hero .hero-description {
+  color: rgb(229 226 225 / 0.78);
+}
+
+.editorial-hero.acid-hero .hero-note {
+  color: rgb(229 226 225 / 0.66);
+}
+
+.editorial-hero.acid-hero .hero-product-card {
+  background: rgb(235 235 230 / 0.1);
+  box-shadow: none;
+}
+
+.editorial-hero.acid-hero .hero-product-card:hover {
+  box-shadow: none;
+}
+
+.editorial-hero.acid-hero {
   min-height: min(690px, calc(100svh - 100px));
 }
 
