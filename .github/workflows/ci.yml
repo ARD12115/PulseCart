@@ -27,27 +27,12 @@ jobs:
       OPENSEARCH_PASSWORD: ""
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_SECURITY_PROTOCOL: PLAINTEXT
-      APP_ENV: production
+      APP_ENV: development
       ADMIN_KEY: dev-admin-key-change-in-production
       CHECKOUT_RATE_LIMIT: 100/minute
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
-      - name: Create .env from GitHub secrets
-        run: |
-          cat > .env << 'EOF'
-          PG_DSN=${{ secrets.PG_DSN }}
-          PG_PASSWORD=${{ secrets.PG_PASSWORD }}
-          PULSECART_APP_PASSWORD=${{ secrets.PULSECART_APP_PASSWORD }}
-          ADMIN_KEY=${{ secrets.ADMIN_KEY }}
-          OPENSEARCH_URL=${{ secrets.OPENSEARCH_URL }}
-          OPENSEARCH_USERNAME=${{ secrets.OPENSEARCH_USERNAME }}
-          OPENSEARCH_PASSWORD=${{ secrets.OPENSEARCH_PASSWORD }}
-          KAFKA_BOOTSTRAP=${{ secrets.KAFKA_BOOTSTRAP }}
-          KAFKA_SASL_USERNAME=${{ secrets.KAFKA_SASL_USERNAME }}
-          KAFKA_SASL_PASSWORD=${{ secrets.KAFKA_SASL_PASSWORD }}
-          EOF
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -87,6 +72,13 @@ jobs:
       - name: Start backend
         run: docker compose up -d --wait --wait-timeout 180 backend
 
+      - name: Capture backend startup diagnostics
+        if: always()
+        run: |
+          docker compose ps --all
+          docker compose logs --no-color --tail=200 backend seed postgres kafka opensearch
+          curl --silent --show-error --max-time 5 http://localhost:8000/health || true
+
       - name: Verify seeded product is available
         run: curl --fail http://localhost:8000/products/1
 
@@ -117,7 +109,7 @@ jobs:
         working-directory: frontend
         env:
           CI: true
-          APP_ENV: production
+          APP_ENV: development
           ADMIN_KEY: dev-admin-key-change-in-production
         run: npx playwright test --project=chromium --grep "Rate limiting enforced on checkout" --max-failures=1
 
