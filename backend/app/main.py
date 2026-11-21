@@ -693,6 +693,23 @@ async def admin_orders(
     return [{**dict(row), "items": items_by_order[row["id"]]} for row in rows]
 
 
+@app.delete("/admin/orders/{order_id}", status_code=204)
+async def admin_delete_order(
+    order_id: int,
+    _: None = Depends(require_admin_key),
+):
+    """Delete an order and its associated order items."""
+    await db_pool().execute(
+        "DELETE FROM order_items WHERE order_id = $1", order_id
+    )
+    result = await db_pool().execute(
+        "DELETE FROM orders WHERE id = $1", order_id
+    )
+    # asyncpg returns "DELETE 0" if no row matched
+    if result == "DELETE 0":
+        raise HTTPException(status_code=404, detail="Order not found")
+
+
 @app.get("/admin/outbox")
 async def admin_outbox(
     response: Response,
