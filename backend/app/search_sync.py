@@ -12,6 +12,7 @@ from app.connections import (
     create_opensearch_client,
     kafka_client_options,
     postgres_connection_kwargs,
+    postgres_pool_limits,
 )
 from app.resilience import configure_logging, handle_with_retry, safe_json_loads
 
@@ -206,7 +207,7 @@ async def main() -> None:
     if not PG_DSN:
         raise RuntimeError("PG_DSN is not configured")
     pool = await asyncpg.create_pool(
-        PG_DSN, min_size=1, max_size=4, **postgres_connection_kwargs()
+        PG_DSN, **postgres_pool_limits(), **postgres_connection_kwargs()
     )
     client = create_opensearch_client()
     consumer = AIOKafkaConsumer(

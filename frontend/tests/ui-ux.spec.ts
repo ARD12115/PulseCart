@@ -155,8 +155,9 @@ test.describe('UI/UX and Visual Regression', () => {
     const themeSelect = page.locator('#color-theme');
     await themeSelect.selectOption('dark');
     await page.waitForTimeout(200);
-    const themeBg = await page.locator('html').evaluate(el => getComputedStyle(el).backgroundColor);
-    expect(themeBg).toMatch(/rgb\(19, 19, 19\)/);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    const paper = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--color-paper').trim());
+    expect(paper).toBe('7 11 20');
   });
 
   test('Light mode toggle works', async ({ page }) => {
@@ -165,8 +166,9 @@ test.describe('UI/UX and Visual Regression', () => {
     const themeSelect = page.locator('#color-theme');
     await themeSelect.selectOption('light');
     await page.waitForTimeout(200);
-    const themeBg = await page.locator('html').evaluate(el => getComputedStyle(el).backgroundColor);
-    expect(themeBg).toMatch(/rgb\(239, 246, 250\)/);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    const paper = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--color-paper').trim());
+    expect(paper).toBe('239 246 250');
   });
 
   test('System theme respects OS preference', async ({ page }) => {

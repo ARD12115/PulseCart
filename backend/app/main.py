@@ -22,7 +22,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.checkout import OutOfStock, UnknownProduct, place_order
-from app.connections import create_opensearch_client, postgres_connection_kwargs
+from app.connections import create_opensearch_client, postgres_connection_kwargs, postgres_pool_limits
 from app.search_terms import expand_query
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -100,7 +100,7 @@ async def lifespan(_: FastAPI):
     if not PG_DSN:
         raise RuntimeError("PG_DSN must be configured")
     pool = await asyncpg.create_pool(
-        PG_DSN, min_size=2, max_size=10, **postgres_connection_kwargs()
+        PG_DSN, **postgres_pool_limits(), **postgres_connection_kwargs()
     )
     cleanup_task = asyncio.create_task(cart_cleanup_loop(pool))
     try:

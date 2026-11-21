@@ -6,7 +6,7 @@ from pathlib import Path
 import asyncpg
 from dotenv import load_dotenv
 
-from app.connections import postgres_connection_kwargs
+from app.connections import postgres_connection_kwargs, postgres_pool_limits
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(PROJECT_ROOT / ".env")
@@ -151,7 +151,7 @@ async def main() -> None:
         raise RuntimeError("PG_DSN is not configured")
 
     pool = await asyncpg.create_pool(
-        dsn, min_size=1, max_size=4, **postgres_connection_kwargs()
+        dsn, **postgres_pool_limits(), **postgres_connection_kwargs()
     )
     try:
         async with pool.acquire() as conn:

@@ -18,6 +18,24 @@ def postgres_connection_kwargs() -> dict[str, str]:
     return {"password": password} if password is not None else {}
 
 
+def postgres_pool_limits(default_max: int = 2) -> dict[str, int]:
+    """Use conservative per-process pools; hosted databases often cap connections."""
+    minimum = int(os.getenv("PG_POOL_MIN_SIZE", "1"))
+    maximum = int(os.getenv("PG_POOL_MAX_SIZE", str(default_max)))
+    if minimum < 1 or maximum < minimum:
+        raise ValueError("PG_POOL_MAX_SIZE must be >= PG_POOL_MIN_SIZE >= 1")
+    return {"min_size": minimum, "max_size": maximum}
+
+
+def postgres_pool_limits(default_min: int = 1, default_max: int = 4) -> dict[str, int]:
+    """Pool limits can be lowered for hosted databases with small connection quotas."""
+    minimum = int(os.getenv("PG_POOL_MIN_SIZE", str(default_min)))
+    maximum = int(os.getenv("PG_POOL_MAX_SIZE", str(default_max)))
+    if minimum < 1 or maximum < minimum:
+        raise ValueError("PG_POOL_MAX_SIZE must be >= PG_POOL_MIN_SIZE >= 1")
+    return {"min_size": minimum, "max_size": maximum}
+
+
 def create_opensearch_client() -> AsyncOpenSearch:
     url = os.getenv("OPENSEARCH_URL")
     if not url:
