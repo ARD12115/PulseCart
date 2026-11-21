@@ -96,7 +96,10 @@ class PostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
             self.product_id,
         )
 
-        await self.order(cart_id=cart_id)
+        cart_secret = await self.pool.fetchval(
+            "SELECT cart_secret FROM carts WHERE id = $1", cart_id
+        )
+        await self.order(cart_id=cart_id, cart_secret=cart_secret)
 
         remaining = await self.pool.fetchval(
             "SELECT count(*) FROM cart_items WHERE cart_id = $1", cart_id
