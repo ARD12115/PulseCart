@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-on-surface": "#eaf1ff", "secondary-container": "#82f5c1", "on-secondary-container": "#00714e", "background": "#f8f9ff", "surface-tint": "#565e74", "secondary-fixed-dim": "#68dba9", "tertiary": "#000000", "surface-container-low": "#eff4ff", "tertiary-fixed": "#b7eaff", "tertiary-fixed-dim": "#6cd3f7", "on-primary-fixed-variant": "#3f465c", "on-error-container": "#93000a", "primary": "#000000", "on-tertiary-fixed-variant": "#004e61", "outline": "#76777d", "on-tertiary-fixed": "#001f28", "on-primary-container": "#7c839b", "on-secondary-fixed-variant": "#005137", "on-background": "#0b1c30", "primary-fixed": "#dae2fd", "on-surface-variant": "#45464d", "on-error": "#ffffff", "inverse-surface": "#213145", "surface": "#f8f9ff", "error-container": "#ffdad6", "on-surface": "#0b1c30", "secondary-fixed": "#85f8c4", "error": "#ba1a1a", "on-secondary": "#ffffff", "surface-container": "#e5eeff", "surface-container-high": "#dce9ff", "on-secondary-fixed": "#002114", "secondary": "#006c4a", "on-primary-fixed": "#131b2e", "primary-container": "#131b2e", "outline-variant": "#c6c6cd", "surface-dim": "#cbdbf5", "surface-container-highest": "#d3e4fe", "inverse-primary": "#bec6e0", "on-tertiary": "#ffffff", "on-tertiary-container": "#028fb0", "tertiary-container": "#001f28", "on-primary": "#ffffff", "surface-container-lowest": "#ffffff", "surface-bright": "#f8f9ff", "surface-variant": "#d3e4fe", "primary-fixed-dim": "#bec6e0" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-md": "1rem", "margin-sm": "1rem", "gutter-sm": "1rem", "gutter": "1.5rem", "space-xs": "0.25rem", "margin": "2rem", "gutter-lg": "2rem", "space-xl": "2.5rem", "margin-lg": "3rem", "space-lg": "1.5rem", "space-sm": "0.5rem" }, "fontFamily": { "headline-sm": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "tabular-price-lg": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "tabular-data-md": ["Plus Jakarta Sans"] }, "fontSize": { "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" }], "headline-xl": ["44px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-xl-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "tabular-price-lg": ["24px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }], "tabular-data-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest border-b border-outline-variant/30"><div class="h-14 w-full px-gutter-lg flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><div class="w-6 h-6 bg-primary flex items-center justify-center rounded"><span class="material-symbols-outlined text-on-primary text-[16px]">shopping_bag</span></div><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">PulseCart</span><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant uppercase">Console</span></div><div class="h-4 w-px bg-outline-variant/50"></div><div class="hidden lg:flex items-center gap-space-sm px-space-sm py-0.5 rounded bg-surface-container-low border border-outline-variant/40"><span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span><span class="font-label-sm text-label-sm uppercase text-secondary font-semibold">CLUSTER ACTIVE</span><span class="text-outline-variant">·</span><span class="font-tabular-data-md text-tabular-data-md text-on-surface-variant">0.42ms direct</span></div></div><div class="flex items-center gap-space-lg"><nav class="hidden md:flex items-center gap-space-md h-14" data-active-classes="text-on-surface border-b-2 border-primary font-semibold"><a class="h-full flex items-center px-space-sm font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="shop" href="#">Shop</a><a class="h-full flex items-center px-space-sm font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="cart" href="#">Cart</a><a class="h-full flex items-center px-space-sm font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="lab" href="#">Lab</a><a class="h-full flex items-center px-space-sm font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="overview" href="#">Admin</a></nav><div class="flex items-center gap-space-md"><div class="relative hidden sm:flex items-center"><span class="material-symbols-outlined absolute left-space-sm text-outline text-[18px] pointer-events-none">search</span><input class="w-64 pl-8 pr-12 py-1 bg-surface-container-lowest border border-outline-variant/60 rounded font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none transition-colors" placeholder="Search inventory, trace, telemetry..." type="text"/><kbd class="absolute right-space-sm font-label-sm text-label-sm text-outline border border-outline-variant/60 rounded px-1 bg-surface-container-low">⌘K</kbd></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/30 z-40 flex flex-col justify-between"><div class="py-space-md"><div class="px-gutter-sm mb-space-sm"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Operational Subsystems</span></div><nav class="flex flex-col" data-active-classes="bg-surface-container-high text-on-surface font-semibold border-r-2 border-primary"><a class="flex items-center gap-space-sm px-gutter-sm py-2 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="overview" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span>Overview</a><a aria-current="page" class="flex items-center gap-space-sm px-gutter-sm py-2 transition-colors bg-surface-container-high text-on-surface font-semibold border-r-2 border-primary" data-path="analytics" href="#"><span class="material-symbols-outlined text-[18px]">monitoring</span>Analytics</a><a class="flex items-center gap-space-sm px-gutter-sm py-2 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="mutex-locks" href="#"><span class="material-symbols-outlined text-[18px]">lock_clock</span>Mutex Locks</a><a class="flex items-center gap-space-sm px-gutter-sm py-2 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="fleet-logistics" href="#"><span class="material-symbols-outlined text-[18px]">local_shipping</span>Fleet &amp; Logistics</a><a class="flex items-center gap-space-sm px-gutter-sm py-2 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="event-stream" href="#"><span class="material-symbols-outlined text-[18px]">stream</span>Event Stream</a><a class="flex items-center gap-space-sm px-gutter-sm py-2 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="database-wal" href="#"><span class="material-symbols-outlined text-[18px]">storage</span>Database WAL</a><a class="flex items-center gap-space-sm px-gutter-sm py-2 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings</span>Settings</a></nav></div><div class="p-gutter-sm border-t border-outline-variant/30 bg-surface-container-lowest"><div class="flex items-center justify-between"><div class="flex flex-col"><span class="font-label-sm text-label-sm text-outline">NODE</span><span class="font-tabular-data-md text-tabular-data-md text-on-surface">us-east-1.p42</span></div><span class="font-label-sm text-label-sm text-secondary bg-secondary-container/40 px-1.5 py-0.5 rounded">HEALTHY</span></div></div></aside><div class="pl-64"><main class="w-full pt-14 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-Header & Live Ops Control Strip -->
+<div class="w-full bg-surface-container-lowest px-gutter py-space-sm">
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
+<!-- Title & Mission Status -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm text-outline">
+<span>MISSION CONTROL</span>
+<span class="text-outline-variant">/</span>
+<span>ADMIN</span>
+<span class="text-outline-variant">/</span>
+<span class="text-primary font-semibold">ANALYTICS_ENGINE_V4</span>
+</div>
+<div class="flex items-center gap-space-md flex-wrap">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+            Distributed Telemetry &amp; Transaction Analytics
+          </h1>
+<div class="flex items-center gap-space-xs px-space-sm py-0.5 rounded bg-surface-container-low">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+<span class="font-label-sm text-label-sm text-secondary uppercase font-bold tracking-wider">
+              STREAMING 120 FPS // CLUSTER AP-SOUTH-1
+            </span>
+</div>
+</div>
+</div>
+<!-- Granular Epoch Selector & Action Bar -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<!-- Epoch Range Buttons -->
+<div class="flex items-center bg-surface-container-low p-0.5 rounded">
+<button class="px-space-sm py-1 font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors">1H</button>
+<button class="px-space-sm py-1 font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors">6H</button>
+<button class="px-space-sm py-1 font-label-sm text-label-sm bg-surface-container-high text-on-surface rounded font-semibold shadow-sm">24H</button>
+<button class="px-space-sm py-1 font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors">7D</button>
+<button class="px-space-sm py-1 font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors">CUSTOM</button>
+</div>
+<!-- Live Tail Toggle Pill -->
+<div class="flex items-center gap-space-xs px-space-sm py-1.5 bg-surface-container-low rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">LIVE TAIL: <span class="text-primary">ON</span></span>
+</div>
+<!-- WAL Health Indicator -->
+<div class="hidden sm:flex items-center gap-space-xs px-space-sm py-1.5 bg-surface-container-low rounded">
+<span class="material-symbols-outlined text-secondary text-[14px]">database</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">PG WAL: <span class="text-secondary font-semibold">SYNCED</span></span>
+</div>
+<!-- Export Action Button -->
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-primary-container text-on-primary-fixed hover:bg-primary transition-colors rounded font-label-sm text-label-sm font-semibold tracking-wider uppercase">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+<span>EXPORT MATRIX</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Telemetry Body Canvas -->
+<div class="p-gutter flex flex-col gap-space-lg">
+<!-- Row 1: Monolithic Telemetry Metric Bays (4 KPI Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Bay 1: Gross Settlement -->
+<div class="p-space-md bg-surface-container-lowest rounded flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm uppercase text-outline">Settlement Rate // Diurnal</span>
+<span class="font-display-lg text-display-lg-mobile lg:text-[2rem] lg:leading-[2.25rem] text-on-surface font-bold tracking-tight">
+              ₹14,89,240
+            </span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary/10 px-1.5 py-0.5 rounded flex items-center gap-0.5 font-semibold">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+            +18.4%
+          </span>
+</div>
+<!-- Sparkline Visualization -->
+<div class="w-full my-space-sm">
+<svg class="w-full h-8 overflow-visible" preserveaspectratio="none" viewbox="0 0 100 24">
+<path class="text-primary" d="M 0,18 Q 15,22 30,12 T 60,10 T 85,4 L 100,2" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<path class="text-primary/10" d="M 0,18 Q 15,22 30,12 T 60,10 T 85,4 L 100,2 L 100,24 L 0,24 Z" fill="currentColor"></path>
+</svg>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm pt-space-xs text-outline">
+<span>DAILY TARGET: ₹15.00L</span>
+<span class="text-on-surface font-semibold">PACE: 99.2%</span>
+</div>
+</div>
+<!-- Bay 2: Transaction Throughput -->
+<div class="p-space-md bg-surface-container-lowest rounded flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm uppercase text-outline">Cluster Throughput // Peak</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display-lg text-display-lg-mobile lg:text-[2rem] lg:leading-[2.25rem] text-on-surface font-bold tracking-tight">
+                4,820
+              </span>
+<span class="font-label-md text-label-md text-outline">req/s</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-outline-variant bg-surface-container-high px-1.5 py-0.5 rounded font-mono">
+            PEAK: 6.4k
+          </span>
+</div>
+<div class="w-full my-space-sm">
+<svg class="w-full h-8 overflow-visible" preserveaspectratio="none" viewbox="0 0 100 24">
+<path class="text-secondary" d="M 0,20 L 15,18 L 30,15 L 45,8 L 60,12 L 75,5 L 90,6 L 100,3" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<path class="text-secondary/10" d="M 0,20 L 15,18 L 30,15 L 45,8 L 60,12 L 75,5 L 90,6 L 100,3 L 100,24 L 0,24 Z" fill="currentColor"></path>
+</svg>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm pt-space-xs">
+<span class="text-outline">RAFT QUORUM: 5/5</span>
+<span class="text-secondary bg-secondary/10 px-1 rounded font-semibold">SERIALIZABLE_2PL</span>
+</div>
+</div>
+<!-- Bay 3: Mutex Contention Latency -->
+<div class="p-space-md bg-surface-container-lowest rounded flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm uppercase text-outline">Inode Contention // p50</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display-lg text-display-lg-mobile lg:text-[2rem] lg:leading-[2.25rem] text-on-surface font-bold tracking-tight">
+                1.42
+              </span>
+<span class="font-label-md text-label-md text-outline">ms</span>
+</div>
+</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary bg-secondary/10 px-1.5 py-0.5 rounded font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>OPTIMAL</span>
+</div>
+</div>
+<div class="w-full my-space-sm flex items-center gap-space-sm">
+<div class="flex-1 bg-surface-container-low h-2 rounded overflow-hidden">
+<div class="bg-primary h-full w-[28%]"></div>
+</div>
+<span class="font-label-sm text-label-sm text-outline">p99: 4.8ms</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm pt-space-xs text-outline">
+<span>ACTIVE ROW LOCKS: 128</span>
+<span class="text-on-surface">SPIN: 14 CYC</span>
+</div>
+</div>
+<!-- Bay 4: Autonomous Transit SLA -->
+<div class="p-space-md bg-surface-container-lowest rounded flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm uppercase text-outline">Transit SLA // BLR Mesh</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display-lg text-display-lg-mobile lg:text-[2rem] lg:leading-[2.25rem] text-on-surface font-bold tracking-tight">
+                18.4
+              </span>
+<span class="font-label-md text-label-md text-outline">min</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-primary bg-primary/10 px-1.5 py-0.5 rounded font-mono font-semibold">
+            HYPER-HUB
+          </span>
+</div>
+<div class="w-full my-space-sm">
+<div class="flex items-center justify-between text-body-sm font-label-sm text-outline mb-1">
+<span>24 FLEET ACTIVE</span>
+<span class="text-secondary">0% DROPOUT</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded overflow-hidden flex">
+<div class="bg-secondary h-full w-3/4"></div>
+<div class="bg-primary h-full w-1/4"></div>
+</div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm pt-space-xs text-outline">
+<span>18 ROVERS ACTIVE</span>
+<span class="text-on-surface font-semibold">6 DRONES EN ROUTE</span>
+</div>
+</div>
+</div>
+<!-- Row 2: Deep Core Telemetry Layout (Split 65% / 35%) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg">
+<!-- Left Column (8 cols = ~66%) -->
+<div class="xl:col-span-8 flex flex-col gap-space-lg">
+<!-- Panel 1: Throughput & Contention Curve Graph -->
+<div class="bg-surface-container-lowest p-space-md rounded flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">24-Hour Throughput &amp; Inode Mutex Curve</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">High-density time-series trace [AP-SOUTH-1-PRIMARY-INGRESS]</span>
+</div>
+<!-- Series Toggles -->
+<div class="flex items-center gap-space-xs flex-wrap font-label-sm text-label-sm">
+<span class="px-2 py-0.5 rounded bg-primary text-on-primary font-semibold">ALL TRAFFIC</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-medium">2PL LOCKS</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-medium">COMMITTED</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-secondary font-medium">ROLLBACKS: 0</span>
+</div>
+</div>
+<!-- Technical SVG Area Chart with Layered Trajectories -->
+<div class="w-full h-72 relative bg-surface-container-low rounded p-space-sm flex flex-col justify-between">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 800 240">
+<defs>
+<lineargradient id="cyanGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"></stop>
+</lineargradient>
+<lineargradient id="purpleGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#8083ff" stop-opacity="0.25"></stop>
+<stop offset="100%" stop-color="#8083ff" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Subtle Dotted Reference Grid -->
+<line stroke="#424754" stroke-dasharray="4,4" stroke-opacity="0.3" x1="0" x2="800" y1="40" y2="40"></line>
+<line stroke="#424754" stroke-dasharray="4,4" stroke-opacity="0.3" x1="0" x2="800" y1="100" y2="100"></line>
+<line stroke="#424754" stroke-dasharray="4,4" stroke-opacity="0.3" x1="0" x2="800" y1="160" y2="160"></line>
+<line stroke="#424754" stroke-opacity="0.5" x1="0" x2="800" y1="220" y2="220"></line>
+<!-- Lock Contention Curve Area (Purple) -->
+<path d="M 0,210 Q 120,190 200,195 T 400,160 T 520,70 T 640,170 T 800,180 L 800,220 L 0,220 Z" fill="url(#purpleGradient)"></path>
+<path d="M 0,210 Q 120,190 200,195 T 400,160 T 520,70 T 640,170 T 800,180" fill="none" stroke="#c0c1ff" stroke-dasharray="3,3" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+<!-- High Throughput Line and Fill (Cyan) -->
+<path d="M 0,180 Q 100,160 220,170 T 420,110 T 520,30 T 620,120 T 720,80 T 800,60 L 800,220 L 0,220 Z" fill="url(#cyanGradient)"></path>
+<path d="M 0,180 Q 100,160 220,170 T 420,110 T 520,30 T 620,120 T 720,80 T 800,60" fill="none" stroke="#38bdf8" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+<!-- Flash Drop Marker & Pinpoint -->
+<circle cx="520" cy="30" fill="#38bdf8" r="4" stroke="#0a0e17" stroke-width="2"></circle>
+<line stroke="#ffb4ab" stroke-dasharray="2,2" stroke-width="1" x1="520" x2="520" y1="30" y2="220"></line>
+</svg>
+<!-- Realtime Anomaly Tag -->
+<div class="absolute top-4 left-6 bg-surface-container-high/90 px-space-sm py-1 rounded backdrop-blur font-label-sm text-label-sm flex items-center gap-space-xs text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>NOMINAL FLOW: 4.82k req/s</span>
+</div>
+<!-- Spike Callout -->
+<div class="absolute top-8 right-24 bg-surface-container-high/95 px-space-sm py-1 rounded border-l-2 border-primary font-label-sm text-label-sm shadow-xl flex flex-col">
+<span class="text-primary font-semibold">FLASH DROP SURGE @ 14:15 UTC</span>
+<span class="text-on-surface-variant text-[10px]">boAt Rockerz 450 Pro (18 Inode locks)</span>
+</div>
+</div>
+<!-- X-Axis Timestamps & Annotation Line -->
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline px-space-xs">
+<span>00:00</span>
+<span>04:00</span>
+<span>08:00</span>
+<span>12:00</span>
+<span class="text-primary font-semibold">14:15 [SPIKE]</span>
+<span>16:00</span>
+<span>20:00</span>
+<span class="text-secondary font-semibold">NOW (UTC)</span>
+</div>
+<div class="px-space-sm py-space-xs bg-surface-container-low rounded font-label-sm text-label-sm text-on-surface-variant flex items-center justify-between">
+<span class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[16px]">verified</span>
+<span>ZERO PHANTOM READS DETECTED ACROSS ALL SHARDS</span>
+</span>
+<span class="text-outline">ISOLATION: SSI_SNAPSHOT_COMMIT</span>
+</div>
+</div>
+<!-- Panel 2: Algorithmic Conversion Funnel & Buffer Eviction -->
+<div class="bg-surface-container-lowest p-space-md rounded flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Distributed Funnel &amp; Buffer Eviction Pipeline</h2>
+<span class="font-label-sm text-label-sm text-outline">End-to-end consensus flow from vector match to ledger commit</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary/10 px-2 py-0.5 rounded font-semibold">
+              99.8% CONCURRENCY HEALTH
+            </span>
+</div>
+<!-- Funnel Stages Detailed Breakdown -->
+<div class="flex flex-col gap-space-sm">
+<!-- Stage 1 -->
+<div class="p-space-sm bg-surface-container-low rounded flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-medium flex items-center gap-space-xs">
+<span class="text-outline">01</span>
+<span>Vector Search Indexing (/shop)</span>
+</span>
+<div class="flex items-center gap-space-md">
+<span class="text-outline">1.12ms p95</span>
+<span class="text-on-surface font-semibold">142.5k requests (100%)</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded overflow-hidden">
+<div class="bg-primary h-full w-full"></div>
+</div>
+</div>
+<!-- Stage 2 -->
+<div class="p-space-sm bg-surface-container-low rounded flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-medium flex items-center gap-space-xs">
+<span class="text-outline">02</span>
+<span>Row-Level Pessimistic Lock (/shop/[id])</span>
+</span>
+<div class="flex items-center gap-space-md">
+<span class="text-outline">0.82ms p95</span>
+<span class="text-on-surface font-semibold">48.2k locks acquired (33.8%)</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded overflow-hidden">
+<div class="bg-primary-container h-full w-[33.8%]"></div>
+</div>
+</div>
+<!-- Stage 3 -->
+<div class="p-space-sm bg-surface-container-low rounded flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-medium flex items-center gap-space-xs">
+<span class="text-outline">03</span>
+<span>Dedicated Cart Buffer (/cart)</span>
+</span>
+<div class="flex items-center gap-space-md">
+<span class="text-outline">0.45ms p95</span>
+<span class="text-on-surface font-semibold">24.1k sessions primed (16.9%)</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded overflow-hidden">
+<div class="bg-tertiary-container h-full w-[16.9%]"></div>
+</div>
+</div>
+<!-- Stage 4 -->
+<div class="p-space-sm bg-surface-container-low rounded flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-medium flex items-center gap-space-xs">
+<span class="text-outline">04</span>
+<span>Settlement Consensus (/checkout)</span>
+</span>
+<div class="flex items-center gap-space-md">
+<span class="text-outline">1.40ms p95</span>
+<span class="text-on-surface font-semibold">18.4k payment handshakes (12.9%)</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded overflow-hidden">
+<div class="bg-secondary-container h-full w-[12.9%]"></div>
+</div>
+</div>
+<!-- Stage 5 -->
+<div class="p-space-sm bg-surface-container-low rounded flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-medium flex items-center gap-space-xs">
+<span class="text-secondary font-bold">05</span>
+<span class="text-secondary font-semibold">Physical Drone &amp; Rover Dispatch</span>
+</span>
+<div class="flex items-center gap-space-md">
+<span class="text-outline">0.88ms WAL write</span>
+<span class="text-secondary font-semibold">16.92k settled (11.9% CONVERSION)</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded overflow-hidden">
+<div class="bg-secondary h-full w-[11.9%]"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm font-label-sm text-outline pt-space-xs">
+<span>Raft log append rate: 2,140 entries/sec</span>
+<span class="text-on-surface font-mono">SERIALIZABLE SNAPSHOT VERIFIED</span>
+</div>
+</div>
+</div>
+<!-- Right Column (4 cols = ~34%) -->
+<div class="xl:col-span-4 flex flex-col gap-space-lg">
+<!-- Widget 1: Inode Lock Contention & Hot Keys -->
+<div class="bg-surface-container-lowest p-space-md rounded flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Hot Key Mutex Inodes</h3>
+<span class="font-label-sm text-label-sm text-outline">Real-time lock queue contention</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-mono bg-primary/10 px-1.5 py-0.5 rounded">
+              POLL: 50ms
+            </span>
+</div>
+<!-- High-density Telemetry List -->
+<div class="flex flex-col divide-y divide-outline-variant/20">
+<!-- Item 1 -->
+<div class="py-space-sm flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold truncate max-w-[180px]">boAt Rockerz 450 Pro</span>
+<span class="text-error font-semibold bg-error-container/40 px-1 rounded text-[10px]">HIGH CONTENTION</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>₹6,29,580 · 42 sold</span>
+<span class="text-on-surface font-mono">18 locks in-flight</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded overflow-hidden">
+<div class="bg-error h-full w-[85%]"></div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="py-space-sm flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold truncate max-w-[180px]">ESP32-S3 Dual-Core Node</span>
+<span class="text-primary font-semibold bg-primary/10 px-1 rounded text-[10px]">MED CONTENTION</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>₹3,12,500 · 140 sold</span>
+<span class="text-on-surface font-mono">34 locks in-flight</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded overflow-hidden">
+<div class="bg-primary h-full w-[54%]"></div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="py-space-sm flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold truncate max-w-[180px]">100W Braided w/ OLED</span>
+<span class="text-secondary font-semibold bg-secondary/10 px-1 rounded text-[10px]">STABLE</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>₹1,88,400 · 96 sold</span>
+<span class="text-on-surface font-mono">12 locks in-flight</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded overflow-hidden">
+<div class="bg-secondary h-full w-[24%]"></div>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="py-space-sm flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold truncate max-w-[180px]">Raspberry Pi Pico W</span>
+<span class="text-secondary font-semibold bg-secondary/10 px-1 rounded text-[10px]">STABLE</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>₹1,45,600 · 58 sold</span>
+<span class="text-on-surface font-mono">8 locks in-flight</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded overflow-hidden">
+<div class="bg-secondary h-full w-[16%]"></div>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="py-space-sm flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold truncate max-w-[180px]">20,000mAh Power Brick</span>
+<span class="text-secondary font-semibold bg-secondary/10 px-1 rounded text-[10px]">STABLE</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>₹1,12,000 · 24 sold</span>
+<span class="text-on-surface font-mono">4 locks in-flight</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded overflow-hidden">
+<div class="bg-secondary h-full w-[8%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Widget 2: Bengaluru Hyper-Local Autonomous Mesh -->
+<div class="bg-surface-container-lowest p-space-md rounded flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Bengaluru Dispatch Mesh</h3>
+<span class="font-label-sm text-label-sm text-outline">Autonomous rover &amp; drone corridor dispatch</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">ACTIVE</span>
+</div>
+</div>
+<!-- Micro-Fulfillment Hub Nodes -->
+<div class="flex flex-col gap-space-sm">
+<!-- Hub BLR-01 -->
+<div class="p-space-sm bg-surface-container-low rounded flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<div class="flex items-center gap-space-xs text-on-surface font-semibold">
+<span class="material-symbols-outlined text-primary text-[14px]">sensors</span>
+<span>BLR-01 Koramangala Hub</span>
+</div>
+<span class="text-primary font-bold">8.4m ETA</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>420 Dispatched (99.8% Cap)</span>
+<span class="text-secondary font-mono">8/8 Rovers Active</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded overflow-hidden">
+<div class="bg-primary h-full w-[99.8%]"></div>
+</div>
+</div>
+<!-- Hub BLR-02 -->
+<div class="p-space-sm bg-surface-container-low rounded flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<div class="flex items-center gap-space-xs text-on-surface font-semibold">
+<span class="material-symbols-outlined text-primary text-[14px]">sensors</span>
+<span>BLR-02 Indiranagar Hub</span>
+</div>
+<span class="text-primary font-bold">11.2m ETA</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>310 Dispatched (84.1% Cap)</span>
+<span class="text-secondary font-mono">6/6 Rovers Active</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded overflow-hidden">
+<div class="bg-primary h-full w-[84.1%]"></div>
+</div>
+</div>
+<!-- Hub BLR-04 -->
+<div class="p-space-sm bg-surface-container-low rounded flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<div class="flex items-center gap-space-xs text-on-surface font-semibold">
+<span class="material-symbols-outlined text-tertiary text-[14px]">flight</span>
+<span>BLR-04 HSR Sector 2 Hub</span>
+</div>
+<span class="text-tertiary font-bold">7.1m ETA</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>280 Dispatched (61.0% Cap)</span>
+<span class="text-secondary font-mono">4/4 Drones Active</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded overflow-hidden">
+<div class="bg-tertiary h-full w-[61%]"></div>
+</div>
+</div>
+</div>
+<div class="p-space-xs bg-surface-container-low rounded font-label-sm text-label-sm text-outline flex items-center justify-between">
+<span>LoRaWAN 868MHz Mesh</span>
+<span class="text-secondary font-mono">LATENCY: 1.8ms | DROP: 0%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Row 3: Subsystem Hardware & Persistence Matrix (3 Enclaves) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Matrix 1: Postgres Storage Enclave -->
+<div class="p-space-md bg-surface-container-lowest rounded flex flex-col justify-between gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">storage</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Postgres v16 Connection Pool</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary/10 px-1.5 py-0.5 rounded font-mono">0.12ms LAG</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>Active Connections: 42/120</span>
+<span class="text-on-surface font-semibold">35% Saturation</span>
+</div>
+<div class="w-full bg-surface-container-low h-1.5 rounded overflow-hidden">
+<div class="bg-primary h-full w-[35%]"></div>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline">
+          WAL fsync rate: 4,892/s · Checkpoint intervals: 300s
+        </div>
+</div>
+<!-- Matrix 2: Apache Kafka Event Shard -->
+<div class="p-space-md bg-surface-container-lowest rounded flex flex-col justify-between gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">stream</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Kafka Transaction Partition</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary/10 px-1.5 py-0.5 rounded font-mono">LAG: 0 MSGS</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>Stream Rate: 48.2k msg/s</span>
+<span class="text-on-surface font-semibold">48/48 Partitions Synced</span>
+</div>
+<div class="w-full bg-surface-container-low h-1.5 rounded overflow-hidden">
+<div class="bg-secondary h-full w-[100%]"></div>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline">
+          ISR Min Quorum: 3 · Zero dropped offset commits
+        </div>
+</div>
+<!-- Matrix 3: Vector Embeddings & ANN Cache -->
+<div class="p-space-md bg-surface-container-lowest rounded flex flex-col justify-between gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[18px]">hub</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">OpenSearch KNN Vector Cache</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary/10 px-1.5 py-0.5 rounded font-mono">100% SHARD HEALTH</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>Vector Query p95: 1.12ms</span>
+<span class="text-on-surface font-semibold">Size: 1.82 GB</span>
+</div>
+<div class="w-full bg-surface-container-low h-1.5 rounded overflow-hidden">
+<div class="bg-tertiary h-full w-[82%]"></div>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline">
+          HNSW Graphs: 1,420 nodes · Recall score: 0.994
+        </div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

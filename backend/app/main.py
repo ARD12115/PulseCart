@@ -270,13 +270,28 @@ async def health() -> JSONResponse:
     except Exception as exc:
         log.warning("health: opensearch check failed: %s", type(exc).__name__)
         checks["opensearch"] = "unavailable"
+
+    try:
+        bootstrap = os.getenv("KAFKA_BOOTSTRAP", "localhost:9093")
+        reader, writer = await asyncio.wait_for(
+            asyncio.open_connection(
+                bootstrap.split(":")[0], int(bootstrap.split(":")[1])
+            ),
+            timeout=3.0,
+        )
+        writer.close()
+        await writer.wait_closed()
+        checks["kafka"] = "ok"
+    except Exception as exc:
+        log.warning("health: kafka check failed: %s", type(exc).__name__)
+        checks["kafka"] = "unavailable"
+
     healthy = all(value == "ok" for value in checks.values())
     # 503 when degraded so Docker and load balancers see the failure.
     return JSONResponse(
         {"status": "ok" if healthy else "degraded", "checks": checks},
         status_code=200 if healthy else 503,
     )
-
 
 @app.get("/products", response_model=list[ProductOut])
 async def list_products(
@@ -373,8 +388,8 @@ async def search_products(
                 "highlight": {"fields": {"name": {}, "description": {}}},
             },
         )
-    except Exception:
-        # Malformed queries (SQL injection attempts, etc.) return empty results.
+    except Exception as exc:
+        log.warning("OpenSearch search failed: %s", type(exc).__name__)
         return []
     results = [
         {
