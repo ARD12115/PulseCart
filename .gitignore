@@ -48,6 +48,9 @@ pnpm-debug.log*
 # Design assets and exports
 /designs/
 
+# Local product image assets (copied from designs source; served via compose volume mount)
+frontend/public/products/
+
 # Browser test artifacts
 playwright-report/
 test-results/

@@ -72,6 +72,63 @@ CATEGORIES = {
     ],
 }
 
+IMAGE_MAP = {
+    # Electronics
+    "Bluetooth Headphones": "Headphone.jpeg",
+    "USB-C Hub": "USB Hub.jpeg",
+    "Mechanical Keyboard": "Keyboard.jpeg",
+    "Portable SSD 1TB": "SSD Drive.jpeg",
+    "Webcam 4K": "Web cam.jpeg",
+    "Wireless Mouse": "Mouse.jpeg",
+    "Laptop Stand": "Laptop  stand.jpeg",
+    "Monitor Light Bar": "monitor light stick.jpeg",
+    "Bluetooth Speaker": "speaker.jpeg",
+    "Power Bank 20000mAh": "powerbank.jpeg",
+    "Wireless Earbuds": "earbuds.jpeg",
+    "Laptop Backpack": "laptop bag.jpeg",
+    "USB-C Charger": "usb c charger cable.jpeg",
+    # Home
+    "Air Purifier": "air purifier.jpeg",
+    "Standing Desk": "standing desk.jpeg",
+    "Robot Vacuum": "automatic robot room cleaner.jpeg",
+    "Smart Bulb 4-pack": "led light bulb.jpeg",
+    "Coffee Scale": "digital scale.jpeg",
+    "Electric Kettle": "kettle.jpeg",
+    "Ergonomic Chair": "office chair.jpeg",
+    "Whiteboard": "whiteboard.jpeg",
+    "Desk Organizer": "desk organiser.jpeg",
+    "Floor Lamp": "floor lamp.jpeg",
+    "Smart Plug": "smart plug.jpeg",
+    "Bedside Table": "bedside table.jpeg",
+    "Air Quality Monitor": "air qulity monitor.jpeg",
+    # Fitness
+    "Adjustable Dumbbells": "adjustable dumbell.jpeg",
+    "Resistance Bands Set": "resisitance bands sets.jpeg",
+    "Yoga Mat": "yoga mat.jpeg",
+    "Foam Roller": "foam roller.jpeg",
+    "Jump Rope": "jump rope.jpeg",
+    "Kettlebell 16kg": "kettle bell.jpeg",
+    "Pull-up Bar": "pullup bar.jpeg",
+    "Massage Gun": "massage gun.jpeg",
+    "Fitness Tracker": "fitness tracker.jpeg",
+    "Exercise Mat": "exercise mat.jpeg",
+    "Water Bottle": "water bottle.jpeg",
+    "Ab Roller": "ab roller.jpeg",
+    # Kitchen
+    "Air Fryer": "air fryer.jpeg",
+    "Blender": "blender.jpeg",
+    "Food Processor": "food processor.jpeg",
+    "Stand Mixer": "stand mixer.jpeg",
+    "Toaster Oven": "toaster oven.jpeg",
+    "Immersion Blender": "inertion blender.jpeg",
+    "Coffee Grinder": "cofee grinder.jpeg",
+    "Digital Scale": "digital scale.jpeg",
+    "Rice Cooker": "rice cooker.jpeg",
+    "Knife Set": "knife set.jpeg",
+    "Storage Containers": "storage containers.jpeg",
+    "Pressure Cooker": "pressure cooker.jpeg",
+}
+
 
 def product_price(sku: str) -> int:
     return 999 + sum(map(ord, sku)) % 49001
@@ -92,21 +149,26 @@ async def main() -> None:
                 for category, entries in CATEGORIES.items():
                     for name, description in entries:
                         sku = f"{category[:3].upper()}-{'-'.join(name.upper().split())}"
+                        image_url = (
+                            f"/products/{IMAGE_MAP[name]}" if name in IMAGE_MAP else None
+                        )
                         product_id = await conn.fetchval(
                             """INSERT INTO products
-                               (sku, name, description, category, price_paise)
-                               VALUES ($1, $2, $3, $4, $5)
+                               (sku, name, description, category, price_paise, image_url)
+                               VALUES ($1, $2, $3, $4, $5, $6)
                                ON CONFLICT (sku) DO UPDATE SET
                                  name = EXCLUDED.name,
                                  description = EXCLUDED.description,
                                  category = EXCLUDED.category,
-                                 price_paise = EXCLUDED.price_paise
+                                 price_paise = EXCLUDED.price_paise,
+                                 image_url = EXCLUDED.image_url
                                RETURNING id""",
                             sku,
                             name,
                             description,
                             category,
                             product_price(sku),
+                            image_url,
                         )
                         products.append((product_id, name))
 
