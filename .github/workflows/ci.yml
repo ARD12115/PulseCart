@@ -21,12 +21,27 @@ jobs:
       POSTGRES_PASSWORD: ci-only-password
       PULSECART_APP_PASSWORD: ci-only-app-password
       PG_PASSWORD: ci-only-password
-      APP_ENV: development
+      APP_ENV: production
       ADMIN_KEY: dev-admin-key-change-in-production
       CHECKOUT_RATE_LIMIT: 100/minute
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Create .env from GitHub secrets
+        run: |
+          cat > .env << 'EOF'
+          PG_DSN=${{ secrets.PG_DSN }}
+          PG_PASSWORD=${{ secrets.PG_PASSWORD }}
+          PULSECART_APP_PASSWORD=${{ secrets.PULSECART_APP_PASSWORD }}
+          ADMIN_KEY=${{ secrets.ADMIN_KEY }}
+          OPENSEARCH_URL=${{ secrets.OPENSEARCH_URL }}
+          OPENSEARCH_USERNAME=${{ secrets.OPENSEARCH_USERNAME }}
+          OPENSEARCH_PASSWORD=${{ secrets.OPENSEARCH_PASSWORD }}
+          KAFKA_BOOTSTRAP=${{ secrets.KAFKA_BOOTSTRAP }}
+          KAFKA_SASL_USERNAME=${{ secrets.KAFKA_SASL_USERNAME }}
+          KAFKA_SASL_PASSWORD=${{ secrets.KAFKA_SASL_PASSWORD }}
+          EOF
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -83,7 +98,7 @@ jobs:
         working-directory: frontend
         env:
           CI: true
-          APP_ENV: development
+          APP_ENV: production
           ADMIN_KEY: dev-admin-key-change-in-production
         run: npx playwright test --project=chromium --max-failures=5 --grep-invert "Rate limiting enforced on checkout"
 
@@ -96,7 +111,7 @@ jobs:
         working-directory: frontend
         env:
           CI: true
-          APP_ENV: development
+          APP_ENV: production
           ADMIN_KEY: dev-admin-key-change-in-production
         run: npx playwright test --project=chromium --grep "Rate limiting enforced on checkout" --max-failures=1
 
