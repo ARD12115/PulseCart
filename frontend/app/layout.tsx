@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import SiteControls from './site-controls';
+import Header from './Header';
 import ScrollProgress from './scroll-progress';
 import ThreeJSBackground from './components/ThreeJSBackground';
 
@@ -28,15 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
         <a className="skip-link" href="#main-content">Skip to content</a>
-        <header className="site-header">
-          <div className="site-header-inner relative mx-auto flex items-center justify-between gap-3">
-            <Link href="/" className="brand-mark" aria-label="PulseCart home">
-              <span className="brand-mark-icon" aria-hidden="true">PC</span>
-              <span className="brand-mark-name"><strong>KINETIC //</strong><small>PULSECART / ACID NEO-BRUTALIST</small></span>
-            </Link>
-            <SiteControls />
-          </div>
-        </header>
+        <Header />
         <ScrollProgress />
         <ThreeJSBackground />
         <main id="main-content" className="min-h-[75vh] bg-transparent">{children}</main>

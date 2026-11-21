@@ -51,6 +51,12 @@ pnpm-debug.log*
 # Local product image assets (copied from designs source; served via compose volume mount)
 frontend/public/products/
 
+# Local product data spreadsheets (synthetic / estimated Flipkart-style data; do not commit)
+product data/*.xlsx
+
+# Generated product price map (regenerated from the spreadsheets above)
+backend/app/product_prices.json
+
 # Browser test artifacts
 playwright-report/
 test-results/

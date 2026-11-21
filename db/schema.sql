@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS products (
   category TEXT NOT NULL,
   price_paise INTEGER NOT NULL CHECK (price_paise >= 0),
   image_url TEXT,
+  details JSONB DEFAULT '{}',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

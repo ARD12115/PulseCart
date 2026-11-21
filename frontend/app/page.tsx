@@ -14,6 +14,7 @@ type Product = {
   price_paise: number;
   image_url: string | null;
   city?: string;
+  details?: Record<string, unknown>;
 };
 
 const API = '/api';
@@ -21,6 +22,13 @@ const formatPrice = (paise: number) => new Intl.NumberFormat('en-IN', {
   style: 'currency',
   currency: 'INR',
 }).format(paise / 100);
+
+const PRODUCT_TYPES = {
+  electronics: 'rig',
+  home: 'gantry',
+  fitness: 'board',
+  kitchen: 'ring',
+} as const;
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
@@ -241,10 +249,78 @@ export default function HomePage() {
                   <ProductArtwork category={product.category} imageUrl={product.image_url} name={product.name} />
                 </div>
                 <div className="product-card-copy">
-                  <div className="product-card-topline"><span>{product.sku}</span><span>{product.city || product.category}</span></div>
-                  <h3>{product.name}</h3>
-                  <p>{product.description}</p>
-                  <div className="product-card-bottom"><strong>{formatPrice(product.price_paise)}</strong><span>View details</span></div>
+                  <div className="product-card-topline">
+                    <span>{product.sku}</span>
+                    <span>{product.city || product.category}</span>
+                    <span className="px-2 py-0.5 bg-surface border border-lime/20 text-lime font-mono text-[10px] font-bold uppercase">IN STOCK</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <div className="flex flex-col">
+                      <h3>{product.name}</h3>
+                      <p>{product.description}</p>
+                      <div className="flex gap-1 font-mono text-[10px] text-ink/60 mb-2">
+                        <span className="bg-paper px-2 py-0.5 border border-lime/20">{product.category.toUpperCase()}</span>
+                        <span className="bg-paper px-2 py-0.5 border border-lime/20">{PRODUCT_TYPES[product.category as keyof typeof PRODUCT_TYPES]?.toUpperCase() || 'RIG'}</span>
+                      </div>
+                      {product.details && (
+                        <div className="flex flex-wrap items-start gap-2 mt-1">
+                          {(() => {
+                            const d = product.details as {
+                              mrp?: number;
+                              discount_pct?: number;
+                              rating?: number;
+                            };
+                            if (d.mrp && d.mrp > product.price_paise / 100) {
+                              return (
+                                <>
+                                  <span className="text-[10px] text-ink/40 line-through font-mono">
+                                    ₹{d.mrp}
+                                  </span>
+                                  {d.discount_pct && (
+                                    <span className="px-1.5 py-0.5 bg-lime text-black font-mono text-[10px] font-bold uppercase">
+                                      -{Math.round(d.discount_pct * 100)}%
+                                    </span>
+                                  )}
+                                </>
+                              );
+                            }
+                            return null;
+                          })()}
+                          {(() => {
+                            const d = product.details as { rating?: number };
+                            if (d.rating) {
+                              const rating = Math.round(d.rating);
+                              return (
+                                <span className="flex items-center gap-1 text-[10px] font-mono text-ink/60">
+                                  {[1, 2, 3, 4, 5].map((i) => (
+                                    <span
+                                      key={i}
+                                      className={
+                                        i <= rating
+                                          ? 'text-lime font-bold'
+                                          : 'text-ink/20'
+                                      }
+                                    >
+                                      ★
+                                    </span>
+                                  ))}
+                                  <span className="ml-0.5 text-[10px] text-ink/40">
+                                    {`${d.rating}`}
+                                  </span>
+                                </span>
+                              );
+                            }
+                            return null;
+                          })()}
+                        </div>
+                      )}
+                      <div className="bg-paper border border-lime/20 p-1.5 text-[10px] font-mono text-ink/60 mt-2">
+                        <div className="text-lime font-bold uppercase mb-0.5">FABRICATION SPECIFICATIONS</div>
+                        <div className="text-cyan truncate">CNC TOLERANCE PASS</div>
+                      </div>
+                    </div>
+                    <div className="product-card-bottom"><strong>{formatPrice(product.price_paise)}</strong><span>View details</span></div>
+                  </div>
                 </div>
               </Link>
           ))}

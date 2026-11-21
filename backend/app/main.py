@@ -193,6 +193,7 @@ class ProductOut(BaseModel):
     category: str
     price_paise: int
     image_url: str | None = None
+    details: dict = {}
 
 
 class InventoryOut(BaseModel):

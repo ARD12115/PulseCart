@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from pathlib import Path
 
@@ -9,6 +10,10 @@ from app.connections import postgres_connection_kwargs
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(PROJECT_ROOT / ".env")
+
+PRICE_MAP = json.loads(
+    (Path(__file__).resolve().parent / "product_prices.json").read_text()
+)
 
 CITIES = ["Bengaluru", "Mangaluru", "Mysuru", "Hubballi"]
 CATEGORIES = {
@@ -130,7 +135,10 @@ IMAGE_MAP = {
 }
 
 
-def product_price(sku: str) -> int:
+def product_price(sku: str, name: str = "") -> int:
+    entry = PRICE_MAP.get(name) if name else None
+    if entry and entry.get("selling_price") is not None:
+        return int(entry["selling_price"] * 100)
     return 999 + sum(map(ord, sku)) % 49001
 
 
@@ -154,21 +162,23 @@ async def main() -> None:
                         )
                         product_id = await conn.fetchval(
                             """INSERT INTO products
-                               (sku, name, description, category, price_paise, image_url)
-                               VALUES ($1, $2, $3, $4, $5, $6)
+                               (sku, name, description, category, price_paise, image_url, details)
+                               VALUES ($1, $2, $3, $4, $5, $6, $7)
                                ON CONFLICT (sku) DO UPDATE SET
                                  name = EXCLUDED.name,
                                  description = EXCLUDED.description,
                                  category = EXCLUDED.category,
                                  price_paise = EXCLUDED.price_paise,
-                                 image_url = EXCLUDED.image_url
+                                 image_url = EXCLUDED.image_url,
+                                 details = EXCLUDED.details
                                RETURNING id""",
                             sku,
                             name,
                             description,
                             category,
-                            product_price(sku),
+                            product_price(sku, name),
                             image_url,
+                            json.dumps(PRICE_MAP.get(name, {})),
                         )
                         products.append((product_id, name))
 
