@@ -139,6 +139,14 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
+    path = request.scope.get("path", "")
+    if path == "/api":
+        request.scope["path"] = "/"
+        request.scope["raw_path"] = b"/"
+    elif path.startswith("/api/"):
+        stripped_path = path[4:]
+        request.scope["path"] = stripped_path
+        request.scope["raw_path"] = stripped_path.encode("utf-8")
     response = await call_next(request)
     if request.url.path not in {"/docs", "/redoc"}:
         response.headers.setdefault(

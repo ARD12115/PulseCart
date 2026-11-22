@@ -48,8 +48,18 @@ export default function KineticStorefrontPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/categories').then((r) => r.json() as Promise<string[]>),
-      fetch('/api/cities').then((r) => r.json() as Promise<string[]>),
+      fetch('/api/categories').then(async (response) => {
+        if (!response.ok) throw new Error('Could not load categories');
+        const data: unknown = await response.json();
+        if (!Array.isArray(data)) throw new Error('Invalid categories response');
+        return data as string[];
+      }),
+      fetch('/api/cities').then(async (response) => {
+        if (!response.ok) throw new Error('Could not load cities');
+        const data: unknown = await response.json();
+        if (!Array.isArray(data)) throw new Error('Invalid cities response');
+        return data as string[];
+      }),
     ])
       .then(([allCategories, allCities]) => {
         setCategories(allCategories);
