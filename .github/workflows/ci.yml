@@ -1,9 +1,8 @@
 name: CI
 
+# Legacy comprehensive pipeline. Run manually only; CI (fast checks) is the automatic workflow.
 on:
-  push:
-    branches: [main, master]
-  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read

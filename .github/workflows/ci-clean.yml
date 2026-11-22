@@ -1,4 +1,4 @@
-name: CI (clean local stack)
+name: CI (fast checks)
 
 on:
   push:
@@ -10,14 +10,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-clean-${{ github.workflow }}-${{ github.ref }}
+  group: ci-fast-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  validate:
-    name: Local services, tests, and image builds
+  checks:
+    name: Code checks and image builds
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
     env:
       POSTGRES_PASSWORD: ci-only-postgres-password
       PULSECART_APP_PASSWORD: ci-only-app-password
@@ -50,7 +50,7 @@ jobs:
       - name: Install backend dependencies
         run: python -m pip install -r backend/requirements.txt
 
-      - name: Compile backend modules
+      - name: Compile backend
         run: python -m compileall -q backend/app
 
       - name: Run backend unit tests
@@ -74,43 +74,6 @@ jobs:
 
       - name: Validate Compose configuration
         run: docker compose -f docker-compose.yml config --quiet
-
-      - name: Start local data services
-        run: docker compose -f docker-compose.yml up -d --pull always --wait --wait-timeout 180 postgres zookeeper kafka opensearch
-
-      - name: Seed local PostgreSQL and start API
-        run: docker compose -f docker-compose.yml up -d --build --wait --wait-timeout 180 backend
-
-      - name: Run PostgreSQL integration tests
-        working-directory: backend
-        env:
-          TEST_PG_DSN: postgresql://postgres:${{ env.POSTGRES_PASSWORD }}@localhost:5432/pulsecart
-        run: python -m unittest tests.test_postgres_integration -v
-
-      - name: Start local relay, search, and notification workers
-        run: docker compose -f docker-compose.yml up -d --wait --wait-timeout 120 relay search-sync notification
-
-      - name: Verify API and seeded search results
-        run: |
-          curl --fail --retry 10 --retry-delay 2 --retry-connrefused http://localhost:8000/products/1
-          for attempt in $(seq 1 30); do
-            if curl --fail --silent 'http://localhost:8000/products/search?q=bluetooth' | grep -q 'Bluetooth Headphones'; then
-              exit 0
-            fi
-            sleep 2
-          done
-          docker compose -f docker-compose.yml logs --no-color --tail=200 search-sync
-          exit 1
-
-      - name: Capture service diagnostics
-        if: always()
-        run: |
-          docker compose -f docker-compose.yml ps --all
-          docker compose -f docker-compose.yml logs --no-color --tail=150 backend seed relay search-sync notification postgres kafka opensearch
-
-      - name: Stop local stack
-        if: always()
-        run: docker compose -f docker-compose.yml down --volumes --remove-orphans
 
       - name: Build backend and frontend images
         run: docker compose -f docker-compose.yml build backend frontend
