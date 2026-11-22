@@ -49,7 +49,7 @@ pnpm-debug.log*
 /designs/
 
 # Local product image assets (copied from designs source; served via compose volume mount)
-frontend/public/products/
+!/frontend/public/products/
 
 # Local product data spreadsheets (synthetic / estimated Flipkart-style data; do not commit)
 product data/*.xlsx
