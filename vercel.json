@@ -6,7 +6,7 @@
       "framework": "fastapi",
       "routes": [
         {
-          "source": "/api/(.*)",
+          "src": "/api/(.*)",
           "transforms": [
             {
               "type": "request.path",
