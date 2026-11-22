@@ -18,7 +18,7 @@ def postgres_connection_kwargs() -> dict[str, str]:
     return {"password": password} if password is not None else {}
 
 
-def postgres_pool_limits(default_min: int = 1, default_max: int = 2) -> dict[str, int]:
+def postgres_pool_limits(default_min: int = 1, default_max: int = 1) -> dict[str, int]:
     """Use conservative per-process pools; hosted databases often cap connections."""
     minimum = int(os.getenv("PG_POOL_MIN_SIZE", str(default_min)))
     maximum = int(os.getenv("PG_POOL_MAX_SIZE", str(default_max)))
