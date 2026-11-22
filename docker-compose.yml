@@ -78,8 +78,9 @@ services:
     build:
       context: ./backend
     environment:
-      PG_DSN: postgresql://postgres@postgres:5432/pulsecart
-      PG_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+      PG_DSN: ${SEED_PG_DSN:-postgresql://postgres@postgres:5432/pulsecart}
+      PG_PASSWORD: ${SEED_PG_PASSWORD:-${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}}
+      PG_POOL_MAX_SIZE: ${PG_POOL_MAX_SIZE:-2}
     depends_on:
       postgres:
         condition: service_healthy

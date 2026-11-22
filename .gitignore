@@ -60,6 +60,8 @@ backend/app/product_prices.json
 # Browser test artifacts
 playwright-report/
 test-results/
+test-results-local*/
+frontend/test-results-local*/
 blob-report/
 security-reports/
 work/
